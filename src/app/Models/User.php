@@ -4,6 +4,8 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -21,6 +23,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'grade', // 追加: 所属学年・役職
     ];
 
     /**
@@ -30,7 +33,6 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
-        'remember_token',
     ];
 
     /**
@@ -41,8 +43,57 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * このユーザーが作成したグループ（オーナーとして）
+     */
+    public function ownedGroups(): HasMany
+    {
+        return $this->hasMany(Group::class, 'master_user_id');
+    }
+
+    /**
+     * このユーザーが所属するグループ（多対多リレーション）
+     */
+    public function groups(): BelongsToMany
+    {
+        return $this->belongsToMany(Group::class, 'user_groups')
+            ->withPivot(['permission_level', 'is_approved'])
+            ->withTimestamps();
+    }
+
+    /**
+     * このユーザーのグループ参加記録
+     */
+    public function userGroups(): HasMany
+    {
+        return $this->hasMany(UserGroup::class);
+    }
+
+    /**
+     * 指定したグループでの権限レベルを取得
+     */
+    public function getPermissionLevel(Group $group): ?int
+    {
+        $userGroup = $this->userGroups()
+            ->where('group_id', $group->id)
+            ->first();
+
+        return $userGroup ? $userGroup->permission_level : null;
+    }
+
+    /**
+     * 指定したグループで承認済みかチェック
+     */
+    public function isApprovedInGroup(Group $group): bool
+    {
+        $userGroup = $this->userGroups()
+            ->where('group_id', $group->id)
+            ->first();
+
+        return $userGroup ? $userGroup->is_approved : false;
     }
 }
