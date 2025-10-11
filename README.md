@@ -10,67 +10,97 @@ git clone https://github.com/Tomo-53/fishing-circle-web.git
 cd fishing-circle-web
 ```
 
-### 2. 環境設定とコンテナの起動
+### 2. 環境設定（重要：2つの.envファイル設定）
+
+#### プロジェクトルートの.env設定
 ```bash
-# .env.exampleをコピーして.envファイルを作成
+# Docker用の環境設定
 cp .env.example .env
 
-# .envファイルを編集し、DB設定や権限問題回避のためのUID/GIDを設定
-# 例: UID=1000, GID=1000
-
-# コンテナをビルド・起動（初回ビルドには時間がかかります）
-docker-compose up -d --build
+# .envファイルを編集（必要に応じて）
+# UID=1000, GID=1000 など
 ```
 
-### 3. Laravel環境の初期化（重要: 順番厳守）
+#### Laravel用の.env設定
+```bash
+# Laravel本体の環境設定（重要）
+cp src/.env.example src/.env
+
+# データベース設定の確認（通常は変更不要）
+# DB_HOST=db
+# DB_DATABASE=laravel_db
+# DB_USERNAME=laravel_user  
+# DB_PASSWORD=secret_password
+```
+
+### 3. Dockerコンテナの起動
+```bash
+# コンテナをビルド・起動（初回ビルドには時間がかかります）
+docker-compose up -d --build
+
+# コンテナ状況確認
+docker-compose ps
+```
+
+### 4. Laravel環境の初期化（重要: 順番厳守）
 
 #### ステップ1: 基本依存関係のインストール
 ```bash
 # ① Composer依存パッケージのインストール
-# ※ 初回起動時はパッケージがインストールされていないため、これが必須
 docker-compose exec app composer install
 
-# ② アプリケーションキーの生成
-# セッションや暗号化が正常に動作するために必須
+# ② アプリケーションキーの生成（セキュリティのため必須）
 docker-compose exec app php artisan key:generate
+
+# ③ 生成されたAPP_KEYの確認
+docker-compose exec app cat .env | grep APP_KEY
 ```
 
-#### ステップ2: Laravel Breezeのセットアップ
+#### ステップ2: データベースの初期化
 ```bash
-# ③ Laravel Breeze認証システムのインストール
+# ④ データベースマイグレーション
+docker-compose exec app php artisan migrate
+
+# ⑤ マイグレーション状況確認
+docker-compose exec app php artisan migrate:status
+```
+
+#### ステップ3: Laravel Breezeのセットアップ（認証システム）
+```bash
+# ⑥ Laravel Breeze認証システムのインストール
 docker-compose exec app php artisan breeze:install blade
 
-# ④ Node.js依存関係のインストールとビルド
+# ⑦ Node.js依存関係のインストールとビルド
 docker-compose exec app npm install
 docker-compose exec app npm run build
 ```
 
-#### ステップ3: データベースの初期化
-```bash
-# ⑤ データベースマイグレーション
-# 定義したテーブル構造をDBに反映
-docker-compose exec app php artisan migrate
 
-# ⑥ 開発用ダミーデータの作成（オプション）
-docker-compose exec app php artisan db:seed
-
-# ⑦ ストレージリンクの作成（ファイルアップロード用）
-docker-compose exec app php artisan storage:link
-```
-
-#### ステップ4: 最終設定
-```bash
-# ⑧ 全キャッシュクリア
-docker-compose exec app php artisan optimize:clear
-
-# ⑨ 設定の再キャッシュ（本番環境推奨）
-docker-compose exec app php artisan config:cache
-```
 
 ### 4. 動作確認
 - **Webアプリケーション**: http://localhost:8000
-- **データベース**: localhost:3306
+- **phpMyAdmin**: http://localhost:8080
+  - ユーザー名: `root`
+  - パスワード: `secret_password`
+- **データベース直接接続**: localhost:3306
 
+
+
+## 📊 実装済みデータベース構造
+
+### テーブル一覧
+- `users` - ユーザー情報（学年含む）
+- `groups` - グループ情報
+- `user_groups` - ユーザーとグループの関係（権限管理）
+- `migrations` - マイグレーション履歴
+
+### 権限システム
+| レベル | 名称 | 説明 |
+|--------|------|------|
+| 1 | 認証待機 | グループ参加申請中 |
+| 2 | 一般メンバー | 通常のメンバー |
+| 3 | 幹部・管理者 | メンバー管理権限 |
+| 4 | グループオーナー | 全権限 |
 
 ## 🛠️ 開発・運用コマンド
 
@@ -90,16 +120,16 @@ docker-compose exec app php artisan migrate:status
 # マイグレーションロールバック
 docker-compose exec app php artisan migrate:rollback
 
-# 全てのテーブルを削除し、再マイグレーション
+# 全テーブル削除して再マイグレーション
 docker-compose exec app php artisan migrate:fresh
 
-# 再マイグレーション + シーダー実行
-docker-compose exec app php artisan migrate:fresh --seed
+# 開発用ダミーデータ作成
+docker-compose exec app php artisan db:seed
 ```
 
 ### キャッシュ・ログ操作
 ```bash
-# 全キャッシュクリア（設定、ルート、ビュー）
+# 全キャッシュクリア
 docker-compose exec app php artisan optimize:clear
 
 # 個別キャッシュクリア
@@ -112,42 +142,39 @@ docker-compose exec app php artisan view:clear
 docker-compose logs app
 ```
 
-## 🔧 トラブルシューティング（よくある問題）
+## 🔧 トラブルシューティング
 
 ### 1. "APP_KEY not set" エラー
 ```bash
+# 新しいキーを生成
 docker-compose exec app php artisan key:generate
 ```
 
 ### 2. データベース接続エラー
 ```bash
-# DBコンテナを再起動
+# DBコンテナ再起動
 docker-compose restart db
 
-# データベースの状況確認
-docker-compose exec db mysql -u root -p
+# 接続テスト
+docker-compose exec db mysql -u root -psecret_password
 ```
 
 ### 3. 権限エラー
 ```bash
-# 権限エラーが再発する場合（最後の手段: セキュリティリスクあり）
-docker-compose exec app chmod -R 777 storage bootstrap/cache
+# ストレージ権限修正
+docker-compose exec app chmod -R 755 storage bootstrap/cache
 ```
 
-### 4. Node.js/NPMエラー
+### 4. コンテナが起動しない
 ```bash
-# node_modulesを削除して再インストール
-docker-compose exec app rm -rf node_modules
+# 全コンテナ停止して再起動
+docker-compose down
+docker-compose up -d --build
+```
+
+### 5. フロントエンドビルドエラー
+```bash
+# Node.js関連の再インストール
+docker-compose exec app rm -rf node_modules package-lock.json
 docker-compose exec app npm install
 docker-compose exec app npm run build
-```
-
-### 5. Composer関連エラー
-```bash
-# Composerキャッシュクリア
-docker-compose exec app composer clear-cache
-
-# vendor削除して再インストール
-docker-compose exec app rm -rf vendor
-docker-compose exec app composer install
-```
