@@ -5,8 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Group extends Model
 {
@@ -32,7 +32,9 @@ class Group extends Model
     ];
 
     /**
-     * このグループのオーナー（作成者）
+     * グループのオーナー
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function masterUser(): BelongsTo
     {
@@ -40,7 +42,9 @@ class Group extends Model
     }
 
     /**
-     * このグループに所属するユーザー（多対多リレーション）
+     * グループに参加しているユーザー（全て）
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function users(): BelongsToMany
     {
@@ -50,15 +54,9 @@ class Group extends Model
     }
 
     /**
-     * このグループのユーザー参加記録
-     */
-    public function userGroups(): HasMany
-    {
-        return $this->hasMany(UserGroup::class);
-    }
-
-    /**
-     * 承認済みメンバーのみを取得
+     * 承認済みのユーザーのみ
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function approvedUsers(): BelongsToMany
     {
@@ -66,36 +64,56 @@ class Group extends Model
     }
 
     /**
-     * 未承認メンバー（レベル1）を取得
+     * 承認待ちのユーザー
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function pendingUsers(): BelongsToMany
     {
-        return $this->users()
-            ->wherePivot('is_approved', false)
-            ->wherePivot('permission_level', 1);
+        return $this->users()->wherePivot('is_approved', false);
     }
 
     /**
-     * 指定した権限レベルのユーザーを取得
+     * 特定の権限レベルのユーザーを取得
+     *
+     * @param int $level
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function getUsersByPermissionLevel(int $level): BelongsToMany
     {
-        return $this->users()->wherePivot('permission_level', $level);
+        return $this->approvedUsers()->wherePivot('permission_level', $level);
     }
 
     /**
-     * グループ作成時にオーナーを自動でレベル4として追加
+     * グループのUserGroupレコード
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function userGroups(): HasMany
+    {
+        return $this->hasMany(UserGroup::class);
+    }
+
+    /**
+     * グループ作成時の処理
      */
     protected static function boot()
     {
         parent::boot();
 
+        // グループ作成時にオーナーを自動登録
         static::created(function ($group) {
-            $group->userGroups()->create([
+            UserGroup::create([
                 'user_id' => $group->master_user_id,
-                'permission_level' => 4, // オーナー
-                'is_approved' => true,   // 自動承認
+                'group_id' => $group->id,
+                'permission_level' => UserGroup::PERMISSION_LEVEL_OWNER,
+                'is_approved' => true,
             ]);
+        });
+
+        // グループ削除時に関連レコードも削除
+        static::deleting(function ($group) {
+            $group->userGroups()->delete();
         });
     }
 }
