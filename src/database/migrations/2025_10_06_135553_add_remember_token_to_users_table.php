@@ -8,14 +8,12 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * usersテーブルにgradeカラムを追加
-     * 目的: 所属学年や役職などの情報を格納
+     * remember_tokenカラムを復活させる（Laravel Breeze認証に必要）
      */
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('grade')->after('email')->comment('所属学年、役職など');
+            $table->rememberToken()->after('password');
         });
     }
 
@@ -24,6 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('remember_token');
+        });
     }
 };

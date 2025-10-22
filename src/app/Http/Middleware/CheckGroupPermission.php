@@ -13,6 +13,7 @@ class CheckGroupPermission
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
+
     public function handle(Request $request, Closure $next, $minLevel = 2): Response
     {
         $user = $request->user();
@@ -30,6 +31,7 @@ class CheckGroupPermission
         if (!$hasPermission) {
             abort(403, 'この機能にアクセスする権限がありません。グループの承認をお待ちください。');
         }
+
 
         return $next($request);
     }
