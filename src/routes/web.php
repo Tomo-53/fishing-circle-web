@@ -26,6 +26,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/groups/{group}/join', [GroupController::class, 'join'])->name('groups.join');
 
     // ===== 特定グループでの権限が必要なルート =====
+    // 以後下記のルートが頭につく
     Route::prefix('groups/{group}')->group(function () {
 
         // レベル2以上：一般メンバー権限
@@ -46,6 +47,7 @@ Route::middleware('auth')->group(function () {
             Route::put('/', [GroupController::class, 'update'])->name('groups.update');
             Route::delete('/', [GroupController::class, 'destroy'])->name('groups.destroy');
         });
+
     });
 });
 

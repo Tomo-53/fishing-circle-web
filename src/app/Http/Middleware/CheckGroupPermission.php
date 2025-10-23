@@ -24,6 +24,7 @@ class CheckGroupPermission
      * @param int $requiredLevel 必要な権限レベル (1-4)
      * @return \Symfony\Component\HttpFoundation\Response
      */
+
     public function handle(Request $request, Closure $next, int $requiredLevel): Response
     {
         // 1. ユーザーがログインしているかチェック
@@ -77,6 +78,7 @@ class CheckGroupPermission
         ]);
 
         // 11. 全てのチェックをパスした場合のみ次へ進む
+
         return $next($request);
     }
 

@@ -12,6 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         // グループ権限チェックミドルウェアを登録
+
         $middleware->alias([
             'check.group.permission' => \App\Http\Middleware\CheckGroupPermission::class,
         ]);
