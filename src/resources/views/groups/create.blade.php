@@ -27,7 +27,7 @@
                         </div>
 
                         <div class="flex items-center justify-end mt-4">
-                            <a href="{{ route('groups.index') }}" class="underline text-sm text-gray-600 hover:text-gray-900 mr-4">
+                            <a href="{{ route('groups.myGroups') }}" class="underline text-sm text-gray-600 hover:text-gray-900 mr-4">
                                 {{ __('キャンセル') }}
                             </a>
 

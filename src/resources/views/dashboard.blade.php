@@ -54,7 +54,7 @@
                 <div class="p-6 text-gray-900">
                     <h3 class="text-lg font-semibold mb-4">クイックアクション</h3>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <a href="{{ route('groups.index') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded text-center transition duration-200">
+                        <a href="{{ route('groups.myGroups') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded text-center transition duration-200">
                             📊 グループ管理
                         </a>
                         <a href="{{ route('groups.create') }}" class="bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-4 rounded text-center transition duration-200">

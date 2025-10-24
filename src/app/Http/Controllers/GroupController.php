@@ -18,12 +18,12 @@ class GroupController extends Controller
      * ユーザーが参加しているグループ一覧を表示
      * 認証のみ必要（グループ権限チェック不要）
      */
-    public function index()
+    public function myGroups()
     {
         $user = Auth::user();
 
         // ユーザーが参加している承認済みグループを取得
-        $groups = $User->groups()
+        $groups = $user->groups()
             ->wherePivot('is_approved', true)
             ->with(['masterUser'])
             ->withCount(['approvedUsers'])
@@ -209,7 +209,7 @@ class GroupController extends Controller
             'name' => [
                 'required',
                 'string',
-                'max:255',
+                'max:50',
                 Rule::unique('groups')->ignore($group->id),
             ],
         ]);
@@ -235,7 +235,7 @@ class GroupController extends Controller
         $group->delete();
 
         return redirect()
-            ->route('groups.index')
+            ->route('groups.myGroups')
             ->with('success', 'グループ「' . $groupName . '」を削除しました');
     }
 }
