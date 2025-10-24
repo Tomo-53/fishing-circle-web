@@ -8,27 +8,32 @@ use App\Models\UserGroup;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Validation\Rule;
 
 class GroupController extends Controller
 {
     use AuthorizesRequests;
+
     /**
-     * Display a listing of the groups.
+     * ユーザーが参加しているグループ一覧を表示
+     * 認証のみ必要（グループ権限チェック不要）
      */
-    public function index()
+    public function myGroups()
     {
-        /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        // Alternative approach using userGroups relationship
-        $groupIds = $user->userGroups()->pluck('group_id');
-        $groups = Group::whereIn('id', $groupIds)->with('masterUser')->get();
+        // ユーザーが参加している承認済みグループを取得
+        $groups = $user->groups()
+            ->wherePivot('is_approved', true)
+            ->with(['masterUser'])
+            ->withCount(['approvedUsers'])
+            ->get();
 
         return view('groups.index', compact('groups'));
     }
 
     /**
-     * Show the form for creating a new group.
+     * グループ作成フォームを表示
      */
     public function create()
     {
@@ -36,144 +41,201 @@ class GroupController extends Controller
     }
 
     /**
-     * Store a newly created group in storage.
+     * 新しいグループを作成
+     * 作成者は自動でオーナー（レベル4）になる
      */
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:50|unique:groups,name',
         ]);
 
+        // グループ作成（Group.phpのboot()メソッドで自動的にオーナー登録される）
         $group = Group::create([
             'name' => $request->name,
             'master_user_id' => Auth::id(),
         ]);
 
-        // グループ作成者を自動的にオーナーとして追加
-        UserGroup::create([
-            'user_id' => Auth::id(),
-            'group_id' => $group->id,
-            'permission_level' => UserGroup::PERMISSION_LEVEL_OWNER,
-            'is_approved' => true,
-        ]);
-
-        return redirect()->route('groups.index')
-            ->with('success', 'グループが正常に作成されました。');
+        return redirect()
+            ->route('groups.show', $group)
+            ->with('success', 'グループ「' . $group->name . '」が作成されました');
     }
 
     /**
-     * Display the specified group.
+     * グループ詳細を表示
+     * レベル2以上（一般メンバー以上）が必要
      */
-    public function show(Group $group)
+    public function show(Request $request, Group $group)
     {
-        $this->authorize('view', $group);
+        // ミドルウェアで権限チェック済み
+        $currentUserGroup = $request->current_user_group;
 
-        $group->load(['users', 'masterUser']);
-        $pendingMembers = $group->pendingMembers()->get();
+        // 承認済みメンバーを権限レベル順で取得
+        $members = $group->approvedUsers()
+            ->withPivot(['permission_level', 'created_at'])
+            ->orderByPivot('permission_level', 'desc')
+            ->orderByPivot('created_at', 'asc')
+            ->get();
 
-        return view('groups.show', compact('group', 'pendingMembers'));
+        // 申請中メンバー数（管理者以上のみ表示用）
+        $pendingCount = $currentUserGroup->permission_level >= 3
+            ? $group->pendingUsers()->count()
+            : 0;
+
+        return view('groups.show', compact('group', 'members', 'currentUserGroup', 'pendingCount'));
     }
 
     /**
-     * Show the form for editing the specified group.
-     */
-    public function edit(Group $group)
-    {
-        $this->authorize('update', $group);
-
-        return view('groups.edit', compact('group'));
-    }
-
-    /**
-     * Update the specified group in storage.
-     */
-    public function update(Request $request, Group $group)
-    {
-        $this->authorize('update', $group);
-
-        $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
-
-        $group->update([
-            'name' => $request->name,
-        ]);
-
-        return redirect()->route('groups.show', $group)
-            ->with('success', 'グループ情報が更新されました。');
-    }
-
-    /**
-     * Remove the specified group from storage.
-     */
-    public function destroy(Group $group)
-    {
-        $this->authorize('delete', $group);
-
-        $group->delete();
-
-        return redirect()->route('groups.index')
-            ->with('success', 'グループが削除されました。');
-    }
-
-    /**
-     * Join a group (request membership)
+     * グループ参加申請
+     * 認証のみ必要（グループ権限チェック不要）
      */
     public function join(Request $request, Group $group)
     {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
+        $userId = Auth::id();
 
-        // 既に参加している場合はエラー（userGroupsを使用）
-        if ($user->userGroups()->where('group_id', $group->id)->exists()) {
-            return back()->with('error', '既にこのグループに参加しています。');
+        // すでに参加申請済みかチェック
+        $existingUserGroup = UserGroup::where('user_id', $userId)
+            ->where('group_id', $group->id)
+            ->first();
+
+        if ($existingUserGroup) {
+            if ($existingUserGroup->is_approved) {
+                return back()->with('error', '既にこのグループに参加しています');
+            } else {
+                return back()->with('error', '既に参加申請済みです。承認をお待ちください');
+            }
         }
 
-        // 参加申請を作成（承認待ち状態）
+        // 参加申請を作成（レベル1、未承認）
         UserGroup::create([
-            'user_id' => $user->id,
+            'user_id' => $userId,
             'group_id' => $group->id,
             'permission_level' => UserGroup::PERMISSION_LEVEL_PENDING,
             'is_approved' => false,
         ]);
 
-        return back()->with('success', 'グループへの参加申請を送信しました。承認をお待ちください。');
+        return back()->with('success', 'グループ「' . $group->name . '」への参加申請を送信しました');
     }
 
     /**
-     * Approve a member's request
+     * メンバー一覧を表示
+     * レベル3以上（管理者以上）が必要
+     */
+    public function members(Request $request, Group $group)
+    {
+        // ミドルウェアで権限チェック済み
+        $approvedMembers = $group->approvedUsers()
+            ->withPivot(['permission_level', 'created_at'])
+            ->orderByPivot('permission_level', 'desc')
+            ->orderByPivot('created_at', 'asc')
+            ->get();
+
+        $pendingMembers = $group->pendingUsers()
+            ->withPivot(['created_at'])
+            ->orderByPivot('created_at', 'desc')
+            ->get();
+
+        return view('groups.members', compact('group', 'approvedMembers', 'pendingMembers'));
+    }
+
+    /**
+     * メンバー承認
+     * レベル3以上（管理者以上）が必要
      */
     public function approveMember(Request $request, Group $group, User $user)
     {
-        $this->authorize('manageMember', $group);
+        $userGroup = UserGroup::where('user_id', $user->id)
+            ->where('group_id', $group->id)
+            ->where('is_approved', false)
+            ->first();
+
+        if (!$userGroup) {
+            return back()->with('error', '承認対象のメンバーが見つかりません');
+        }
+
+        // レベル1からレベル2（一般メンバー）に昇格
+        $userGroup->update([
+            'is_approved' => true,
+            'permission_level' => UserGroup::PERMISSION_LEVEL_MEMBER,
+        ]);
+
+        return back()->with('success', $user->name . 'さんを承認しました');
+    }
+
+    /**
+     * メンバー削除
+     * レベル3以上（管理者以上）が必要
+     */
+    public function removeMember(Request $request, Group $group, User $user)
+    {
+        // オーナーは削除できない
+        if ($group->master_user_id === $user->id) {
+            return back()->with('error', 'グループオーナーは削除できません');
+        }
 
         $userGroup = UserGroup::where('user_id', $user->id)
             ->where('group_id', $group->id)
             ->first();
 
         if (!$userGroup) {
-            return back()->with('error', 'ユーザーが見つかりません。');
+            return back()->with('error', '削除対象のメンバーが見つかりません');
         }
 
-        $userGroup->update([
-            'permission_level' => UserGroup::PERMISSION_LEVEL_MEMBER,
-            'is_approved' => true,
-        ]);
+        $userName = $user->name;
+        $userGroup->delete();
 
-        return back()->with('success', $user->name . 'さんの参加を承認しました。');
+        return back()->with('success', $userName . 'さんをグループから削除しました');
     }
 
     /**
-     * Remove a member from the group
+     * グループ編集フォーム表示
+     * レベル4のみ（オーナーのみ）
      */
-    public function removeMember(Request $request, Group $group, User $user)
+    public function edit(Request $request, Group $group)
     {
-        $this->authorize('manageMember', $group);
+        $this->authorize('update', $group);
+        return view('groups.edit', compact('group'));
+    }
 
-        UserGroup::where('user_id', $user->id)
-            ->where('group_id', $group->id)
-            ->delete();
+    /**
+     * グループ情報更新
+     * レベル4のみ（オーナーのみ）
+     */
+    public function update(Request $request, Group $group)
+    {
+        $this->authorize('update', $group);
 
-        return back()->with('success', $user->name . 'さんをグループから削除しました。');
+        $request->validate([
+            'name' => [
+                'required',
+                'string',
+                'max:50',
+                Rule::unique('groups')->ignore($group->id),
+            ],
+        ]);
+
+        $group->update($request->only(['name']));
+
+        return redirect()
+            ->route('groups.show', $group)
+            ->with('success', 'グループ情報を更新しました');
+    }
+
+    /**
+     * グループ削除
+     * レベル4のみ（オーナーのみ）
+     */
+    public function destroy(Request $request, Group $group)
+    {
+        $this->authorize('delete', $group);
+
+        $groupName = $group->name;
+
+        // 関連するuser_groupsレコードも削除される（CASCADE）
+        $group->delete();
+
+        return redirect()
+            ->route('groups.myGroups')
+            ->with('success', 'グループ「' . $groupName . '」を削除しました');
     }
 }

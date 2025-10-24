@@ -20,7 +20,8 @@ Route::middleware('auth')->group(function () {
     // ===== グループ関連のルート =====
 
     // 認証のみ必要なグループ機能
-    Route::resource('groups', GroupController::class)->only(['index', 'create', 'store']);
+    Route::get('/groups', [GroupController::class, 'myGroups'])->name('groups.myGroups');
+    Route::resource('groups', GroupController::class)->only(['create', 'store']);
 
     // グループ参加申請（認証のみ必要）
     Route::post('/groups/{group}/join', [GroupController::class, 'join'])->name('groups.join');
