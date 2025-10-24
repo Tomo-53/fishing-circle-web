@@ -7,10 +7,13 @@ use App\Models\User;
 use App\Models\UserGroup;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Validation\Rule;
 
 class GroupController extends Controller
 {
+    use AuthorizesRequests;
+
     /**
      * ユーザーが参加しているグループ一覧を表示
      * 認証のみ必要（グループ権限チェック不要）
@@ -20,7 +23,8 @@ class GroupController extends Controller
         $user = Auth::user();
 
         // ユーザーが参加している承認済みグループを取得
-        $groups = $user->approvedGroups()
+        $groups = $User->groups()
+            ->wherePivot('is_approved', true)
             ->with(['masterUser'])
             ->withCount(['approvedUsers'])
             ->get();
@@ -43,7 +47,7 @@ class GroupController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255|unique:groups,name',
+            'name' => 'required|string|max:50|unique:groups,name',
         ]);
 
         // グループ作成（Group.phpのboot()メソッドで自動的にオーナー登録される）
@@ -189,6 +193,7 @@ class GroupController extends Controller
      */
     public function edit(Request $request, Group $group)
     {
+        $this->authorize('update', $group);
         return view('groups.edit', compact('group'));
     }
 
@@ -198,6 +203,8 @@ class GroupController extends Controller
      */
     public function update(Request $request, Group $group)
     {
+        $this->authorize('update', $group);
+
         $request->validate([
             'name' => [
                 'required',
@@ -220,6 +227,8 @@ class GroupController extends Controller
      */
     public function destroy(Request $request, Group $group)
     {
+        $this->authorize('delete', $group);
+
         $groupName = $group->name;
 
         // 関連するuser_groupsレコードも削除される（CASCADE）
