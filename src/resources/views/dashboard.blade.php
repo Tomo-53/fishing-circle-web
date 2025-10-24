@@ -49,6 +49,24 @@
                 </div>
             </div>
 
+            <!-- クイックアクション -->
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
+                <div class="p-6 text-gray-900">
+                    <h3 class="text-lg font-semibold mb-4">クイックアクション</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <a href="{{ route('groups.myGroups') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded text-center transition duration-200">
+                            📊 グループ管理
+                        </a>
+                        <a href="{{ route('groups.create') }}" class="bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-4 rounded text-center transition duration-200">
+                            ➕ 新規グループ作成
+                        </a>
+                        <a href="{{ route('profile.edit') }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded text-center transition duration-200">
+                            ⚙️ プロフィール編集
+                        </a>
+                    </div>
+                </div>
+            </div>
+
             <!-- 機能説明カード -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6 text-gray-900">
