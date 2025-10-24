@@ -67,6 +67,16 @@ class User extends Authenticatable
     }
 
     /**
+     * 承認済みのグループのみ取得
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function approvedGroups(): BelongsToMany
+    {
+        return $this->groups()->wherePivot('is_approved', true);
+    }
+
+    /**
      * このユーザーのグループ参加記録
      */
     public function userGroups(): HasMany
