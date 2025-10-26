@@ -57,9 +57,6 @@
                         <a href="{{ route('groups.myGroups') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded text-center transition duration-200">
                             📊 グループ管理
                         </a>
-                        <a href="{{ route('groups.create') }}" class="bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-4 rounded text-center transition duration-200">
-                            ➕ 新規グループ作成
-                        </a>
                         <a href="{{ route('profile.edit') }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded text-center transition duration-200">
                             ⚙️ プロフィール編集
                         </a>
@@ -67,23 +64,6 @@
                 </div>
             </div>
 
-            <!-- 機能説明カード -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
-                <div class="p-6 text-gray-900">
-                    <h3 class="text-lg font-semibold mb-4">🎣 釣りサークルへようこそ！</h3>
-                    <p class="mb-4">このシステムでは以下の機能をご利用いただけます：</p>
-                    <ul class="list-disc list-inside space-y-2 text-gray-700">
-                        <li><strong>グループ管理</strong>: 釣行グループの作成・参加・管理</li>
-                        <li><strong>権限システム</strong>:
-                            <span class="inline-flex items-center px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">一般メンバー</span>
-                            <span class="inline-flex items-center px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">副管理者</span>
-                            <span class="inline-flex items-center px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full">管理者</span>
-                        </li>
-                        <li><strong>釣行計画</strong>: 釣行の企画・参加者管理</li>
-                        <li><strong>学年管理</strong>: 学年による階層的な組織運営</li>
-                    </ul>
-                </div>
-            </div>
 
             <!-- グループ参加状況 -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -99,14 +79,18 @@
                                             <p class="text-sm text-gray-600">{{ $group->description }}</p>
                                         </div>
                                         <div class="text-right">
-                                            <span class="inline-flex items-center px-2 py-1 text-xs rounded-full
-                                                @if($group->pivot->permission_level === 'admin') bg-red-100 text-red-800
-                                                @elseif($group->pivot->permission_level === 'moderator') bg-green-100 text-green-800
-                                                @else bg-blue-100 text-blue-800 @endif">
+                                            <span @class([
+                                                'inline-flex items-center px-2 py-1 text-xs rounded-full',
+                                                'bg-yellow-100 text-yellow-800' => $group->pivot->permission_level == 1,
+                                                'bg-blue-100 text-blue-800' => $group->pivot->permission_level == 2,
+                                                'bg-red-100 text-red-800' => $group->pivot->permission_level == 3,
+                                                'bg-purple-100 text-purple-800' => $group->pivot->permission_level == 4,
+                                            ])>
                                                 @switch($group->pivot->permission_level)
-                                                    @case('admin') 管理者 @break
-                                                    @case('moderator') 副管理者 @break
-                                                    @default 一般メンバー
+                                                    @case(4) グループオーナー @break
+                                                    @case(3) 管理者・幹部 @break
+                                                    @case(2) 一般メンバー @break
+                                                    @default 認証待機
                                                 @endswitch
                                             </span>
                                             @if(!$group->pivot->is_approved)

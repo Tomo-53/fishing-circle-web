@@ -15,6 +15,12 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('groups.myGroups')" :active="request()->routeIs('groups.myGroups')">
+                        {{ __('マイグループ') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('groups.all')" :active="request()->routeIs('groups.all')">
+                        {{ __('グループを探す') }}
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -69,6 +75,12 @@
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('groups.myGroups')" :active="request()->routeIs('groups.myGroups')">
+                {{ __('マイグループ') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('groups.all')" :active="request()->routeIs('groups.all')">
+                {{ __('グループを探す') }}
             </x-responsive-nav-link>
         </div>
 

@@ -21,6 +21,7 @@ Route::middleware('auth')->group(function () {
 
     // 認証のみ必要なグループ機能
     Route::get('/groups', [GroupController::class, 'myGroups'])->name('groups.myGroups');
+    Route::get('/groups/all', [GroupController::class, 'allGroups'])->name('groups.all');
     Route::resource('groups', GroupController::class)->only(['create', 'store']);
 
     // グループ参加申請（認証のみ必要）

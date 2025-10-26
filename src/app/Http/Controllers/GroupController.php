@@ -20,6 +20,7 @@ class GroupController extends Controller
      */
     public function myGroups()
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         // ユーザーが参加している承認済みグループを取得
@@ -30,6 +31,32 @@ class GroupController extends Controller
             ->get();
 
         return view('groups.index', compact('groups'));
+    }
+
+    /**
+     * 全グループ一覧を表示（検索機能付き）
+     * 認証のみ必要（グループ権限チェック不要）
+     */
+    public function allGroups(Request $request)
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $search = $request->get('search');
+
+        // 全グループを取得（検索条件がある場合はフィルタ）
+        $query = Group::with(['masterUser'])
+            ->withCount(['approvedUsers']);
+
+        if ($search) {
+            $query->where('name', 'like', '%' . $search . '%');
+        }
+
+        $allGroups = $query->orderBy('created_at', 'desc')->paginate(10);
+
+        // ユーザーが既に参加申請済み/参加済みのグループIDを取得
+        $userGroupIds = $user->groups()->pluck('groups.id')->toArray();
+
+        return view('groups.all', compact('allGroups', 'userGroupIds', 'search'));
     }
 
     /**
