@@ -151,6 +151,9 @@ class GroupController extends Controller
     public function members(Request $request, Group $group)
     {
         // ミドルウェアで権限チェック済み
+        $currentUserGroup = $request->current_user_group;
+        $currentUserPermission = $currentUserGroup->permission_level;
+
         $approvedMembers = $group->approvedUsers()
             ->withPivot(['permission_level', 'created_at'])
             ->orderByPivot('permission_level', 'desc')
@@ -162,7 +165,7 @@ class GroupController extends Controller
             ->orderByPivot('created_at', 'desc')
             ->get();
 
-        return view('groups.members', compact('group', 'approvedMembers', 'pendingMembers'));
+        return view('groups.members', compact('group', 'approvedMembers', 'pendingMembers', 'currentUserPermission'));
     }
 
     /**
@@ -187,6 +190,82 @@ class GroupController extends Controller
         ]);
 
         return back()->with('success', $user->name . 'さんを承認しました');
+    }
+
+    /**
+     * メンバーを管理者に昇格
+     * レベル4のみ（オーナーのみ）が必要
+     */
+    public function promoteToAdmin(Request $request, Group $group, User $user)
+    {
+        // オーナーのみが実行可能（ミドルウェアでも制御されているが念のため）
+        if ($group->master_user_id !== Auth::id()) {
+            return back()->with('error', 'オーナーのみが管理者を任命できます');
+        }
+
+        $userGroup = UserGroup::where('user_id', $user->id)
+            ->where('group_id', $group->id)
+            ->where('is_approved', true)
+            ->first();
+
+        if (!$userGroup) {
+            return back()->with('error', '昇格対象のメンバーが見つかりません');
+        }
+
+        // オーナーは昇格不可（既に最高権限）
+        if ($userGroup->permission_level == UserGroup::PERMISSION_LEVEL_OWNER) {
+            return back()->with('error', 'オーナーの権限は変更できません');
+        }
+
+        // 既に管理者の場合
+        if ($userGroup->permission_level == UserGroup::PERMISSION_LEVEL_ADMIN) {
+            return back()->with('error', $user->name . 'さんは既に管理者です');
+        }
+
+        // レベル2からレベル3（管理者）に昇格
+        $userGroup->update([
+            'permission_level' => UserGroup::PERMISSION_LEVEL_ADMIN,
+        ]);
+
+        return back()->with('success', $user->name . 'さんを管理者に昇格させました');
+    }
+
+    /**
+     * 管理者をメンバーに降格
+     * レベル4のみ（オーナーのみ）が必要
+     */
+    public function demoteToMember(Request $request, Group $group, User $user)
+    {
+        // オーナーのみが実行可能
+        if ($group->master_user_id !== Auth::id()) {
+            return back()->with('error', 'オーナーのみが権限を変更できます');
+        }
+
+        $userGroup = UserGroup::where('user_id', $user->id)
+            ->where('group_id', $group->id)
+            ->where('is_approved', true)
+            ->first();
+
+        if (!$userGroup) {
+            return back()->with('error', '降格対象のメンバーが見つかりません');
+        }
+
+        // オーナーは降格不可
+        if ($userGroup->permission_level == UserGroup::PERMISSION_LEVEL_OWNER) {
+            return back()->with('error', 'オーナーの権限は変更できません');
+        }
+
+        // 既にメンバーの場合
+        if ($userGroup->permission_level == UserGroup::PERMISSION_LEVEL_MEMBER) {
+            return back()->with('error', $user->name . 'さんは既に一般メンバーです');
+        }
+
+        // レベル3からレベル2（一般メンバー）に降格
+        $userGroup->update([
+            'permission_level' => UserGroup::PERMISSION_LEVEL_MEMBER,
+        ]);
+
+        return back()->with('success', $user->name . 'さんを一般メンバーに降格させました');
     }
 
     /**

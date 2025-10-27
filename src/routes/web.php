@@ -48,6 +48,8 @@ Route::middleware('auth')->group(function () {
             Route::get('/edit', [GroupController::class, 'edit'])->name('groups.edit');
             Route::put('/', [GroupController::class, 'update'])->name('groups.update');
             Route::delete('/', [GroupController::class, 'destroy'])->name('groups.destroy');
+            Route::post('/members/{user}/promote', [GroupController::class, 'promoteToAdmin'])->name('groups.promote-member');
+            Route::post('/members/{user}/demote', [GroupController::class, 'demoteToMember'])->name('groups.demote-member');
         });
 
     });
