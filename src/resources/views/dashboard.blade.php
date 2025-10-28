@@ -87,10 +87,10 @@
                                                 'bg-purple-100 text-purple-800' => $group->pivot->permission_level == 4,
                                             ])>
                                                 @switch($group->pivot->permission_level)
-                                                    @case(4) グループオーナー @break
-                                                    @case(3) 管理者・幹部 @break
-                                                    @case(2) 一般メンバー @break
-                                                    @default 認証待機
+                                                    @case(4) オーナー @break
+                                                    @case(3) 管理者 @break
+                                                    @case(2) メンバー @break
+                                                    @default 承認待ち
                                                 @endswitch
                                             </span>
                                             @if(!$group->pivot->is_approved)
