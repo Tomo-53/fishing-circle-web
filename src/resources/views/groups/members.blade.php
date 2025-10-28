@@ -200,15 +200,30 @@
                                                     @endif
                                                 @endif
 
-                                                <form method="POST" action="{{ route('groups.remove-member', [$group, $member]) }}" class="inline">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit"
-                                                            class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-3 rounded text-sm"
-                                                            onclick="return confirm('{{ $member->name }}さんをグループから除名しますか？この操作は元に戻せません。')">
-                                                        除名
-                                                    </button>
-                                                </form>
+                                                <!-- 除名権限チェック -->
+                                                @php
+                                                    $canRemove = false;
+                                                    // オーナー（レベル4）は全員除名可能
+                                                    if ($currentUserPermission == 4) {
+                                                        $canRemove = true;
+                                                    }
+                                                    // 管理者（レベル3）はレベル1,2のみ除名可能
+                                                    elseif ($currentUserPermission == 3 && $member->pivot->permission_level <= 2) {
+                                                        $canRemove = true;
+                                                    }
+                                                @endphp
+
+                                                @if($canRemove)
+                                                    <form method="POST" action="{{ route('groups.remove-member', [$group, $member]) }}" class="inline">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit"
+                                                                class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-3 rounded text-sm"
+                                                                onclick="return confirm('{{ $member->name }}さんをグループから除名しますか？この操作は元に戻せません。')">
+                                                            除名
+                                                        </button>
+                                                    </form>
+                                                @endif
                                             @else
                                                 <span class="text-xs text-gray-400">（オーナー）</span>
                                             @endif
@@ -239,7 +254,7 @@
                                 </li>
                                 <li class="flex items-center space-x-2">
                                     <span class="inline-flex items-center px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full">管理者</span>
-                                    <span>メンバー管理権限（承認・除名可能）</span>
+                                    <span>メンバー管理権限（承認・一般メンバー除名可能）</span>
                                 </li>
                                 <li class="flex items-center space-x-2">
                                     <span class="inline-flex items-center px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">メンバー</span>
@@ -253,6 +268,8 @@
                                 <li>• オーナーはメンバーを管理者に昇格できます</li>
                                 <li>• オーナーは管理者をメンバーに降格できます</li>
                                 <li>• 管理者・オーナーは新規申請を承認・拒否できます</li>
+                                <li>• 管理者は承認待ち・メンバーのみ除名できます</li>
+                                <li>• オーナーは全レベルのメンバーを除名できます</li>
                                 <li>• オーナー権限は変更できません</li>
                             </ul>
                         </div>
