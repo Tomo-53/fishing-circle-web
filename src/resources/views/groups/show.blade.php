@@ -4,12 +4,16 @@
             @if($currentUserGroup->permission_level >= 4)
                 <!-- 編集可能なグループ名（レベル4のみ） -->
                 <div class="group relative">
-                    <h2 id="groupName"
-                        class="font-semibold text-xl text-gray-800 leading-tight cursor-pointer hover:bg-gray-100 px-2 py-1 rounded transition-colors"
-                        ondblclick="enableEdit()"
-                        title="ダブルクリックで編集">
-                        {{ $group->name }}
-                    </h2>
+                    <div id="groupNameContainer">
+                        <h2 id="groupName"
+                            class="font-semibold text-xl text-gray-800 leading-tight cursor-pointer hover:bg-gray-100 px-2 py-1 rounded transition-colors"
+                            ondblclick="enableEdit()">
+                            {{ $group->name }}
+                        </h2>
+                        <p class="text-xs text-gray-500 mt-1 px-2">
+                            ↑ダブルクリックでグループ名変更可能
+                        </p>
+                    </div>
                     <form id="editForm" method="POST" action="{{ route('groups.update', $group) }}" class="hidden">
                         @csrf
                         @method('PUT')
@@ -23,9 +27,6 @@
                                onkeydown="handleKeyDown(event)">
                         <div class="text-xs text-gray-500 mt-1">最大50文字まで</div>
                     </form>
-                    <div class="absolute -bottom-6 left-0 text-xs text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                        ダブルクリックで編集
-                    </div>
                 </div>
             @else
                 <!-- 読み取り専用のグループ名 -->
@@ -232,11 +233,11 @@
     <script>
         // グループ名編集機能(ダブルクリックした際の処理)
         function enableEdit() {
-            const nameElement = document.getElementById('groupName');
+            const nameContainerElement = document.getElementById('groupNameContainer');
             const formElement = document.getElementById('editForm');
             const inputElement = document.getElementById('nameInput');
 
-            nameElement.classList.add('hidden');
+            nameContainerElement.classList.add('hidden');
             formElement.classList.remove('hidden');
             inputElement.focus();
             inputElement.select();
@@ -245,14 +246,14 @@
         // グループ名編集機能キャンセル時(ダブルクリックした際の処理)
         function cancelEdit() {
             setTimeout(() => {
-                const nameElement = document.getElementById('groupName');
+                const nameContainerElement = document.getElementById('groupNameContainer');
                 const formElement = document.getElementById('editForm');
                 const inputElement = document.getElementById('nameInput');
 
                 // 元の値に戻す
                 inputElement.value = "{{ $group->name }}";
 
-                nameElement.classList.remove('hidden');
+                nameContainerElement.classList.remove('hidden');
                 formElement.classList.add('hidden');
             }, 100);
         }
