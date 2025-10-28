@@ -293,15 +293,15 @@ class GroupController extends Controller
         return back()->with('success', $userName . 'さんをグループから削除しました');
     }
 
-    /**
-     * グループ編集フォーム表示
-     * レベル4のみ（オーナーのみ）
-     */
-    public function edit(Request $request, Group $group)
-    {
-        $this->authorize('update', $group);
-        return view('groups.edit', compact('group'));
-    }
+    // /**
+    //  * グループ編集フォーム表示
+    //  * レベル4のみ（オーナーのみ）
+    //  */
+    // public function edit(Request $request, Group $group)
+    // {
+    //     // ミドルウェアで権限チェック済み
+    //     return view('groups.edit', compact('group'));
+    // }
 
     /**
      * グループ情報更新
@@ -309,7 +309,7 @@ class GroupController extends Controller
      */
     public function update(Request $request, Group $group)
     {
-        $this->authorize('update', $group);
+        // ミドルウェアで権限チェック済み
 
         $request->validate([
             'name' => [
@@ -333,7 +333,7 @@ class GroupController extends Controller
      */
     public function destroy(Request $request, Group $group)
     {
-        $this->authorize('delete', $group);
+        // ミドルウェアで権限チェック済み
 
         $groupName = $group->name;
 

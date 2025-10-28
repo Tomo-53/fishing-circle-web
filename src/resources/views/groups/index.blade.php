@@ -65,12 +65,7 @@
                                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded text-sm">
                                             詳細
                                         </a>
-                                        @if($permissionLevel >= 3)
-                                            <a href="{{ route('groups.edit', $group) }}"
-                                               class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-1 px-3 rounded text-sm">
-                                                編集
-                                            </a>
-                                        @endif
+
                                     </div>
                                 </div>
                             @endforeach

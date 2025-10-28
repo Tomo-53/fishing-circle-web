@@ -45,7 +45,6 @@ Route::middleware('auth')->group(function () {
 
         // レベル4のみ：オーナー権限
         Route::middleware('check.group.permission:4')->group(function () {
-            Route::get('/edit', [GroupController::class, 'edit'])->name('groups.edit');
             Route::put('/', [GroupController::class, 'update'])->name('groups.update');
             Route::delete('/', [GroupController::class, 'destroy'])->name('groups.destroy');
             Route::post('/members/{user}/promote', [GroupController::class, 'promoteToAdmin'])->name('groups.promote-member');
