@@ -6,7 +6,24 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('welcome');
+
+// 公開ページ（認証不要）
+Route::get('/about', function () {
+    return view('about');
+})->name('about');
+
+Route::get('/activities', function () {
+    return view('activities');
+})->name('activities');
+
+Route::get('/gallery', function () {
+    return view('gallery');
+})->name('gallery');
+
+Route::get('/join', function () {
+    return view('join');
+})->name('join');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
