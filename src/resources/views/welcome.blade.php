@@ -129,7 +129,7 @@
             <section class="relative h-screen flex">
                 <!-- 左側：画像エリア -->
                 <div class="w-1/2 relative">
-                    <img src="{{ asset('images/welcome.png') }}" alt="釣りの背景" class="w-full h-full object-cover">
+                    <img src="{{ asset('images/welcome.jpg') }}" alt="釣りの背景" class="w-full h-full object-cover">
                     <div class="absolute inset-0 bg-black bg-opacity-20"></div>
                 </div>
 
