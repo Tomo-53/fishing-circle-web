@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>{{ config('app.name', 'フィッシングサークル') }}</title>
+        <title>{{ config('app.name', '新潟大学釣り同好会') }}</title>
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
@@ -17,51 +17,343 @@
             </style>
         @endif
     </head>
-    <body class="bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] flex p-6 lg:p-8 items-center lg:justify-center min-h-screen flex-col">
-        <header class="w-full lg:max-w-4xl max-w-[335px] text-sm mb-6 not-has-[nav]:hidden">
-            @if (Route::has('login'))
-                <nav class="flex items-center justify-end gap-4">
-                    @auth
-                        {{-- 認証済みユーザーはダッシュボードへ --}}
-                        <a
-                            href="{{ url('/dashboard') }}"
-                            class="inline-block px-5 py-1.5 dark:text-[#EDEDEC] border-[#19140035] hover:border-[#1915014a] border text-[#1b1b18] dark:border-[#3E3E3A] dark:hover:border-[#62605b] rounded-sm text-sm leading-normal"
-                        >
-                            Dashboard
-                        </a>
-                    @else
-                        {{-- 未認証ユーザーはログインと新規登録を表示 --}}
-                        <a
-                            href="{{ route('login') }}"
-                            class="inline-block px-5 py-1.5 dark:text-[#EDEDEC] text-[#1b1b18] border border-transparent hover:border-[#19140035] dark:hover:border-[#3E3E3A] rounded-sm text-sm leading-normal"
-                        >
-                            ログイン
-                        </a>
+    <body class="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-blue-900 text-gray-800 dark:text-gray-200 min-h-screen">
+        <header class="bg-white dark:bg-gray-800 shadow-lg">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center py-4">
+                    <!-- ロゴ・タイトル -->
+                    <div class="flex items-center">
+                        <h1 class="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                            新潟大学釣り同好会
+                        </h1>
+                    </div>
 
-                        @if (Route::has('register'))
-                            <a
-                                href="{{ route('register') }}"
-                                class="inline-block px-5 py-1.5 dark:text-[#EDEDEC] border-[#19140035] hover:border-[#1915014a] border text-[#1b1b18] dark:border-[#3E3E3A] dark:hover:border-[#62605b] rounded-sm text-sm leading-normal">
+                    <!-- ハンバーガーメニューボタン -->
+                    <div class="md:hidden">
+                        <button id="hamburger-btn" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 focus:outline-none">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- デスクトップメニュー -->
+                    <div class="hidden md:flex items-center space-x-8">
+                        <nav class="flex space-x-6">
+                            <a href="{{ route('welcome') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium">
+                                ホーム
+                            </a>
+                            <a href="{{ route('about') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium">
+                                サークル紹介
+                            </a>
+                            <a href="{{ route('activities') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium">
+                                活動内容
+                            </a>
+                            <a href="{{ route('gallery') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium">
+                                ギャラリー
+                            </a>
+                            <a href="{{ route('join') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium">
+                                入部案内
+                            </a>
+                        </nav>
+
+                        <!-- SNSアイコン -->
+                        <div class="flex items-center space-x-3 ml-6">
+                            <a href="https://x.com/new_river_runs" target="_blank" class="text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition duration-200">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                                </svg>
+                            </a>
+                            <a href="https://instagram.com/new_river_run" target="_blank" class="text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400transition duration-200">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                                </svg>
+                            </a>
+                        </div>
+
+                        @auth
+                            <a href="{{ url('/dashboard') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium ml-4">
+                                ダッシュボード
+                            </a>
+                        @else
+                            <div class="flex space-x-2 ml-4">
+                                <a href="{{ route('register') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium">
+                                    新規登録
+                                </a>
+                                <a href="{{ route('login') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                                    ログイン
+                                </a>
+                            </div>
+                        @endauth
+                    </div>
+                </div>
+
+                <!-- モバイルメニュー -->
+                <div id="mobile-menu" class="md:hidden hidden">
+                    <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <a href="{{ route('welcome') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 block px-3 py-2 rounded-md text-base font-medium">
+                            ホーム
+                        </a>
+                        <a href="{{ route('about') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 block px-3 py-2 rounded-md text-base font-medium">
+                            サークル紹介
+                        </a>
+                        <a href="{{ route('activities') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 block px-3 py-2 rounded-md text-base font-medium">
+                            活動内容
+                        </a>
+                        <a href="{{ route('gallery') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 block px-3 py-2 rounded-md text-base font-medium">
+                            ギャラリー
+                        </a>
+                        <a href="{{ route('join') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 block px-3 py-2 rounded-md text-base font-medium">
+                            入部案内
+                        </a>
+                        @auth
+                            <a href="{{ url('/dashboard') }}" class="bg-blue-600 hover:bg-blue-700 text-white block px-3 py-2 rounded-md text-base font-medium">
+                                ダッシュボード
+                            </a>
+                        @else
+                            <a href="{{ route('register') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 block px-3 py-2 rounded-md text-base font-medium">
                                 新規登録
                             </a>
-                        @endif
-                    @endauth
-                </nav>
-            @endif
+                            <a href="{{ route('login') }}" class="bg-blue-600 hover:bg-blue-700 text-white block px-3 py-2 rounded-md text-base font-medium">
+                                ログイン
+                            </a>
+                        @endauth
+                    </div>
+                </div>
+            </div>
         </header>
-        {{-- メインコンテンツエリアを全て削除 --}}
-        {{--
-        <div class="flex items-center justify-center w-full transition-opacity opacity-100 duration-750 lg:grow starting:opacity-0">
-            <main class="flex max-w-[335px] w-full flex-col-reverse lg:max-w-4xl lg:flex-row">
-                <div class="text-[13px] leading-[20px] flex-1 p-6 pb-12 lg:p-20 bg-white dark:bg-[#161615] dark:text-[#EDEDEC] shadow-[inset_0px_0px_0px_1px_rgba(26,26,0,0.16)] dark:shadow-[inset_0px_0px_0px_1px_#fffaed2d] rounded-bl-lg rounded-br-lg lg:rounded-tl-lg lg:rounded-br-none">
-                    ... (コンテンツリストなど) ...
+
+        <!-- メインコンテンツ -->
+        <main class="flex-1">
+            <!-- ヒーローセクション -->
+            <section class="relative h-screen flex">
+                <!-- 左側：画像エリア -->
+                <div class="w-1/2 relative">
+                    <img src="{{ asset('images/welcome.png') }}" alt="釣りの背景" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black bg-opacity-20"></div>
                 </div>
-                <div class="bg-[#fff2f2] dark:bg-[#1D0002] relative lg:-ml-px -mb-px lg:mb-0 rounded-t-lg lg:rounded-t-none lg:rounded-r-lg aspect-[335/376] lg:aspect-auto w-full lg:w-[438px] shrink-0 overflow-hidden">
-                    ... (SVGロゴ) ...
+
+                <!-- 右側：テキストコンテンツ -->
+                <div class="w-1/2 flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-blue-900">
+                    <div class="max-w-lg px-8">
+                        <h1 class="text-4xl md:text-5xl font-bold mb-6 text-gray-800 dark:text-white">
+                            新潟大学<br>釣り同好会
+                        </h1>
+                        <div class="bg-white dark:bg-gray-800 bg-opacity-95 dark:bg-opacity-95 text-gray-800 dark:text-gray-200 p-6 rounded-lg shadow-lg">
+                            <h2 class="text-xl font-bold mb-4 text-blue-600 dark:text-blue-400">新大唯一の釣りサークル</h2>
+                            <p class="text-base leading-relaxed">
+                                「新潟大学釣り同好会」のHPへようこそ！<br>
+                                当同好会のサークル概要や活動内容、入部方法などについて紹介してます。当メンバーの釣果記録や活動様子もご覧ください！<br>
+                                新潟大学釣り同好会ホームページ
+                            </p>
+                        </div>
+                    </div>
                 </div>
-            </main>
-        </div>
-        --}}
+            </section>
+
+            <!-- 新大釣りサークルについて -->
+            <section class="py-16 bg-gray-50 dark:bg-gray-800">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <h2 class="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">
+                        新大釣りサークルについて
+                    </h2>
+
+                    <!-- スライドカード -->
+                    <div class="relative">
+                        <!-- 左矢印ボタン -->
+                        <button id="prev-btn" class="absolute left-0 top-1/2 transform -translate-y-1/2 text-gray-600 dark:text-gray-300 z-20">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                            </svg>
+                        </button>
+
+                        <!-- 右矢印ボタン -->
+                        <button id="next-btn" class="absolute right-0 top-1/2 transform -translate-y-1/2 text-gray-600 dark:text-gray-300 z-20">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </button>
+
+                        <!-- カード1：目指しているもの -->
+                        <div id="slide-0" class="slide-card px-12">
+                            <div class="bg-white dark:bg-gray-700 rounded-lg shadow-lg p-8 mx-auto max-w-4xl">
+                                <h3 class="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-4">目指しているもの</h3>
+                                <p class="text-gray-700 dark:text-gray-300 text-lg leading-relaxed">
+                                    釣り技術の向上・釣りを通した学生間の交流・釣り文化や自然環境の理解と普及<br>
+                                    みんなで楽しく釣りが出来ることを目指しています！
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- カード2：雰囲気は？ -->
+                        <div id="slide-1" class="slide-card hidden px-12">
+                            <div class="bg-white dark:bg-gray-700 rounded-lg shadow-lg p-8 mx-auto max-w-4xl">
+                                <h3 class="text-2xl font-bold text-green-600 dark:text-green-400 mb-4">雰囲気は？</h3>
+                                <p class="text-gray-700 dark:text-gray-300 text-lg leading-relaxed">
+                                    全体での釣り会では初心者も含めみんなでワイワイと釣りしてます。また、釣り以外でも定期的に宅飲み会や食事会（釣れた魚料理！タコパ！）、冬のゲーム大会⁉なんかもやって楽しんでます！<br><br>
+                                    さらなる釣りバカ達はしょっちゅう一緒に釣りに行ったり、定期的に遠征（佐渡粟島・福島など）に行きます。遠征で苦難・喜びを共にし絆を深めた者達は最高の仲間といえるでしょう。<br><br>
+                                    さぁ、釣りをきっかけに最高の仲間を手に入れよう！
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- カード3：大会実績 -->
+                        <div id="slide-2" class="slide-card hidden px-12">
+                            <div class="bg-white dark:bg-gray-700 rounded-lg shadow-lg p-8 mx-auto max-w-4xl">
+                                <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-4">大会実績</h3>
+                                <div class="text-gray-700 dark:text-gray-300 text-lg">
+                                    <h4 class="font-bold text-xl mb-2">2024</h4>
+                                    <ul class="mb-4 space-y-1">
+                                        <li>・第5回 佐渡ビックゲーム FishRankerカップ 出場</li>
+                                        <li>・第17回 学釣連シーバス大会（GSBC） 第6位・第8位・ベストフォト賞受賞</li>
+                                    </ul>
+                                    <h4 class="font-bold text-xl">2025</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                        <!-- スライドインジケーター -->
+                        <div class="flex justify-center mt-8 space-x-3">
+                            <button class="slider-dot w-2 h-2 bg-blue-600 rounded-full" data-slide="0"></button>
+                            <button class="slider-dot w-2 h-2 bg-white rounded-full" data-slide="1"></button>
+                            <button class="slider-dot w-2 h-2 bg-white rounded-full" data-slide="2"></button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- お問い合わせセクション -->
+            <section class="py-16 bg-blue-900 text-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <h2 class="text-3xl font-bold mb-8">お問い合わせ</h2>
+                    <div class="space-y-4">
+                        <div class="flex justify-center space-x-6">
+                            <a href="https://instagram.com/new_river_run" target="_blank" class="text-white hover:text-pink-400 transition duration-200">
+                                <span class="flex items-center">
+                                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                                    </svg>
+                                    instagram.com/new_river_run
+                                </span>
+                            </a>
+                            <a href="https://x.com/new_river_runs" target="_blank" class="text-white hover:text-blue-400 transition duration-200">
+                                <span class="flex items-center">
+                                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                                    </svg>
+                                    x.com/new_river_runs
+                                </span>
+                            </a>
+                        </div>
+                        <div class="flex justify-center">
+                            <a href="mailto:newriverruns.projectf@gmail.com" class="hover:text-gray-300 transition duration-200">
+                                <span class="flex items-center">
+                                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                                    </svg>
+                                    newriverruns.projectf@gmail.com
+                                </span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- JavaScript for hamburger menu and slider -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const hamburgerBtn = document.getElementById('hamburger-btn');
+                const mobileMenu = document.getElementById('mobile-menu');
+
+                hamburgerBtn.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                });
+
+                // Close mobile menu when clicking outside
+                document.addEventListener('click', function(event) {
+                    if (!hamburgerBtn.contains(event.target) && !mobileMenu.contains(event.target)) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                });
+
+                // Slider functionality
+                const dots = document.querySelectorAll('.slider-dot');
+                const slideCards = document.querySelectorAll('.slide-card');
+                const prevBtn = document.getElementById('prev-btn');
+                const nextBtn = document.getElementById('next-btn');
+                let currentSlide = 0;
+                const totalSlides = 3;
+                let autoSlideInterval;
+
+                function updateSlider() {
+                    // すべてのスライドカードを非表示にする
+                    slideCards.forEach((card, index) => {
+                        if (index === currentSlide) {
+                            card.classList.remove('hidden');
+                        } else {
+                            card.classList.add('hidden');
+                        }
+                    });
+
+                    // ドットの表示を更新
+                    dots.forEach((dot, index) => {
+                        if (index === currentSlide) {
+                            dot.classList.remove('bg-white');
+                            dot.classList.add('bg-blue-600');
+                        } else {
+                            dot.classList.remove('bg-blue-600');
+                            dot.classList.add('bg-white');
+                        }
+                    });
+                }
+
+                function nextSlide() {
+                    currentSlide = (currentSlide + 1) % totalSlides;
+                    updateSlider();
+                }
+
+                function prevSlide() {
+                    currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+                    updateSlider();
+                }
+
+                function startAutoSlide() {
+                    autoSlideInterval = setInterval(nextSlide, 5000);
+                }
+
+                function stopAutoSlide() {
+                    clearInterval(autoSlideInterval);
+                }
+
+                // 5秒ごとに自動でスライドを切り替え
+                startAutoSlide();
+
+                // 矢印ボタンクリック機能
+                nextBtn.addEventListener('click', () => {
+                    stopAutoSlide();
+                    nextSlide();
+                    startAutoSlide(); // 手動操作後、自動スライドを再開
+                });
+
+                prevBtn.addEventListener('click', () => {
+                    stopAutoSlide();
+                    prevSlide();
+                    startAutoSlide(); // 手動操作後、自動スライドを再開
+                });
+
+                // ドットクリック機能
+                dots.forEach((dot, index) => {
+                    dot.addEventListener('click', () => {
+                        stopAutoSlide();
+                        currentSlide = index;
+                        updateSlider();
+                        startAutoSlide(); // 手動操作後、自動スライドを再開
+                    });
+                });
+            });
+        </script>
 
         {{-- 調整用の要素も削除または空に --}}
         @if (Route::has('login'))
