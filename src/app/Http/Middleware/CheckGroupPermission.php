@@ -32,26 +32,20 @@ class CheckGroupPermission
             return redirect()->route('login')->with('error', 'ログインが必要です');
         }
 
-        // 2. URLからgroup_idを取得
-        $groupId = $request->route('group');
+        // 2. URLからgroupを取得（ルートモデルバインディング）
+        $group = $request->route('group');
 
-        // 3. グループIDが数値かチェック
-        if (!is_numeric($groupId)) {
+        // 3. Groupモデルかチェック
+        if (!$group instanceof Group) {
             abort(404, 'グループが見つかりません');
         }
 
-        // 4. グループが存在するかチェック
-        $group = Group::find($groupId);
-        if (!$group) {
-            abort(404, 'グループが見つかりません');
-        }
-
-        // 5. 現在のユーザーIDを取得
+        // 4. 現在のユーザーIDを取得
         $currentUserId = Auth::id();
 
-        // 6. 【最重要】特定のグループでの権限をチェック
+        // 5. 【最重要】特定のグループでの権限をチェック
         $userGroup = UserGroup::where('user_id', $currentUserId)
-            ->where('group_id', $groupId)  // ←この行でグループ権限の独立性を保証
+            ->where('group_id', $group->id)  // ←この行でグループ権限の独立性を保証
             ->first();
 
         // 7. そのグループに参加していない場合は403エラー
@@ -67,7 +61,7 @@ class CheckGroupPermission
         // 9. 権限レベルが不足している場合は403エラー
         if ($userGroup->permission_level < $requiredLevel) {
             $requiredLabel = $this->getPermissionLabel($requiredLevel);
-            $currentLabel = $userGroup->getPermissionLabelAttribute();
+            $currentLabel = $this->getPermissionLabel($userGroup->permission_level);
             abort(403, "この機能には{$requiredLabel}が必要です。現在の権限: {$currentLabel}");
         }
 

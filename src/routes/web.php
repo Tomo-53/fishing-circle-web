@@ -6,7 +6,24 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('welcome');
+
+// 公開ページ（認証不要）
+Route::get('/about', function () {
+    return view('about');
+})->name('about');
+
+Route::get('/activities', function () {
+    return view('activities');
+})->name('activities');
+
+Route::get('/gallery', function () {
+    return view('gallery');
+})->name('gallery');
+
+Route::get('/join', function () {
+    return view('join');
+})->name('join');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -21,6 +38,7 @@ Route::middleware('auth')->group(function () {
 
     // 認証のみ必要なグループ機能
     Route::get('/groups', [GroupController::class, 'myGroups'])->name('groups.myGroups');
+    Route::get('/groups/all', [GroupController::class, 'allGroups'])->name('groups.all');
     Route::resource('groups', GroupController::class)->only(['create', 'store']);
 
     // グループ参加申請（認証のみ必要）
@@ -44,9 +62,10 @@ Route::middleware('auth')->group(function () {
 
         // レベル4のみ：オーナー権限
         Route::middleware('check.group.permission:4')->group(function () {
-            Route::get('/edit', [GroupController::class, 'edit'])->name('groups.edit');
             Route::put('/', [GroupController::class, 'update'])->name('groups.update');
             Route::delete('/', [GroupController::class, 'destroy'])->name('groups.destroy');
+            Route::post('/members/{user}/promote', [GroupController::class, 'promoteToAdmin'])->name('groups.promote-member');
+            Route::post('/members/{user}/demote', [GroupController::class, 'demoteToMember'])->name('groups.demote-member');
         });
 
     });

@@ -25,6 +25,7 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+            'grade' => ['required', 'string', 'in:B1,B2,B3,B4,M1,M2,D1,D2,D3,OTHER'],
         ];
     }
 }

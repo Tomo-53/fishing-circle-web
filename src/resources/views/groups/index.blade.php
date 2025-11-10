@@ -7,6 +7,9 @@
             <a href="{{ route('groups.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                 新規グループ作成
             </a>
+             <a href="{{ route('groups.all') }}" class="bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-4 rounded text-center transition duration-200">
+                グループを探す
+            </a>
         </div>
     </x-slot>
 
@@ -37,12 +40,13 @@
 
                                     @if($permissionLevel)
                                         <div class="mb-4">
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                                @if($permissionLevel == 4) bg-purple-100 text-purple-800
-                                                @elseif($permissionLevel == 3) bg-green-100 text-green-800
-                                                @elseif($permissionLevel == 2) bg-blue-100 text-blue-800
-                                                @else bg-yellow-100 text-yellow-800
-                                                @endif">
+                                            <span @class([
+                                                'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+                                                'bg-yellow-100 text-yellow-800' => $permissionLevel == 1,
+                                                'bg-blue-100 text-blue-800' => $permissionLevel == 2,
+                                                'bg-green-100 text-green-800' => $permissionLevel == 3,
+                                                'bg-purple-100 text-purple-800' => $permissionLevel == 4,
+                                            ])>
                                                 @switch($permissionLevel)
                                                     @case(4) オーナー @break
                                                     @case(3) 管理者 @break
@@ -61,12 +65,7 @@
                                            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded text-sm">
                                             詳細
                                         </a>
-                                        @if($permissionLevel >= 3)
-                                            <a href="{{ route('groups.edit', $group) }}"
-                                               class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-1 px-3 rounded text-sm">
-                                                編集
-                                            </a>
-                                        @endif
+
                                     </div>
                                 </div>
                             @endforeach
