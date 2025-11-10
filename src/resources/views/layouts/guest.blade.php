@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'フィッシングサークル') }}</title>
+        <title>{{ config('app.name', '新潟大学釣り同好会') }}</title>
 
         <!-- Favicon -->
         <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
