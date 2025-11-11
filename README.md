@@ -1,4 +1,4 @@
-# Fishing Circle Web
+# 新潟大学釣り同好会web
 
 Laravel + Docker を使用した釣りサークル向けWebアプリケーション
 
