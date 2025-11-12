@@ -48,7 +48,7 @@ DB_USERNAME=laravel_user
 DB_PASSWORD=secret_password
 
 # Laravel アプリケーションキー（重要）
-APP_KEY=base64:yulPogD7wCQsUyfuCWVpCkL7cFP9w4Llo8aVun/rlak=
+APP_KEY=*******************
 
 # Gmail SMTP設定（パスワードリセット機能用）
 MAIL_USERNAME=your-gmail@gmail.com
