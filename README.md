@@ -1,4 +1,5 @@
-# 🎣 新潟大学釣り同好会 Web アプリケーション
+
+# 新潟大学釣り同好会web
 
 Laravel + MySQL + Docker を使用したWebアプリケーション
 
