@@ -22,6 +22,10 @@ services:
       - DB_DATABASE=${DB_DATABASE}
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
+      # メール設定
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS}
       # Laravelコンテナの環境変数にUID/GIDを渡す（userディレクティブ利用のため）
       - PUID=${UID} 
       - PGID=${GID}
