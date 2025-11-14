@@ -11,8 +11,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // グループ権限チェックミドルウェアを登録
+        // プロキシ信頼設定（Railway用）
+        $middleware->trustProxies(at: '*');
 
+        // グループ権限チェックミドルウェアを登録
         $middleware->alias([
             'check.group.permission' => \App\Http\Middleware\CheckGroupPermission::class,
         ]);
