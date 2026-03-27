@@ -55,6 +55,8 @@ src/
 
 ```
 
+![ER図](src/public/images/ER.png)
+
 ## 技術選定と意図
 
 ## 1. PHP / Laravel
