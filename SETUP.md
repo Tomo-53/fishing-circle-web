@@ -50,13 +50,14 @@ UID=1000
 GID=1000
 ```
 
-### B. Laravel用のsrc/.env（変数参照）
+### B. Laravel用のsrc/.env（Git管理外・機密値は変数参照）
 
 ```bash
 cp src/.env.example src/.env
 ```
 
-通常は変更不要です（ルート.envの値を参照）。
+通常は変更不要です（機密値はルート.envの値を参照）。
+`src/.env`はGit管理外、`src/.env.example`のみGit管理対象です。
 
 ## 2.3 Dockerコンテナ起動
 
@@ -79,13 +80,12 @@ docker-compose exec app php artisan key:generate
 # 3) マイグレーション実行
 docker-compose exec app php artisan migrate
 
-# 4) 認証機能（Breeze）導入
-docker-compose exec app php artisan breeze:install blade
-
-# 5) フロントエンド依存関係インストールとビルド
+# 4) フロントエンド依存関係インストールとビルド
 docker-compose exec app npm install
 docker-compose exec app npm run build
 ```
+
+※ `breeze:install` は未導入の新規プロジェクト時のみ実行してください。
 
 ## 2.5 動作確認
 
@@ -188,6 +188,8 @@ docker-compose exec app php artisan key:generate
 docker-compose restart db
 docker-compose exec db mysql -u root -psecret_password -e "SHOW DATABASES;"
 ```
+
+`-p` 実行後のパスワードはルート`.env`の `DB_PASSWORD` を入力してください。
 
 ## 5.3 権限エラー（Permission denied）
 

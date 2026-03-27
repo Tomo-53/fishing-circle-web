@@ -1,38 +1,39 @@
-# 🔒 セキュリティ設定ガイド
+# セキュリティ設定ガイド
 
-## ⚡ クイックセキュリティチェック
+## クイックセキュリティチェック
 
-### ✅ 必須チェック項目
+### 必須チェック項目
 - [ ] ルート`.env`ファイルが`.gitignore`に含まれている
 - [ ] 機密情報が平文でGitにコミットされていない
 - [ ] Gmail App Password（16文字）を使用している
-- [ ] `src/.env`には変数参照（${VARIABLE}）のみ記載
+- [ ] `src/.env`はGit管理外、`src/.env.example`のみGit管理対象
+- [ ] 機密値（APP_KEY/DB_PASSWORD/MAIL_PASSWORD等）は`${VARIABLE}`参照で分離
 - [ ] 本番環境で異なるパスワードを使用
 
 ---
 
-## 📁 環境変数の管理体系
+##  環境変数の管理体系
 
 ### ファイル役割分担
 ```
 fishing-circle-web/
-├── 🔒 .env                    # 機密情報（Git管理外）
-├── ✅ .env.example           # テンプレート（Git管理対象）
+├── .env                    # 機密情報（Git管理外）
+├── .env.example           # テンプレート（Git管理対象）
 └── src/
-    ├── 🔒 .env              # 設定ファイル（変数参照のみ）
-    └── ✅ .env.example      # テンプレート（Git管理対象）
+    ├── .env              # ローカル設定（Git管理外）
+    └── .env.example      # テンプレート（Git管理対象）
 ```
 
 ### 機密情報の分離設計
 | 環境 | 機密情報の保存場所 | 公開状況 |
 |------|-------------------|----------|
 | **ローカル** | ルート`.env` | 非公開 |
-| **GitHub** | `src/.env`（変数参照のみ） | 公開 |
+| **GitHub** | `src/.env.example`（テンプレート） | 公開 |
 | **Railway** | 環境変数設定 | 非公開 |
 
 ---
 
-## 🔐 機密情報設定の詳細
+##  機密情報設定の詳細
 
 ### 1. Gmail App Password の取得
 
@@ -82,9 +83,9 @@ UID=1000
 GID=1000
 ```
 
-#### `src/.env`ファイル（参照のみ・GitHub公開）
+#### `src/.env`（Git管理外）/ `src/.env.example`（GitHub公開）
 ```properties
-# 安全な変数参照のみ
+# 機密値は変数参照で分離（APP_ENV等の一般設定は固定値でOK）
 APP_KEY=${APP_KEY}
 MAIL_USERNAME=${MAIL_USERNAME}
 MAIL_PASSWORD=${MAIL_PASSWORD}
@@ -98,7 +99,7 @@ APP_URL=http://localhost
 
 ---
 
-## 🚀 本番環境でのセキュリティ
+##  本番環境でのセキュリティ
 
 ### Railway での環境変数設定
 
@@ -129,25 +130,22 @@ DB_PASSWORD=${{MySQL.MYSQL_PASSWORD}}
 SESSION_SECURE_COOKIE=true
 SESSION_HTTP_ONLY=true
 SESSION_SAME_SITE=strict
-
-# HTTPS強制
-FORCE_HTTPS=true
-
-# CSRFプロテクション
-CSRF_COOKIE_SECURE=true
 ```
+
+補足: HTTPS強制は環境変数`FORCE_HTTPS`ではなく、
+Laravelの`AppServiceProvider`で`URL::forceScheme('https')`を使って実施します。
 
 ---
 
-## 🛡️ セキュリティベストプラクティス
+##  セキュリティベストプラクティス
 
 ### 開発フローでの注意点
 
-#### ❌ やってはいけないこと
+#### × やってはいけないこと
 ```bash
 # 機密情報を含むファイルをコミット
 git add .env                    # 危険！
-git add src/.env                # 内容による
+git add src/.env                # 危険！（Git管理外ファイル）
 
 # 平文パスワードをコード内に記載
 MAIL_PASSWORD=mypassword123     # 危険！
@@ -156,7 +154,7 @@ MAIL_PASSWORD=mypassword123     # 危険！
 APP_ENV=production             # ローカルでは危険
 ```
 
-#### ✅ 推奨すること
+#### 〇 推奨すること
 ```bash
 # テンプレートファイルの更新
 git add .env.example           # 安全
@@ -187,82 +185,5 @@ cp src/.env.example src/.env
 # 3. Git追跡確認
 git status                      # .envファイルが表示されないことを確認
 ```
-
-#### 機密情報の共有（推奨方法）
-```
-1. ドキュメント（SECURITY.md）で手順説明
-2. 各自で個別に設定取得
-3. チーム内での口頭・Slack等での設定支援
-4. 共通のテストアカウント作成（開発用）
-```
-
----
-
-## 🔍 セキュリティ診断
-
-### 設定チェックコマンド
-```bash
-# 1. 機密情報漏洩チェック
-git log --oneline | head -10   # 過去のコミットを確認
-
-# 2. ファイル追跡状況確認  
-git ls-files | grep .env       # .envが追跡されていないことを確認
-
-# 3. Laravel設定確認
-docker-compose exec app php artisan config:show mail
-docker-compose exec app php artisan route:list | grep auth
-```
-
-### セキュリティ監査チェックリスト
-- [ ] `.gitignore`に`.env`が含まれている
-- [ ] GitHub上で`.env`ファイルが公開されていない
-- [ ] App Passwordが16文字の英数字である
-- [ ] 本番環境で`APP_DEBUG=false`に設定
-- [ ] 本番環境で`APP_ENV=production`に設定
-- [ ] 異なる環境で異なるAPP_KEYを使用
-- [ ] HTTPSが有効化されている（本番）
-
----
-
-## 🆘 セキュリティインシデント対応
-
-### もし機密情報をコミットしてしまった場合
-
-#### 1. 即座に実行すべき対応
-```bash
-# Git履歴から機密情報を削除
-git filter-branch --force --index-filter \
-'git rm --cached --ignore-unmatch .env' \
---prune-empty --tag-name-filter cat -- --all
-
-# 強制プッシュ（注意：共同開発の場合は要相談）
-git push origin --force --all
-```
-
-#### 2. 機密情報の無効化
-```
-1. Gmail App Passwordを即座に削除・再生成
-2. Laravel APP_KEYを再生成
-3. データベースパスワード変更（本番環境）
-4. チームメンバーへの緊急連絡
-```
-
-#### 3. 再発防止策
-```
-1. .gitignoreの再確認・強化
-2. pre-commitフックの導入
-3. セキュリティ研修の実施
-4. レビュープロセスの強化
-```
-
-
-## 🎯 セキュリティ目標
-
-このプロジェクトでは以下を目指しています：
-
-1. **機密情報の完全分離**: コードと機密情報を明確に分離
-2. **チーム開発の安全性**: 複数人開発でも機密情報が漏洩しない仕組み  
-3. **本番環境の堅牢性**: 本番環境での適切なセキュリティ設定
-4. **継続的改善**: セキュリティ知識の向上と設定の継続的改善
 
 
