@@ -1,318 +1,112 @@
-
 # 新潟大学釣り同好会web
 
-Laravel + MySQL + Docker を使用したWebアプリケーション
+環境構築手順はSETUP.mdを参照してください。
 
-## 🌟 機能概要
-- **ユーザー登録・認証システム**（Laravel Breeze）
-- **グループ管理機能**（サークル・チーム管理）
-- **権限ベースアクセス制御**（一般メンバー・幹部・オーナー）
-- **メール送信機能**（パスワードリセット等）
+- セットアップ手順: [SETUP.md](SETUP.md)
 
----
+![新潟大学釣り同好会ホームページ](src/public/images/Readme.png)
 
-## 🚀 初回セットアップガイド
+## 制作背景
 
-### 📋 前提条件
-開発を始める前に、以下がインストールされていることを確認してください：
+従来のサイトはノーコードツール（Jimdo）で運用していましたが、以下の課題がありました。
 
-- **Docker** （推奨：最新版）
-- **Docker Compose** （推奨：v2.x以上）
-- **Git** 
+- 拡張性の限界 : 機能追加や権限設計の自由度が低い
+- 情報の塩漬け : メンバーが持つ貴重な釣果情報がLINE等のチャットツール内に閉じ込められ、資産として蓄積・活用されていない
+- 更新頻度の極端な低下 : サイトの更新が「年1回」程度に留まっていた。最新の活動状況が外部（新入生や協賛の方々）へ伝わらず、サークルが活発に見えない状態
 
-### 1️⃣ リポジトリのクローンと移動
-```bash
-git clone https://github.com/Tomo-53/fishing-circle-web.git
-cd fishing-circle-web
+
+この刷新の主目的は次の3点です。
+
+- 釣果情報の適切な保護と公開制御 : 釣果情報を適切に保護し、公開範囲を制御できる基盤を作る
+- 後輩へ引き継げる開発基盤 : 属人化を排除し、引継ぎしやすい環境構築をする
+- 対外的な信頼性の向上 : 常に最新の活動が表示されることで、協賛企業様や外部パートナーに対しても「活動が継続的に行われている」という信頼の証を提供する
+
+
+## 主要技術スタック
+
+- **Backend** : Laravel 11, PHP 8.3+
+- **Frontend** : Vue.js, Tailwind CSS, Vite
+- **Database** : MySQL 8.0+
+- **その他** : Docker, Docker Compose, Nginx
+
+## ディレクトリ構成（ソースコード概要）
+
+```
+src/
+├── app/                          # アプリケーションロジック
+│   ├── Http/
+│   │   ├── Controllers/          # コントローラー
+│   │   ├── Middleware/           # ミドルウェア
+│   └── Models/                   # データモデル（User, Group, UserGroup等）
+├── database/
+│   └──  migrations/               # スキーマ定義
+├── lang/                         # 多言語対応（日本語・英語）
+├── public/                       # 公開ディレクトリ（画像・ビルド出力）
+├── resources/
+│   ├── css/                      # Tailwind CSS
+│   ├── js/                       # JavaScript
+│   └── views/                    # Bladeテンプレート
+├── routes/                       # ルート定義（Web, API等）
+└── 設定ファイル
+    ├── composer.json             # PHP依存管理
+    ├── package.json              # Node.js依存管理
+
 ```
 
-### 2️⃣ 環境変数ファイルの設定
+## 技術選定と意図
 
-#### ⚠️ **重要**: 2つの`.env`ファイルが必要です
+## 1. PHP / Laravel
 
-#### **A. プロジェクトルートの`.env`設定（機密情報管理用）**
-```bash
-# ルートディレクトリでテンプレートをコピー
-cp .env.example .env
+2か月という短期間でも、認証・セッション管理・DB操作を実装するために採用しました。
 
-# .env ファイルを編集
-nano .env  # または code .env
-```
+- Laravel Breezeを使った標準的な認証導入
+- マイグレーション中心の安全なDBスキーマ運用
+- 将来的な機能追加を見据えたLaravelのMVCモデルに基づいた保守性の高い構成
 
-**ルートの`.env`の内容例：**
-```properties
-# データベース設定
-DB_DATABASE=*****
-DB_USERNAME=*****
-DB_PASSWORD=*****
+## 2. Docker（WSL2 / Ubuntu想定）
 
-# Laravel アプリケーションキー（重要）
-APP_KEY=***********************
+Windows環境でもLinux前提の安定した開発環境を再現し、個人開発からチーム開発へ移行しやすくするために採用しました。
 
-# Gmail SMTP設定（パスワードリセット機能用）
-MAIL_USERNAME=your-gmail@gmail.com
-MAIL_PASSWORD=your-16-digit-app-password
-MAIL_FROM_ADDRESS=your-gmail@gmail.com
+- ローカル差異を最小化
+- セットアップ再現性の向上
+- 新規メンバー参加時のオンボーディング簡略化
 
-# Docker用権限設定
-UID=1000
-GID=1000
-```
+## 3. 4段階ACL（権限管理）
 
-#### **B. Laravel用の`.env`設定**
-```bash
-# src ディレクトリでテンプレートをコピー
-cp src/.env.example src/.env
+グループ運用で必要な承認フローと責務分離を実現するため、4段階の権限を実装しています。
 
-# この設定は通常変更不要（環境変数を参照するため）
-```
+- レベル1: 申請中
+- レベル2: 一般メンバー
+- レベル3: 幹部・管理者
+- レベル4: オーナー
 
-### 3️⃣ Gmail App Password の取得（メール機能用）
+これにより、閲覧範囲・管理操作・所有者権限を明確に分離できます。
 
-メール送信機能（パスワードリセット等）を使用するには、Gmail App Passwordが必要です：
 
-1. **Googleアカウント設定** にアクセス
-2. **セキュリティ** → **2段階認証プロセス** を有効化
-3. **アプリパスワード** を生成
-4. 16文字のパスワードを取得
-5. ルートの`.env`ファイルの`MAIL_PASSWORD`に設定
+## 現在の進捗
 
-### 4️⃣ Dockerコンテナの起動
-```bash
-# 初回ビルド・起動（時間がかかります）
-docker-compose up -d --build
+実装済みの主要機能:
 
-# 起動状況確認
-docker-compose ps
-```
+- ログイン・認証機能
+- グループ管理機能
+- 権限付与とアクセス制御
 
-### 5️⃣ Laravel環境の初期化
-
-#### **重要: 順番を守って実行してください**
+## Roadmap
 
-```bash
-# ① Composer依存パッケージのインストール
-docker-compose exec app composer install
-
-# ② アプリケーションキーの生成（セキュリティのため必須）
-docker-compose exec app php artisan key:generate
-
-# ③ データベースマイグレーション実行
-docker-compose exec app php artisan migrate
-
-# ④ 認証システム（Laravel Breeze）のインストール
-docker-compose exec app php artisan breeze:install blade
-
-# ⑤ Node.js依存関係のインストールとビルド
-docker-compose exec app npm install
-docker-compose exec app npm run build
-```
-
-### 6️⃣ 動作確認
-開発環境が正常に起動したら、以下にアクセスしてください：
-
-- **🌐 Webアプリケーション**: http://localhost:8000
-- **🗄️ phpMyAdmin**: http://localhost:8080
-  - ユーザー名: `root`
-  - パスワード: `DB_PASSWORDで設定したもの`
-
----
-
-## 🏗️ プロジェクト構成
-
-### 📊 データベース設計
-| テーブル | 説明 |
-|----------|------|
-| `users` | ユーザー情報（名前、メール、学年） |
-| `groups` | グループ情報（サークル・チーム） |
-| `user_groups` | ユーザーとグループの関係・権限管理 |
-
-### 🔐 権限システム
-| レベル | 名称 | 権限 |
-|--------|------|------|
-| 1 | 申請中 | グループ参加申請中（承認待ち） |
-| 2 | 一般メンバー | 基本機能利用 |
-| 3 | 幹部・管理者 | メンバー管理、グループ設定変更 |
-| 4 | オーナー | 全権限（グループ削除含む） |
-
----
-
-## 🛠️ 開発・運用コマンド
-
-### Laravel Artisan コマンド
-```bash
-# コマンド実行の基本形
-docker-compose exec app php artisan [command]
-
-# よく使用するコマンド
-docker-compose exec app php artisan migrate:status    # マイグレーション状況確認
-docker-compose exec app php artisan route:list       # ルート一覧
-docker-compose exec app php artisan make:controller  # コントローラ作成
-```
-
-### データベース操作
-```bash
-# マイグレーション実行
-docker-compose exec app php artisan migrate
-
-# 全テーブル削除して再マイグレーション（開発用）
-docker-compose exec app php artisan migrate:fresh
-
-# ダミーデータ作成（開発用）
-docker-compose exec app php artisan db:seed
-```
-
-### キャッシュ・最適化
-```bash
-# 全キャッシュクリア
-docker-compose exec app php artisan optimize:clear
-
-# 本番用最適化
-docker-compose exec app php artisan optimize
-```
-
----
-
-## 🔒 セキュリティについて
-
-### ⚠️ **重要な注意事項**
-- **`.env`ファイル（機密情報）は絶対にGitにコミットしないでください**
-- **Gmail通常パスワードではなく、必ずApp Passwordを使用してください**
-- **本番環境では異なるパスワード・設定を使用してください**
-
-### 📁 ファイルセキュリティ
-```
-📂 Git管理状況
-├── ✅ .env.example           # 管理対象（テンプレート）
-├── ✅ src/.env.example       # 管理対象（テンプレート）
-├── ❌ .env                   # 管理外（機密情報含む）
-└── ❌ src/.env               # 管理外（機密情報含む）
-```
-
-### 🔐 機密情報の管理
-```properties
-# ルートの .env（Git管理外）
-MAIL_USERNAME=your-gmail@gmail.com
-MAIL_PASSWORD=*******   # App Password（16文字）
-APP_KEY=*******       # Laravel暗号化キー
-
-# src/.env（Git管理対象・安全）
-MAIL_USERNAME=${MAIL_USERNAME}     # 変数参照のみ
-MAIL_PASSWORD=${MAIL_PASSWORD}     # 変数参照のみ
-APP_KEY=${APP_KEY}                 # 変数参照のみ
-```
-
----
-
-## 🚀 本番デプロイ（Railway）
-
-### 1. Railway プロジェクト作成
-```bash
-# Railway CLI インストール
-npm install -g @railway/cli
-
-# プロジェクト作成
-railway login
-railway init
-```
-
-### 2. データベース追加
-```bash
-railway add mysql
-```
-
-### 3. 環境変数設定
-Railway の管理画面で以下を設定：
-```properties
-APP_ENV=production
-APP_DEBUG=false
-APP_KEY=******* 
-APP_URL=https://your-app.railway.app
-
-MAIL_USERNAME=your-gmail@gmail.com
-MAIL_PASSWORD=your-app-password
-MAIL_FROM_ADDRESS=your-gmail@gmail.com
-
-DB_CONNECTION=mysql
-DB_HOST=${{MySQL.MYSQL_HOST}}
-DB_DATABASE=${{MySQL.MYSQL_DATABASE}}
-DB_USERNAME=${{MySQL.MYSQL_USER}}
-DB_PASSWORD=${{MySQL.MYSQL_PASSWORD}}
-```
-
-### 4. デプロイ後の初期化
-```bash
-# マイグレーション実行
-railway run php artisan migrate --force
-```
-
----
-
-## 🔧 トラブルシューティング
-
-### よくある問題と解決方法
-
-#### 1. 🚨 "APP_KEY not set" エラー
-```bash
-docker-compose exec app php artisan key:generate
-```
-
-#### 2. 🚨 データベース接続エラー
-```bash
-# DBコンテナ再起動
-docker-compose restart db
-
-# 接続テスト
-docker-compose exec db mysql -u root -psecret_password -e "SHOW DATABASES;"
-```
-
-#### 3. 🚨 権限エラー（Permission denied）
-```bash
-# ストレージ権限修正
-docker-compose exec app chmod -R 775 storage bootstrap/cache
-```
-
-#### 4. 🚨 メール送信エラー
-- Gmail App Passwordが正しく設定されているか確認
-- 2段階認証が有効になっているか確認
-- `.env`ファイルのメール設定を再確認
-
-#### 5. 🚨 フロントエンドビルドエラー
-```bash
-# Node.js関連の再インストール
-docker-compose exec app rm -rf node_modules package-lock.json
-docker-compose exec app npm install
-docker-compose exec app npm run build
-```
-
-#### 6. 🚨 コンテナが起動しない
-```bash
-# 全リセット
-docker-compose down --volumes
-docker-compose up -d --build
-```
-
----
-
-## 🤝 開発チームへの参加
-
-### 新メンバー向けクイックスタート
-1. このREADMEの手順に従ってローカル環境を構築
-2. http://localhost:8000 でサイト動作確認
-3. ユーザー登録・ログインテスト
-4. 開発用ブランチの作成・作業開始
-
-### 開発フロー
-```bash
-# 開発開始
-git checkout -b feature/your-feature-name
-
-# 開発・テスト
-docker-compose exec app php artisan test
-
-# コミット・プッシュ
-git add .
-git commit -m "Add: your feature description"
-git push origin feature/your-feature-name
-```
+今後の開発予定:
 
+- Q&A機能
+- ブログ機能
+- クローズページからオープンページへのフロー
+- オープンページのデザイン改正
+
+## 開発者メッセージ
+
+バックエンドほぼ未経験の状態から2か月で、実運用を見据えたセキュリティと基盤を構築しました。
+
+このプロジェクトは単なるWebサイト移行ではなく、運用に耐える品質を担保しつつ、次世代のメンバーが改善を継続できる土台を作る取り組みです。
+
+## ドキュメント案内
+
+- 環境構築・デプロイ・トラブル対応: [SETUP.md](SETUP.md)
+- セキュリティポリシー: [SECURITY.md](SECURITY.md)
