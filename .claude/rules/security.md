@@ -1,0 +1,30 @@
+# セキュリティ規約（全セッション適用）
+
+このプロジェクトは会員制で釣果情報を保護する。セキュリティは最優先事項。
+
+## 認可（ACL）
+
+- すべての保護対象操作はサーバ側で認可する：`check.group.permission` ミドルウェア / Policy / FormRequest の `authorize()`。
+- 権限チェックは必ず `user_id` と `group_id` の**両方**でスコープする。片方だけのチェックはグループ横断の権限漏れになる。
+- `is_approved = false`（承認待ち）のユーザーはグループコンテンツにアクセスさせない。
+- Blade の `@can` などの表示制御はUXのためであり、認可の本体ではない。
+
+## 入力・出力
+
+- 入力は FormRequest で必ずバリデーション。`$request->validated()` のみをモデルに渡す。
+- Mass Assignment は `$fillable` で制御。`$guarded = []` 禁止。
+- 出力は Blade の `{{ }}` で自動エスケープ。`{!! !!}` は原則禁止（XSS）。
+- DB アクセスは Eloquent / クエリビルダ / バインドパラメータ。生 SQL の文字列結合禁止（SQLi）。
+
+## 機密情報
+
+- `.env` / `src/.env` / `APP_KEY` / `MAIL_PASSWORD` / DB認証情報を**絶対にコミット・出力しない**。
+- 管理対象は `.env.example` / `src/.env.example` のみ。実値はプレースホルダにする。
+- 新しい機密値が必要なときは `.env.example` にキーだけ追加し、SETUP.md に説明を書く。
+
+## その他
+
+- CSRF：フォームに `@csrf`。状態変更は POST/PATCH/DELETE で行う。
+- パスワード等は Laravel の `Hash` / 標準認証（Breeze）に従う。独自実装しない。
+- 依存追加は最小限にし、目的を明示する。
+- 詳細なセキュリティ方針は SECURITY.md を参照。
