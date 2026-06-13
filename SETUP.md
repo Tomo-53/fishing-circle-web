@@ -239,3 +239,107 @@ docker-compose exec app php artisan db:seed
 # キャッシュクリア
 docker-compose exec app php artisan optimize:clear
 ```
+
+## 7. TDD / CI / CD フロー
+
+### 7.1 ブランチ戦略
+
+```
+main          ← 本番（Railway が自動デプロイ）
+ └─ dev       ← 統合ブランチ（PR 経由でのみ更新）
+     └─ feature/xxx  ← 機能開発（ここで TDD サイクルを回す）
+```
+
+- 作業は必ず `dev` から `feature/xxx` を切って行う
+- `main` へ直接コミット・push しない
+- マージ順序: `feature → dev`（PR）→ `dev → main`（PR）
+
+### 7.2 TDD サイクル（ローカル）
+
+```bash
+# 1. Pest テストを先に書く（Red）
+docker-compose exec app php artisan test   # → 失敗することを確認
+
+# 2. 機能を実装する（Green）
+docker-compose exec app php artisan test   # → 全件パスを確認
+
+# 3. 整形してコミット（Refactor）
+docker-compose exec app ./vendor/bin/pint  # コード整形
+git add . && git commit -m "feat: ..."
+```
+
+### 7.3 CI（GitHub Actions）
+
+`.github/workflows/ci.yml` により、以下のタイミングで自動実行されます。
+
+| トリガー | 対象 |
+|---------|------|
+| push | `main` / `dev` / `feature/**` / `refactor/**` / `hotfix/**` / `chore/**` |
+| PR | `main` または `dev` 宛て |
+
+**実行内容（`src/` 配下で実行）:**
+
+1. PHP 8.2 + 必要拡張のセットアップ
+2. `composer install`（`vendor/` をキャッシュして高速化）
+3. `.env.example` からテスト用 `.env` を生成
+4. `./vendor/bin/pint --test`（整形チェック、差分があれば失敗）
+5. `php artisan test`（Pest、SQLite in-memory で実行）
+
+> CI に MySQL サービスは不要です。`phpunit.xml` が `DB_CONNECTION=sqlite` / `DB_DATABASE=:memory:` に上書きするため、本番と同じ `.env.example` をそのまま使えます。
+
+### 7.4 CD（Railway 自動デプロイ）
+
+`main` ブランチへのマージを Railway が検知し、自動でビルド・デプロイします。
+Railway 側の設定は以下の手順で行います（一度だけ）。
+
+#### Railway ダッシュボード設定手順
+
+1. [railway.app](https://railway.app) にログインしてプロジェクトを開く
+2. サービスの **Settings** → **Source** → **GitHub Repo** を接続
+3. **Branch** を `main` に設定
+4. **Deploy** タブの **Start Command** に以下を設定:
+   ```
+   php artisan migrate --force && php-fpm
+   ```
+5. **Variables** タブで本番環境変数を設定:
+
+```properties
+APP_ENV=production
+APP_DEBUG=false
+APP_KEY=（php artisan key:generate --show で生成）
+APP_URL=https://your-app.railway.app
+
+DB_CONNECTION=mysql
+DB_HOST=${{MySQL.MYSQL_HOST}}
+DB_PORT=${{MySQL.MYSQL_PORT}}
+DB_DATABASE=${{MySQL.MYSQL_DATABASE}}
+DB_USERNAME=${{MySQL.MYSQL_USER}}
+DB_PASSWORD=${{MySQL.MYSQL_PASSWORD}}
+
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=your-gmail@gmail.com
+MAIL_PASSWORD=your-16-digit-app-password
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=your-gmail@gmail.com
+
+SESSION_DRIVER=database
+SESSION_SECURE_COOKIE=true
+SESSION_HTTP_ONLY=true
+SESSION_SAME_SITE=strict
+```
+
+#### デプロイフロー全体像
+
+```
+ローカル TDD
+    ↓ push
+GitHub Actions CI（Pint + Pest）
+    ↓ グリーン → PR マージ → main 更新
+Railway 自動ビルド（Nixpacks）
+    ↓
+php artisan migrate --force
+    ↓
+本番公開
+```

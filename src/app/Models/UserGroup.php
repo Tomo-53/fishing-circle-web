@@ -38,8 +38,11 @@ class UserGroup extends Model
      * 権限レベルの定数定義
      */
     public const PERMISSION_LEVEL_PENDING = 1;     // 認証待機
+
     public const PERMISSION_LEVEL_MEMBER = 2;      // 一般メンバー
+
     public const PERMISSION_LEVEL_ADMIN = 3;       // 幹部・管理者
+
     public const PERMISSION_LEVEL_OWNER = 4;       // グループオーナー
 
     /**

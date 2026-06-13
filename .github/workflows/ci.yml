@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+      - "feature/**"
+      - "refactor/**"
+      - "hotfix/**"
+      - "chore/**"
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+  test:
+    name: Pint + Pest (PHP 8.2)
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: src
+
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: PHP 8.2 セットアップ
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: pdo_sqlite, mbstring, zip, gd
+          coverage: none
+
+      - name: Composer キャッシュ取得
+        uses: actions/cache@v4
+        with:
+          path: src/vendor
+          key: composer-${{ hashFiles('src/composer.lock') }}
+          restore-keys: composer-
+
+      - name: Composer インストール
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: .env 準備
+        run: |
+          php -r "file_exists('.env') || copy('.env.example', '.env');"
+          php artisan key:generate --force
+
+      - name: Pint（整形チェック）
+        run: ./vendor/bin/pint --test
+
+      - name: Pest（テスト実行）
+        run: php artisan test

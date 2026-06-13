@@ -2,11 +2,11 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Group;
+use App\Models\UserGroup;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Group;
-use App\Models\UserGroup;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckGroupPermission
@@ -19,16 +19,12 @@ class CheckGroupPermission
      * 2. そのグループ内で承認されている
      * 3. 必要な権限レベルを持っている
      *
-     * @param \Illuminate\Http\Request $request
-     * @param \Closure $next
-     * @param int $requiredLevel 必要な権限レベル (1-4)
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @param  int  $requiredLevel  必要な権限レベル (1-4)
      */
-
     public function handle(Request $request, Closure $next, int $requiredLevel): Response
     {
         // 1. ユーザーがログインしているかチェック
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect()->route('login')->with('error', 'ログインが必要です');
         }
 
@@ -36,7 +32,7 @@ class CheckGroupPermission
         $group = $request->route('group');
 
         // 3. Groupモデルかチェック
-        if (!$group instanceof Group) {
+        if (! $group instanceof Group) {
             abort(404, 'グループが見つかりません');
         }
 
@@ -49,12 +45,12 @@ class CheckGroupPermission
             ->first();
 
         // 7. そのグループに参加していない場合は403エラー
-        if (!$userGroup) {
+        if (! $userGroup) {
             abort(403, 'このグループにアクセスする権限がありません。グループに参加申請を行ってください。');
         }
 
         // 8. 承認されていない場合は403エラー
-        if (!$userGroup->is_approved) {
+        if (! $userGroup->is_approved) {
             abort(403, 'グループ参加申請が承認されていません。管理者の承認をお待ちください。');
         }
 
@@ -68,7 +64,7 @@ class CheckGroupPermission
         // 10. リクエストにグループ情報を追加（コントローラーで使用可能）
         $request->merge([
             'current_group' => $group,
-            'current_user_group' => $userGroup
+            'current_user_group' => $userGroup,
         ]);
 
         // 11. 全てのチェックをパスした場合のみ次へ進む
@@ -81,7 +77,7 @@ class CheckGroupPermission
      */
     private function getPermissionLabel(int $level): string
     {
-        return match($level) {
+        return match ($level) {
             1 => '認証待機',
             2 => '一般メンバー',
             3 => '管理者・幹部',

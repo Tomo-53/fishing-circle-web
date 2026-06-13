@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Group;
 use App\Models\User;
 use App\Models\UserGroup;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Validation\Rule;
 
 class GroupController extends Controller
@@ -48,7 +48,7 @@ class GroupController extends Controller
             ->withCount(['approvedUsers']);
 
         if ($search) {
-            $query->where('name', 'like', '%' . $search . '%');
+            $query->where('name', 'like', '%'.$search.'%');
         }
 
         $allGroups = $query->orderBy('created_at', 'desc')->paginate(10);
@@ -85,7 +85,7 @@ class GroupController extends Controller
 
         return redirect()
             ->route('groups.show', $group)
-            ->with('success', 'グループ「' . $group->name . '」が作成されました');
+            ->with('success', 'グループ「'.$group->name.'」が作成されました');
     }
 
     /**
@@ -141,7 +141,7 @@ class GroupController extends Controller
             'is_approved' => false,
         ]);
 
-        return back()->with('success', 'グループ「' . $group->name . '」への参加申請を送信しました');
+        return back()->with('success', 'グループ「'.$group->name.'」への参加申請を送信しました');
     }
 
     /**
@@ -179,7 +179,7 @@ class GroupController extends Controller
             ->where('is_approved', false)
             ->first();
 
-        if (!$userGroup) {
+        if (! $userGroup) {
             return back()->with('error', '承認対象のメンバーが見つかりません');
         }
 
@@ -189,7 +189,7 @@ class GroupController extends Controller
             'permission_level' => UserGroup::PERMISSION_LEVEL_MEMBER,
         ]);
 
-        return back()->with('success', $user->name . 'さんを承認しました');
+        return back()->with('success', $user->name.'さんを承認しました');
     }
 
     /**
@@ -208,7 +208,7 @@ class GroupController extends Controller
             ->where('is_approved', true)
             ->first();
 
-        if (!$userGroup) {
+        if (! $userGroup) {
             return back()->with('error', '昇格対象のメンバーが見つかりません');
         }
 
@@ -219,7 +219,7 @@ class GroupController extends Controller
 
         // 既に管理者の場合
         if ($userGroup->permission_level == UserGroup::PERMISSION_LEVEL_ADMIN) {
-            return back()->with('error', $user->name . 'さんは既に管理者です');
+            return back()->with('error', $user->name.'さんは既に管理者です');
         }
 
         // レベル2からレベル3（管理者）に昇格
@@ -227,7 +227,7 @@ class GroupController extends Controller
             'permission_level' => UserGroup::PERMISSION_LEVEL_ADMIN,
         ]);
 
-        return back()->with('success', $user->name . 'さんを管理者に昇格させました');
+        return back()->with('success', $user->name.'さんを管理者に昇格させました');
     }
 
     /**
@@ -246,7 +246,7 @@ class GroupController extends Controller
             ->where('is_approved', true)
             ->first();
 
-        if (!$userGroup) {
+        if (! $userGroup) {
             return back()->with('error', '降格対象のメンバーが見つかりません');
         }
 
@@ -257,7 +257,7 @@ class GroupController extends Controller
 
         // 既にメンバーの場合
         if ($userGroup->permission_level == UserGroup::PERMISSION_LEVEL_MEMBER) {
-            return back()->with('error', $user->name . 'さんは既に一般メンバーです');
+            return back()->with('error', $user->name.'さんは既に一般メンバーです');
         }
 
         // レベル3からレベル2（一般メンバー）に降格
@@ -265,7 +265,7 @@ class GroupController extends Controller
             'permission_level' => UserGroup::PERMISSION_LEVEL_MEMBER,
         ]);
 
-        return back()->with('success', $user->name . 'さんを一般メンバーに降格させました');
+        return back()->with('success', $user->name.'さんを一般メンバーに降格させました');
     }
 
     /**
@@ -283,14 +283,14 @@ class GroupController extends Controller
             ->where('group_id', $group->id)
             ->first();
 
-        if (!$userGroup) {
+        if (! $userGroup) {
             return back()->with('error', '削除対象のメンバーが見つかりません');
         }
 
         $userName = $user->name;
         $userGroup->delete();
 
-        return back()->with('success', $userName . 'さんをグループから削除しました');
+        return back()->with('success', $userName.'さんをグループから削除しました');
     }
 
     // /**
@@ -342,6 +342,6 @@ class GroupController extends Controller
 
         return redirect()
             ->route('groups.myGroups')
-            ->with('success', 'グループ「' . $groupName . '」を削除しました');
+            ->with('success', 'グループ「'.$groupName.'」を削除しました');
     }
 }
