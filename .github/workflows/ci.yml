@@ -49,6 +49,24 @@ jobs:
           php -r "file_exists('.env') || copy('.env.example', '.env');"
           php artisan key:generate --force
 
+      - name: Vite マニフェスト生成（テスト用スタブ）
+        run: |
+          mkdir -p public/build
+          cat > public/build/manifest.json << 'EOF'
+          {
+            "resources/css/app.css": {
+              "file": "assets/app.css",
+              "src": "resources/css/app.css",
+              "isEntry": true
+            },
+            "resources/js/app.js": {
+              "file": "assets/app.js",
+              "src": "resources/js/app.js",
+              "isEntry": true
+            }
+          }
+          EOF
+
       - name: Pint（整形チェック）
         run: ./vendor/bin/pint --test
 
