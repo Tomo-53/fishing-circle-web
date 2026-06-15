@@ -45,6 +45,7 @@ class Group extends Model
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'user_groups')
+            ->using(UserGroup::class)
             ->withPivot(['permission_level', 'is_approved'])
             ->withTimestamps();
     }
@@ -79,6 +80,24 @@ class Group extends Model
     public function userGroups(): HasMany
     {
         return $this->hasMany(UserGroup::class);
+    }
+
+    /**
+     * 指定ユーザーの UserGroup レコードを取得（user_id と group_id 両方でスコープ）
+     */
+    public function memberRecordOf(User $user): ?UserGroup
+    {
+        return $this->userGroups()
+            ->where('user_id', $user->id)
+            ->first();
+    }
+
+    /**
+     * 指定ユーザーがこのグループのオーナーかチェック
+     */
+    public function isOwnedBy(User $user): bool
+    {
+        return $this->master_user_id === $user->id;
     }
 
     /**
