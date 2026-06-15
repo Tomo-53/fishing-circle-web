@@ -33,8 +33,6 @@ class Group extends Model
 
     /**
      * グループのオーナー
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function masterUser(): BelongsTo
     {
@@ -43,8 +41,6 @@ class Group extends Model
 
     /**
      * グループに参加しているユーザー（全て）
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function users(): BelongsToMany
     {
@@ -55,8 +51,6 @@ class Group extends Model
 
     /**
      * 承認済みのユーザーのみ
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function approvedUsers(): BelongsToMany
     {
@@ -65,8 +59,6 @@ class Group extends Model
 
     /**
      * 承認待ちのユーザー
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function pendingUsers(): BelongsToMany
     {
@@ -75,9 +67,6 @@ class Group extends Model
 
     /**
      * 特定の権限レベルのユーザーを取得
-     *
-     * @param int $level
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function getUsersByPermissionLevel(int $level): BelongsToMany
     {
@@ -86,8 +75,6 @@ class Group extends Model
 
     /**
      * グループのUserGroupレコード
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function userGroups(): HasMany
     {

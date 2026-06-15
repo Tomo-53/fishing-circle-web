@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -27,7 +27,7 @@ class AppServiceProvider extends ServiceProvider
         }
 
         // Railwayでの確実なHTTPS設定
-        if (!app()->environment('local')) {
+        if (! app()->environment('local')) {
             URL::forceScheme('https');
         }
     }
