@@ -73,16 +73,10 @@ class CheckGroupPermission
     }
 
     /**
-     * 権限レベルのラベルを取得
+     * 権限レベルのラベルを取得（UserGroup の定数を唯一の定義として参照）
      */
     private function getPermissionLabel(int $level): string
     {
-        return match ($level) {
-            1 => '認証待機',
-            2 => '一般メンバー',
-            3 => '管理者・幹部',
-            4 => 'グループオーナー',
-            default => "レベル{$level}",
-        };
+        return UserGroup::PERMISSION_LABELS[$level] ?? "レベル{$level}";
     }
 }
