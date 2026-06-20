@@ -19,7 +19,7 @@
 
 ## 2. Subagents（Agent Team ロスター）
 
-`.claude/agents/` に8体。`commander` がリード（指揮官）、他は専門ワーカー。
+`.claude/agents/` に9体。`commander` がリード（指揮官）、他は専門ワーカー。
 
 | エージェント | 役割 | 主なツール | モデル | 色 | 備考 |
 |-------------|------|-----------|--------|----|----|
@@ -28,6 +28,7 @@
 | **frontend-blade** | フロント実装（Blade/Tailwind/Alpine） | + Skill | inherit | 緑 | frontend-design 参照 |
 | **pest-tester** | テスター。Pest 作成・実行・解析 | Read,Edit,Write,Bash,Grep,Glob | inherit | 黄 | ACL 境界を必ず網羅 |
 | **code-reviewer** | コードレビュー（読み取り専用） | Read,Grep,Glob,Bash | inherit | 水 | `memory: project` で学習蓄積 |
+| **ui-reviewer** | UI/UXレビュー（読み取り専用） | Read,Grep,Glob,Bash | inherit | 水 | `memory: project`、デザイン/a11y/一貫性 |
 | **security-auditor** | セキュリティ監査（読み取り専用） | Read,Grep,Glob,Bash | inherit | 赤 | `memory: project`、ACL最優先 |
 | **db-migrator** | DB／マイグレーション | Read,Edit,Write,Bash,Grep,Glob | inherit | 橙 | 破壊的操作を遮断する frontmatter hook 付き |
 | **docs-writer** | ドキュメント | Read,Edit,Write,Grep,Glob | haiku | 桃 | コスト最適化 |
@@ -48,6 +49,11 @@
 | **acl-permission** | カスタム | 4段階ACL（グループ権限）の正しい実装・確認手順 |
 | **laravel-feature** | カスタム | 新機能を end-to-end で追加する手順（model→…→test） |
 | **epic-knowledge** | カスタム | 案件ノート(_epic.md)の読込・知識昇格・次タスク提案の手順 |
+| **ui-polish** | カスタム | 既存 Blade の磨き込み（間隔/階層/タイポ/整列の統一） |
+| **accessibility** | カスタム | Blade の a11y 監査・修正（ラベル/ARIA/キーボード/コントラスト） |
+| **ui-motion** | カスタム | Alpine + Tailwind の節度ある・高性能なマイクロインタラクション |
+| **design-system** | カスタム | Tailwind トークンと共通コンポーネントの一貫運用・拡張 |
+| **interface-patterns** | カスタム | 一覧/フォーム/詳細/ダッシュボードの画面型紙（空状態・ACL表示制御） |
 
 > 公式の文書系スキル（docx/pdf/pptx/xlsx 等）は Claude 環境に既定で利用可能なため再導入していません。
 
