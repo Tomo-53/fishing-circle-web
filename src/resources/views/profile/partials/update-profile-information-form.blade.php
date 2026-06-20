@@ -49,18 +49,14 @@
 
         <div>
             <x-input-label for="grade" :value="__('Grade')" />
+            @php($currentGrade = old('grade', $user->grade?->value))
             <select id="grade" name="grade" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
                 <option value="">学年を選択してください</option>
-                <option value="B1" {{ old('grade', $user->grade) == 'B1' ? 'selected' : '' }}>B1（学部1年）</option>
-                <option value="B2" {{ old('grade', $user->grade) == 'B2' ? 'selected' : '' }}>B2（学部2年）</option>
-                <option value="B3" {{ old('grade', $user->grade) == 'B3' ? 'selected' : '' }}>B3（学部3年）</option>
-                <option value="B4" {{ old('grade', $user->grade) == 'B4' ? 'selected' : '' }}>B4（学部4年）</option>
-                <option value="M1" {{ old('grade', $user->grade) == 'M1' ? 'selected' : '' }}>M1（修士1年）</option>
-                <option value="M2" {{ old('grade', $user->grade) == 'M2' ? 'selected' : '' }}>M2（修士2年）</option>
-                <option value="D1" {{ old('grade', $user->grade) == 'D1' ? 'selected' : '' }}>D1（博士1年）</option>
-                <option value="D2" {{ old('grade', $user->grade) == 'D2' ? 'selected' : '' }}>D2（博士2年）</option>
-                <option value="D3" {{ old('grade', $user->grade) == 'D3' ? 'selected' : '' }}>D3（博士3年）</option>
-                <option value="OTHER" {{ old('grade', $user->grade) == 'OTHER' ? 'selected' : '' }}>その他</option>
+                @foreach(\App\Enums\Grade::cases() as $gradeOption)
+                    <option value="{{ $gradeOption->value }}" {{ $currentGrade === $gradeOption->value ? 'selected' : '' }}>
+                        {{ $gradeOption === \App\Enums\Grade::Other ? $gradeOption->label() : $gradeOption->value.'（'.$gradeOption->label().'）' }}
+                    </option>
+                @endforeach
             </select>
             <x-input-error class="mt-2" :messages="$errors->get('grade')" />
         </div>
