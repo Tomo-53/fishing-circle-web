@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\PermissionLevel;
+use App\Http\Requests\StoreGroupRequest;
+use App\Http\Requests\UpdateGroupRequest;
 use App\Models\Group;
 use App\Models\User;
 use App\Models\UserGroup;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
 
 class GroupController extends Controller
 {
@@ -71,15 +73,11 @@ class GroupController extends Controller
      * 新しいグループを作成
      * 作成者は自動でオーナー（レベル4）になる
      */
-    public function store(Request $request)
+    public function store(StoreGroupRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:50|unique:groups,name',
-        ]);
-
         // グループ作成（Group.phpのboot()メソッドで自動的にオーナー登録される）
         $group = Group::create([
-            'name' => $request->name,
+            'name' => $request->validated('name'),
             'master_user_id' => Auth::id(),
         ]);
 
@@ -105,7 +103,7 @@ class GroupController extends Controller
             ->get();
 
         // 申請中メンバー数（管理者以上のみ表示用）
-        $pendingCount = $currentUserGroup->permission_level >= 3
+        $pendingCount = $currentUserGroup->permission_level->hasAdminPermission()
             ? $group->pendingUsers()->count()
             : 0;
 
@@ -213,12 +211,12 @@ class GroupController extends Controller
         }
 
         // オーナーは昇格不可（既に最高権限）
-        if ($userGroup->permission_level == UserGroup::PERMISSION_LEVEL_OWNER) {
+        if ($userGroup->permission_level->isOwner()) {
             return back()->with('error', 'オーナーの権限は変更できません');
         }
 
         // 既に管理者の場合
-        if ($userGroup->permission_level == UserGroup::PERMISSION_LEVEL_ADMIN) {
+        if ($userGroup->permission_level->isAdmin()) {
             return back()->with('error', $user->name.'さんは既に管理者です');
         }
 
@@ -251,12 +249,12 @@ class GroupController extends Controller
         }
 
         // オーナーは降格不可
-        if ($userGroup->permission_level == UserGroup::PERMISSION_LEVEL_OWNER) {
+        if ($userGroup->permission_level->isOwner()) {
             return back()->with('error', 'オーナーの権限は変更できません');
         }
 
         // 既にメンバーの場合
-        if ($userGroup->permission_level == UserGroup::PERMISSION_LEVEL_MEMBER) {
+        if ($userGroup->permission_level === PermissionLevel::Member) {
             return back()->with('error', $user->name.'さんは既に一般メンバーです');
         }
 
@@ -307,20 +305,10 @@ class GroupController extends Controller
      * グループ情報更新
      * レベル4のみ（オーナーのみ）
      */
-    public function update(Request $request, Group $group)
+    public function update(UpdateGroupRequest $request, Group $group)
     {
-        // ミドルウェアで権限チェック済み
-
-        $request->validate([
-            'name' => [
-                'required',
-                'string',
-                'max:50',
-                Rule::unique('groups')->ignore($group->id),
-            ],
-        ]);
-
-        $group->update($request->only(['name']));
+        // ミドルウェアで権限チェック済み・検証は UpdateGroupRequest に集約
+        $group->update($request->validated());
 
         return redirect()
             ->route('groups.show', $group)
