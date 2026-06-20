@@ -28,8 +28,6 @@ Blade テンプレート・CSS・JS を編集するときに適用する。
 - アセットは Vite 経由（`@vite([...])`）。ビルドは `npm run build`、開発は `npm run dev`。
 - インラインの大きな JS は避け、`resources/js/` に置く。
 
-## デザイン品質・アクセシビリティ
+## デザイン品質
 
-- 凝った UI の新規作成は `frontend-design`、既存の磨き込みは `ui-polish`、色・余白・コンポーネントの統一は `design-system`、画面の型紙は `interface-patterns`、演出は `ui-motion` スキルを参照する。
-- アクセシビリティ必須観点（`accessibility` スキル）: 入力には `label` を関連付ける（`for`/`id`）、エラーは `aria-describedby` で紐づける、キーボードだけで操作でき**フォーカスリングを消さない**、本文・ボタンのコントラストは WCAG AA（4.5:1）を満たす。
-- 変更後は `ui-reviewer` エージェントでのレビューを推奨。
+- 凝った UI を新規作成する場合は `frontend-design` スキルを参照してよい。
