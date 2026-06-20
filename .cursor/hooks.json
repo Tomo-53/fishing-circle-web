@@ -22,6 +22,11 @@
       {
         "command": ".cursor/hooks/pint-format.sh"
       }
+    ],
+    "stop": [
+      {
+        "command": ".cursor/hooks/epic-reminder.sh"
+      }
     ]
   }
 }
