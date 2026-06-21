@@ -3,12 +3,22 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class UserGroup extends Model
+class UserGroup extends Pivot
 {
     use HasFactory;
+
+    /**
+     * テーブル名を明示指定（Pivot はデフォルトで複数形化しないため）
+     */
+    protected $table = 'user_groups';
+
+    /**
+     * このピボットテーブルは id カラムを持つため、auto-increment を有効にする
+     */
+    public $incrementing = true;
 
     /**
      * The attributes that are mass assignable.
@@ -96,6 +106,14 @@ class UserGroup extends Model
     }
 
     /**
+     * 管理者（レベル3）かどうかをチェック
+     */
+    public function isAdmin(): bool
+    {
+        return $this->permission_level === self::PERMISSION_LEVEL_ADMIN;
+    }
+
+    /**
      * 管理者権限があるかチェック（レベル3以上）
      */
     public function hasAdminPermission(): bool
@@ -109,5 +127,18 @@ class UserGroup extends Model
     public function hasPermissionLevel(int $level): bool
     {
         return $this->permission_level >= $level;
+    }
+
+    /**
+     * $target ユーザーを除名できるかチェック
+     * オーナーは全員除名可能、管理者は一般メンバー以下のみ除名可能
+     */
+    public function canRemove(self $target): bool
+    {
+        if ($this->isOwner()) {
+            return true;
+        }
+
+        return $this->isAdmin() && $target->permission_level <= self::PERMISSION_LEVEL_MEMBER;
     }
 }

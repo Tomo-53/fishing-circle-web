@@ -63,6 +63,7 @@ class User extends Authenticatable
     public function groups(): BelongsToMany
     {
         return $this->belongsToMany(Group::class, 'user_groups')
+            ->using(UserGroup::class)
             ->withPivot(['permission_level', 'is_approved'])
             ->withTimestamps();
     }
@@ -105,6 +106,29 @@ class User extends Authenticatable
             ->first();
 
         return $userGroup ? $userGroup->is_approved : false;
+    }
+
+    /**
+     * 学年コードと表示ラベルの対応表
+     */
+    public const GRADE_LABELS = [
+        'B1' => '学部1年',
+        'B2' => '学部2年',
+        'B3' => '学部3年',
+        'B4' => '学部4年',
+        'M1' => '修士1年',
+        'M2' => '修士2年',
+        'D1' => '博士1年',
+        'D2' => '博士2年',
+        'D3' => '博士3年',
+    ];
+
+    /**
+     * 学年の表示ラベルを返すアクセサ
+     */
+    public function getGradeLabelAttribute(): string
+    {
+        return self::GRADE_LABELS[$this->grade] ?? 'その他';
     }
 
     /**
