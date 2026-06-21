@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\Grade;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -28,7 +29,7 @@ class UserFactory extends Factory
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
-            'grade' => fake()->randomElement(['B1', 'B2', 'B3', 'B4', 'M1', 'M2', 'OB']),
+            'grade' => fake()->randomElement(Grade::cases())->value,
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
         ];

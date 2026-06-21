@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\PermissionLevel;
 use App\Models\Group;
 use App\Models\UserGroup;
 use Closure;
@@ -55,10 +56,9 @@ class CheckGroupPermission
         }
 
         // 9. 権限レベルが不足している場合は403エラー
-        if ($userGroup->permission_level < $requiredLevel) {
-            $requiredLabel = $this->getPermissionLabel($requiredLevel);
-            $currentLabel = $this->getPermissionLabel($userGroup->permission_level);
-            abort(403, "この機能には{$requiredLabel}が必要です。現在の権限: {$currentLabel}");
+        $required = PermissionLevel::from($requiredLevel);
+        if (! $userGroup->permission_level->atLeast($required)) {
+            abort(403, "この機能には{$required->label()}が必要です。現在の権限: {$userGroup->permission_level->label()}");
         }
 
         // 10. リクエストにグループ情報を追加（コントローラーで使用可能）
@@ -70,13 +70,5 @@ class CheckGroupPermission
         // 11. 全てのチェックをパスした場合のみ次へ進む
 
         return $next($request);
-    }
-
-    /**
-     * 権限レベルのラベルを取得（UserGroup の定数を唯一の定義として参照）
-     */
-    private function getPermissionLabel(int $level): string
-    {
-        return UserGroup::PERMISSION_LABELS[$level] ?? "レベル{$level}";
     }
 }

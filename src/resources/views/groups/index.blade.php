@@ -42,17 +42,12 @@
                                         <div class="mb-4">
                                             <span @class([
                                                 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
-                                                'bg-yellow-100 text-yellow-800' => $permissionLevel == 1,
-                                                'bg-blue-100 text-blue-800' => $permissionLevel == 2,
-                                                'bg-green-100 text-green-800' => $permissionLevel == 3,
-                                                'bg-purple-100 text-purple-800' => $permissionLevel == 4,
+                                                'bg-yellow-100 text-yellow-800' => $permissionLevel === \App\Enums\PermissionLevel::Pending,
+                                                'bg-blue-100 text-blue-800' => $permissionLevel === \App\Enums\PermissionLevel::Member,
+                                                'bg-green-100 text-green-800' => $permissionLevel === \App\Enums\PermissionLevel::Admin,
+                                                'bg-purple-100 text-purple-800' => $permissionLevel === \App\Enums\PermissionLevel::Owner,
                                             ])>
-                                                @switch($permissionLevel)
-                                                    @case(4) オーナー @break
-                                                    @case(3) 管理者 @break
-                                                    @case(2) メンバー @break
-                                                    @default 承認待ち @break
-                                                @endswitch
+                                                {{ $permissionLevel->shortLabel() }}
                                             </span>
                                             @if(!$isApproved)
                                                 <span class="ml-2 text-yellow-600 text-xs">（承認待ち）</span>

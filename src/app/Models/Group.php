@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Casts\GroupNameCast;
+use App\Enums\PermissionLevel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -25,10 +27,14 @@ class Group extends Model
     /**
      * The attributes that should be cast.
      *
+     * name は GroupName 値オブジェクトにキャストし、生成・代入時に
+     * 不変条件（1〜50文字）を保証する。
+     *
      * @var array<string, string>
      */
     protected $casts = [
         'master_user_id' => 'integer',
+        'name' => GroupNameCast::class,
     ];
 
     /**
@@ -69,9 +75,9 @@ class Group extends Model
     /**
      * 特定の権限レベルのユーザーを取得
      */
-    public function getUsersByPermissionLevel(int $level): BelongsToMany
+    public function getUsersByPermissionLevel(PermissionLevel $level): BelongsToMany
     {
-        return $this->approvedUsers()->wherePivot('permission_level', $level);
+        return $this->approvedUsers()->wherePivot('permission_level', $level->value);
     }
 
     /**

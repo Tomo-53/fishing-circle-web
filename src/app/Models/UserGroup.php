@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\PermissionLevel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
@@ -11,12 +12,12 @@ class UserGroup extends Pivot
     use HasFactory;
 
     /**
-     * テーブル名を明示指定（Pivot はデフォルトで複数形化しないため）
+     * Pivot はデフォルトでテーブル名を推測しないため明示する。
      */
     protected $table = 'user_groups';
 
     /**
-     * このピボットテーブルは id カラムを持つため、auto-increment を有効にする
+     * user_groups は id を持つため auto-increment を有効化する。
      */
     public $incrementing = true;
 
@@ -35,17 +36,21 @@ class UserGroup extends Pivot
     /**
      * The attributes that should be cast.
      *
+     * permission_level は PermissionLevel 値オブジェクト（enum）にキャストし、
+     * 生の int として引き回さない。
+     *
      * @var array<string, string>
      */
     protected $casts = [
         'user_id' => 'integer',
         'group_id' => 'integer',
-        'permission_level' => 'integer',
+        'permission_level' => PermissionLevel::class,
         'is_approved' => 'boolean',
     ];
 
     /**
-     * 権限レベルの定数定義
+     * 権限レベルの定数定義（書き込み・テスト・ファクトリ用の数値エイリアス）。
+     * 比較・ラベル化のロジックは PermissionLevel enum に集約している。
      */
     public const PERMISSION_LEVEL_PENDING = 1;     // 認証待機
 
@@ -54,16 +59,6 @@ class UserGroup extends Pivot
     public const PERMISSION_LEVEL_ADMIN = 3;       // 幹部・管理者
 
     public const PERMISSION_LEVEL_OWNER = 4;       // グループオーナー
-
-    /**
-     * 権限レベルの説明
-     */
-    public const PERMISSION_LABELS = [
-        self::PERMISSION_LEVEL_PENDING => '認証待機メンバー',
-        self::PERMISSION_LEVEL_MEMBER => '一般メンバー',
-        self::PERMISSION_LEVEL_ADMIN => '幹部・管理者',
-        self::PERMISSION_LEVEL_OWNER => 'グループオーナー',
-    ];
 
     /**
      * このレコードに関連するユーザー
@@ -86,7 +81,7 @@ class UserGroup extends Pivot
      */
     public function getPermissionLabelAttribute(): string
     {
-        return self::PERMISSION_LABELS[$this->permission_level] ?? '不明';
+        return $this->permission_level?->label() ?? '不明';
     }
 
     /**
@@ -102,7 +97,7 @@ class UserGroup extends Pivot
      */
     public function isOwner(): bool
     {
-        return $this->permission_level === self::PERMISSION_LEVEL_OWNER;
+        return $this->permission_level === PermissionLevel::Owner;
     }
 
     /**
@@ -110,7 +105,7 @@ class UserGroup extends Pivot
      */
     public function isAdmin(): bool
     {
-        return $this->permission_level === self::PERMISSION_LEVEL_ADMIN;
+        return $this->permission_level?->isAdmin() ?? false;
     }
 
     /**
@@ -118,15 +113,15 @@ class UserGroup extends Pivot
      */
     public function hasAdminPermission(): bool
     {
-        return $this->permission_level >= self::PERMISSION_LEVEL_ADMIN;
+        return $this->permission_level?->hasAdminPermission() ?? false;
     }
 
     /**
      * 指定されたレベル以上の権限があるかチェック
      */
-    public function hasPermissionLevel(int $level): bool
+    public function hasPermissionLevel(PermissionLevel $level): bool
     {
-        return $this->permission_level >= $level;
+        return $this->permission_level?->atLeast($level) ?? false;
     }
 
     /**
@@ -135,10 +130,6 @@ class UserGroup extends Pivot
      */
     public function canRemove(self $target): bool
     {
-        if ($this->isOwner()) {
-            return true;
-        }
-
-        return $this->isAdmin() && $target->permission_level <= self::PERMISSION_LEVEL_MEMBER;
+        return $this->permission_level?->canRemove($target->permission_level) ?? false;
     }
 }

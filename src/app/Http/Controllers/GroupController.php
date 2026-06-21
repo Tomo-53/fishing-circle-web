@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreGroupRequest;
+use App\Http\Requests\UpdateGroupRequest;
 use App\Models\Group;
 use App\Models\User;
 use App\Models\UserGroup;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
 
 class GroupController extends Controller
 {
@@ -68,14 +69,11 @@ class GroupController extends Controller
      * 新しいグループを作成
      * 作成者は自動でオーナー（レベル4）になる
      */
-    public function store(Request $request)
+    public function store(StoreGroupRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:50|unique:groups,name',
-        ]);
-
+        // グループ作成（Group.phpのboot()メソッドで自動的にオーナー登録される）
         $group = Group::create([
-            'name' => $request->name,
+            'name' => $request->validated('name'),
             'master_user_id' => Auth::id(),
         ]);
 
@@ -281,18 +279,10 @@ class GroupController extends Controller
      * グループ情報更新
      * レベル4のみ（オーナーのみ）
      */
-    public function update(Request $request, Group $group)
+    public function update(UpdateGroupRequest $request, Group $group)
     {
-        $request->validate([
-            'name' => [
-                'required',
-                'string',
-                'max:50',
-                Rule::unique('groups')->ignore($group->id),
-            ],
-        ]);
-
-        $group->update($request->only(['name']));
+        // ミドルウェアで権限チェック済み・検証は UpdateGroupRequest に集約
+        $group->update($request->validated());
 
         return redirect()
             ->route('groups.show', $group)

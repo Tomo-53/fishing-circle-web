@@ -66,7 +66,7 @@
                                                     <h4 class="font-medium text-gray-900">{{ $member->name }}</h4>
                                                     <p class="text-sm text-gray-600">{{ $member->email }}</p>
                                                     @if($member->grade)
-                                                        <p class="text-xs text-gray-500">{{ $member->grade_label }}</p>
+                                                        <p class="text-xs text-gray-500">{{ $member->grade->label() }}</p>
                                                     @endif
                                                 </div>
                                             </div>
@@ -119,7 +119,7 @@
                                                     <h4 class="font-medium text-gray-900">{{ $member->name }}</h4>
                                                     <p class="text-sm text-gray-600">{{ $member->email }}</p>
                                                     @if($member->grade)
-                                                        <p class="text-xs text-gray-500">{{ $member->grade_label }}</p>
+                                                        <p class="text-xs text-gray-500">{{ $member->grade->label() }}</p>
                                                     @endif
                                                 </div>
                                             </div>
@@ -128,17 +128,12 @@
                                             <!-- 権限レベル表示 -->
                                             <span @class([
                                                 'inline-flex items-center px-2 py-1 text-xs rounded-full',
-                                                'bg-yellow-100 text-yellow-800' => $member->pivot->permission_level == 1,
-                                                'bg-blue-100 text-blue-800' => $member->pivot->permission_level == 2,
-                                                'bg-red-100 text-red-800' => $member->pivot->permission_level == 3,
-                                                'bg-purple-100 text-purple-800' => $member->pivot->permission_level == 4,
+                                                'bg-yellow-100 text-yellow-800' => $member->pivot->permission_level === \App\Enums\PermissionLevel::Pending,
+                                                'bg-blue-100 text-blue-800' => $member->pivot->permission_level === \App\Enums\PermissionLevel::Member,
+                                                'bg-red-100 text-red-800' => $member->pivot->permission_level === \App\Enums\PermissionLevel::Admin,
+                                                'bg-purple-100 text-purple-800' => $member->pivot->permission_level === \App\Enums\PermissionLevel::Owner,
                                             ])>
-                                                @switch($member->pivot->permission_level)
-                                                    @case(4) オーナー @break
-                                                    @case(3) 管理者 @break
-                                                    @case(2) メンバー @break
-                                                    @default 承認待ち
-                                                @endswitch
+                                                {{ $member->pivot->permission_level->shortLabel() }}
                                             </span>
 
                                             <span class="text-xs text-gray-500">
@@ -150,7 +145,7 @@
                                                 <!-- オーナーのみ昇格・降格ボタン表示 -->
                                                 @if($currentUserGroup->isOwner())
                                                     <!-- 一般メンバーは管理者に昇格可能 -->
-                                                    @if($member->pivot->isApproved() && ! $member->pivot->isAdmin())
+                                                    @if($member->pivot->permission_level === \App\Enums\PermissionLevel::Member)
                                                         <form method="POST" action="{{ route('groups.promote-member', [$group, $member]) }}" class="inline mr-2">
                                                             @csrf
                                                             <button type="submit"

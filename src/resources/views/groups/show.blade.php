@@ -104,17 +104,12 @@
                     <div class="flex items-center space-x-4">
                         <span @class([
                             'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium',
-                            'bg-yellow-100 text-yellow-800' => $currentUserGroup->permission_level == 1,
-                            'bg-blue-100 text-blue-800' => $currentUserGroup->permission_level == 2,
-                            'bg-red-100 text-red-800' => $currentUserGroup->permission_level == 3,
-                            'bg-purple-100 text-purple-800' => $currentUserGroup->permission_level == 4,
+                            'bg-yellow-100 text-yellow-800' => $currentUserGroup->permission_level === \App\Enums\PermissionLevel::Pending,
+                            'bg-blue-100 text-blue-800' => $currentUserGroup->permission_level === \App\Enums\PermissionLevel::Member,
+                            'bg-red-100 text-red-800' => $currentUserGroup->permission_level === \App\Enums\PermissionLevel::Admin,
+                            'bg-purple-100 text-purple-800' => $currentUserGroup->permission_level === \App\Enums\PermissionLevel::Owner,
                         ])>
-                            @switch($currentUserGroup->permission_level)
-                                @case(4) グループオーナー @break
-                                @case(3) 管理者・幹部 @break
-                                @case(2) 一般メンバー @break
-                                @default 認証待機
-                            @endswitch
+                            {{ $currentUserGroup->permission_level->label() }}
                         </span>
                         @if(!$currentUserGroup->is_approved)
                             <span class="text-orange-600 text-sm">（承認待ち）</span>
@@ -144,23 +139,18 @@
                                             <h4 class="font-medium">{{ $member->name }}</h4>
                                             <p class="text-sm text-gray-600">{{ $member->email }}</p>
                                             @if($member->grade)
-                                                <p class="text-xs text-gray-500">{{ $member->grade_label }}</p>
+                                                <p class="text-xs text-gray-500">{{ $member->grade->label() }}</p>
                                             @endif
                                         </div>
                                         <div class="text-right">
                                             <span @class([
                                                 'inline-flex items-center px-2 py-1 text-xs rounded-full',
-                                                'bg-yellow-100 text-yellow-800' => $member->pivot->permission_level == 1,
-                                                'bg-blue-100 text-blue-800' => $member->pivot->permission_level == 2,
-                                                'bg-red-100 text-red-800' => $member->pivot->permission_level == 3,
-                                                'bg-purple-100 text-purple-800' => $member->pivot->permission_level == 4,
+                                                'bg-yellow-100 text-yellow-800' => $member->pivot->permission_level === \App\Enums\PermissionLevel::Pending,
+                                                'bg-blue-100 text-blue-800' => $member->pivot->permission_level === \App\Enums\PermissionLevel::Member,
+                                                'bg-red-100 text-red-800' => $member->pivot->permission_level === \App\Enums\PermissionLevel::Admin,
+                                                'bg-purple-100 text-purple-800' => $member->pivot->permission_level === \App\Enums\PermissionLevel::Owner,
                                             ])>
-                                                @switch($member->pivot->permission_level)
-                                                    @case(4) オーナー @break
-                                                    @case(3) 管理者 @break
-                                                    @case(2) メンバー @break
-                                                    @default 承認待ち
-                                                @endswitch
+                                                {{ $member->pivot->permission_level->shortLabel() }}
                                             </span>
                                             <p class="text-xs text-gray-500 mt-1">
                                                 参加日: {{ $member->pivot->created_at->format('Y/m/d') }}
