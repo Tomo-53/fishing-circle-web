@@ -1,8 +1,8 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
-            @if($currentUserGroup->permission_level->isOwner())
-                <!-- 編集可能なグループ名（レベル4のみ） -->
+            @if($currentUserGroup->isOwner())
+                <!-- 編集可能なグループ名（オーナーのみ） -->
                 <div class="group relative">
                     <div id="groupNameContainer">
                         <h2 id="groupName"
@@ -35,13 +35,13 @@
                 </h2>
             @endif
             <div class="flex space-x-2">
-                @if($currentUserGroup->permission_level->hasAdminPermission())
+                @if($currentUserGroup->hasAdminPermission())
                     <a href="{{ route('groups.members', $group) }}"
                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                         メンバー管理
                     </a>
                 @endif
-                @if($currentUserGroup->permission_level->isOwner())
+                @if($currentUserGroup->isOwner())
                     <button onclick="openDeleteModal()"
                             class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
                         グループ削除
@@ -123,7 +123,7 @@
                 <div class="p-6 text-gray-900">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-semibold">メンバー一覧</h3>
-                        @if($pendingCount > 0 && $currentUserGroup->permission_level->hasAdminPermission())
+                        @if($pendingCount > 0 && $currentUserGroup->hasAdminPermission())
                             <div class="text-sm text-orange-600">
                                 {{ $pendingCount }}件の承認待ち申請があります
                             </div>
@@ -171,7 +171,7 @@
     </div>
 
     <!-- 削除確認モーダル -->
-    @if($currentUserGroup->permission_level->isOwner())
+    @if($currentUserGroup->isOwner())
         <div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
             <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
                 <div class="mt-3 text-center">

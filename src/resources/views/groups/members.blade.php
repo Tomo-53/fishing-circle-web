@@ -140,11 +140,11 @@
                                                 参加日: {{ $member->pivot->created_at->format('Y/m/d') }}
                                             </span>
 
-                                            <!-- オーナー以外は削除可能 -->
-                                            @if(! $member->pivot->permission_level->isOwner())
+                                            <!-- オーナー以外は操作可能 -->
+                                            @if(! $member->pivot->isOwner())
                                                 <!-- オーナーのみ昇格・降格ボタン表示 -->
-                                                @if($currentUserPermission->isOwner())
-                                                    <!-- レベル2メンバーは管理者に昇格可能 -->
+                                                @if($currentUserGroup->isOwner())
+                                                    <!-- 一般メンバーは管理者に昇格可能 -->
                                                     @if($member->pivot->permission_level === \App\Enums\PermissionLevel::Member)
                                                         <form method="POST" action="{{ route('groups.promote-member', [$group, $member]) }}" class="inline mr-2">
                                                             @csrf
@@ -156,8 +156,8 @@
                                                         </form>
                                                     @endif
 
-                                                    <!-- レベル3管理者はメンバーに降格可能 -->
-                                                    @if($member->pivot->permission_level === \App\Enums\PermissionLevel::Admin)
+                                                    <!-- 管理者はメンバーに降格可能 -->
+                                                    @if($member->pivot->isAdmin())
                                                         <form method="POST" action="{{ route('groups.demote-member', [$group, $member]) }}" class="inline mr-2">
                                                             @csrf
                                                             <button type="submit"
@@ -169,10 +169,7 @@
                                                     @endif
                                                 @endif
 
-                                                <!-- 除名権限チェック（権限の判定ロジックは PermissionLevel に集約） -->
-                                                @php($canRemove = $currentUserPermission->canRemove($member->pivot->permission_level))
-
-                                                @if($canRemove)
+                                                @if($currentUserGroup->canRemove($member->pivot))
                                                     <form method="POST" action="{{ route('groups.remove-member', [$group, $member]) }}" class="inline">
                                                         @csrf
                                                         @method('DELETE')

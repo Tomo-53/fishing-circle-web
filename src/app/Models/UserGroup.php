@@ -101,6 +101,14 @@ class UserGroup extends Pivot
     }
 
     /**
+     * 管理者（レベル3）かどうかをチェック
+     */
+    public function isAdmin(): bool
+    {
+        return $this->permission_level?->isAdmin() ?? false;
+    }
+
+    /**
      * 管理者権限があるかチェック（レベル3以上）
      */
     public function hasAdminPermission(): bool
@@ -114,5 +122,14 @@ class UserGroup extends Pivot
     public function hasPermissionLevel(PermissionLevel $level): bool
     {
         return $this->permission_level?->atLeast($level) ?? false;
+    }
+
+    /**
+     * $target ユーザーを除名できるかチェック
+     * オーナーは全員除名可能、管理者は一般メンバー以下のみ除名可能
+     */
+    public function canRemove(self $target): bool
+    {
+        return $this->permission_level?->canRemove($target->permission_level) ?? false;
     }
 }

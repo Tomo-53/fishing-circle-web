@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\PermissionLevel;
 use App\Http\Requests\StoreGroupRequest;
 use App\Http\Requests\UpdateGroupRequest;
 use App\Models\Group;
@@ -25,7 +24,6 @@ class GroupController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        // ユーザーが参加している承認済みグループを取得
         $groups = $user->groups()
             ->wherePivot('is_approved', true)
             ->with(['masterUser'])
@@ -45,7 +43,6 @@ class GroupController extends Controller
         $user = Auth::user();
         $search = $request->get('search');
 
-        // 全グループを取得（検索条件がある場合はフィルタ）
         $query = Group::with(['masterUser'])
             ->withCount(['approvedUsers']);
 
@@ -55,7 +52,6 @@ class GroupController extends Controller
 
         $allGroups = $query->orderBy('created_at', 'desc')->paginate(10);
 
-        // ユーザーが既に参加申請済み/参加済みのグループIDを取得
         $userGroupIds = $user->groups()->pluck('groups.id')->toArray();
 
         return view('groups.all', compact('allGroups', 'userGroupIds', 'search'));
@@ -92,18 +88,16 @@ class GroupController extends Controller
      */
     public function show(Request $request, Group $group)
     {
-        // ミドルウェアで権限チェック済み
         $currentUserGroup = $request->current_user_group;
 
-        // 承認済みメンバーを権限レベル順で取得
         $members = $group->approvedUsers()
             ->withPivot(['permission_level', 'created_at'])
             ->orderByPivot('permission_level', 'desc')
             ->orderByPivot('created_at', 'asc')
             ->get();
 
-        // 申請中メンバー数（管理者以上のみ表示用）
-        $pendingCount = $currentUserGroup->permission_level->hasAdminPermission()
+        // 申請中メンバー数（管理者以上のみ表示）
+        $pendingCount = $currentUserGroup->hasAdminPermission()
             ? $group->pendingUsers()->count()
             : 0;
 
@@ -116,24 +110,21 @@ class GroupController extends Controller
      */
     public function join(Request $request, Group $group)
     {
-        $userId = Auth::id();
+        /** @var \App\Models\User $authUser */
+        $authUser = Auth::user();
 
-        // すでに参加申請済みかチェック
-        $existingUserGroup = UserGroup::where('user_id', $userId)
-            ->where('group_id', $group->id)
-            ->first();
+        $existingRecord = $group->memberRecordOf($authUser);
 
-        if ($existingUserGroup) {
-            if ($existingUserGroup->is_approved) {
-                return back()->with('error', '既にこのグループに参加しています');
-            } else {
-                return back()->with('error', '既に参加申請済みです。承認をお待ちください');
-            }
+        if ($existingRecord) {
+            $message = $existingRecord->isApproved()
+                ? '既にこのグループに参加しています'
+                : '既に参加申請済みです。承認をお待ちください';
+
+            return back()->with('error', $message);
         }
 
-        // 参加申請を作成（レベル1、未承認）
         UserGroup::create([
-            'user_id' => $userId,
+            'user_id' => $authUser->id,
             'group_id' => $group->id,
             'permission_level' => UserGroup::PERMISSION_LEVEL_PENDING,
             'is_approved' => false,
@@ -148,9 +139,7 @@ class GroupController extends Controller
      */
     public function members(Request $request, Group $group)
     {
-        // ミドルウェアで権限チェック済み
         $currentUserGroup = $request->current_user_group;
-        $currentUserPermission = $currentUserGroup->permission_level;
 
         $approvedMembers = $group->approvedUsers()
             ->withPivot(['permission_level', 'created_at'])
@@ -163,7 +152,7 @@ class GroupController extends Controller
             ->orderByPivot('created_at', 'desc')
             ->get();
 
-        return view('groups.members', compact('group', 'approvedMembers', 'pendingMembers', 'currentUserPermission'));
+        return view('groups.members', compact('group', 'approvedMembers', 'pendingMembers', 'currentUserGroup'));
     }
 
     /**
@@ -172,16 +161,12 @@ class GroupController extends Controller
      */
     public function approveMember(Request $request, Group $group, User $user)
     {
-        $userGroup = UserGroup::where('user_id', $user->id)
-            ->where('group_id', $group->id)
-            ->where('is_approved', false)
-            ->first();
+        $userGroup = $group->memberRecordOf($user);
 
-        if (! $userGroup) {
+        if (! $userGroup || $userGroup->isApproved()) {
             return back()->with('error', '承認対象のメンバーが見つかりません');
         }
 
-        // レベル1からレベル2（一般メンバー）に昇格
         $userGroup->update([
             'is_approved' => true,
             'permission_level' => UserGroup::PERMISSION_LEVEL_MEMBER,
@@ -196,31 +181,27 @@ class GroupController extends Controller
      */
     public function promoteToAdmin(Request $request, Group $group, User $user)
     {
-        // オーナーのみが実行可能（ミドルウェアでも制御されているが念のため）
-        if ($group->master_user_id !== Auth::id()) {
+        /** @var \App\Models\User $authUser */
+        $authUser = Auth::user();
+
+        if (! $group->isOwnedBy($authUser)) {
             return back()->with('error', 'オーナーのみが管理者を任命できます');
         }
 
-        $userGroup = UserGroup::where('user_id', $user->id)
-            ->where('group_id', $group->id)
-            ->where('is_approved', true)
-            ->first();
+        $userGroup = $group->memberRecordOf($user);
 
-        if (! $userGroup) {
+        if (! $userGroup || ! $userGroup->isApproved()) {
             return back()->with('error', '昇格対象のメンバーが見つかりません');
         }
 
-        // オーナーは昇格不可（既に最高権限）
-        if ($userGroup->permission_level->isOwner()) {
+        if ($userGroup->isOwner()) {
             return back()->with('error', 'オーナーの権限は変更できません');
         }
 
-        // 既に管理者の場合
-        if ($userGroup->permission_level->isAdmin()) {
+        if ($userGroup->isAdmin()) {
             return back()->with('error', $user->name.'さんは既に管理者です');
         }
 
-        // レベル2からレベル3（管理者）に昇格
         $userGroup->update([
             'permission_level' => UserGroup::PERMISSION_LEVEL_ADMIN,
         ]);
@@ -234,31 +215,27 @@ class GroupController extends Controller
      */
     public function demoteToMember(Request $request, Group $group, User $user)
     {
-        // オーナーのみが実行可能
-        if ($group->master_user_id !== Auth::id()) {
+        /** @var \App\Models\User $authUser */
+        $authUser = Auth::user();
+
+        if (! $group->isOwnedBy($authUser)) {
             return back()->with('error', 'オーナーのみが権限を変更できます');
         }
 
-        $userGroup = UserGroup::where('user_id', $user->id)
-            ->where('group_id', $group->id)
-            ->where('is_approved', true)
-            ->first();
+        $userGroup = $group->memberRecordOf($user);
 
-        if (! $userGroup) {
+        if (! $userGroup || ! $userGroup->isApproved()) {
             return back()->with('error', '降格対象のメンバーが見つかりません');
         }
 
-        // オーナーは降格不可
-        if ($userGroup->permission_level->isOwner()) {
+        if ($userGroup->isOwner()) {
             return back()->with('error', 'オーナーの権限は変更できません');
         }
 
-        // 既にメンバーの場合
-        if ($userGroup->permission_level === PermissionLevel::Member) {
+        if (! $userGroup->isAdmin()) {
             return back()->with('error', $user->name.'さんは既に一般メンバーです');
         }
 
-        // レベル3からレベル2（一般メンバー）に降格
         $userGroup->update([
             'permission_level' => UserGroup::PERMISSION_LEVEL_MEMBER,
         ]);
@@ -272,14 +249,11 @@ class GroupController extends Controller
      */
     public function removeMember(Request $request, Group $group, User $user)
     {
-        // オーナーは削除できない
-        if ($group->master_user_id === $user->id) {
+        if ($group->isOwnedBy($user)) {
             return back()->with('error', 'グループオーナーは削除できません');
         }
 
-        $userGroup = UserGroup::where('user_id', $user->id)
-            ->where('group_id', $group->id)
-            ->first();
+        $userGroup = $group->memberRecordOf($user);
 
         if (! $userGroup) {
             return back()->with('error', '削除対象のメンバーが見つかりません');
@@ -321,11 +295,8 @@ class GroupController extends Controller
      */
     public function destroy(Request $request, Group $group)
     {
-        // ミドルウェアで権限チェック済み
-
         $groupName = $group->name;
 
-        // 関連するuser_groupsレコードも削除される（CASCADE）
         $group->delete();
 
         return redirect()

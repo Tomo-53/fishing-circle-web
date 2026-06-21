@@ -72,4 +72,5 @@ docker-compose exec app npm run build              # フロントビルド(本�
 
 - 作業は `dev` から切ったフィーチャーブランチで行う（`main` へ直接コミットしない）。
 - 詳細規約は `.claude/rules/`、再利用手順は `.claude/skills/`、専門役割は `.claude/agents/` を参照。
+- 機能ごとの決定事項・前提・学びは案件ノート `.claude/epics/<slug>/_epic.md` に蓄積する（着手時 `/epic-new`、完了時 `/epic-done`、次タスク提案 `/next`）。詳細は `epic-knowledge` スキル参照。
 - AIエージェント環境の全体像は @.claude/AI_AGENT_GUIDE.md を参照。

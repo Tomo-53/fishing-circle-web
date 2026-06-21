@@ -14,11 +14,12 @@
 | **Commands** | `/名前` で明示実行するスラッシュコマンド | [Skills/Commands](https://code.claude.com/docs/en/skills) | `.claude/commands/` |
 | **Hooks** | ツール実行前後に自動で走る検査・整形 | [Hooks](https://code.claude.com/docs/en/hooks) | `.claude/hooks/` + `settings.json` |
 | **Agent Team** | 複数エージェントが協調する並行作業体制 | [Agent Teams](https://code.claude.com/docs/en/agent-teams) | `settings.json`（有効化）+ Subagents |
+| **Epics（案件知識）** | 案件ごとに決定/前提/学びを蓄積し、完了のたびに賢くなる | Memory（拡張） | `.claude/epics/` |
 | **Settings** | 権限・環境変数・Hooks の設定 | [Settings](https://code.claude.com/docs/en/settings) | `.claude/settings.json` |
 
 ## 2. Subagents（Agent Team ロスター）
 
-`.claude/agents/` に8体。`commander` がリード（指揮官）、他は専門ワーカー。
+`.claude/agents/` に9体。`commander` がリード（指揮官）、他は専門ワーカー。
 
 | エージェント | 役割 | 主なツール | モデル | 色 | 備考 |
 |-------------|------|-----------|--------|----|----|
@@ -27,6 +28,7 @@
 | **frontend-blade** | フロント実装（Blade/Tailwind/Alpine） | + Skill | inherit | 緑 | frontend-design 参照 |
 | **pest-tester** | テスター。Pest 作成・実行・解析 | Read,Edit,Write,Bash,Grep,Glob | inherit | 黄 | ACL 境界を必ず網羅 |
 | **code-reviewer** | コードレビュー（読み取り専用） | Read,Grep,Glob,Bash | inherit | 水 | `memory: project` で学習蓄積 |
+| **ui-reviewer** | UI/UXレビュー（読み取り専用） | Read,Grep,Glob,Bash | inherit | 水 | `memory: project`、デザイン/a11y/一貫性 |
 | **security-auditor** | セキュリティ監査（読み取り専用） | Read,Grep,Glob,Bash | inherit | 赤 | `memory: project`、ACL最優先 |
 | **db-migrator** | DB／マイグレーション | Read,Edit,Write,Bash,Grep,Glob | inherit | 橙 | 破壊的操作を遮断する frontmatter hook 付き |
 | **docs-writer** | ドキュメント | Read,Edit,Write,Grep,Glob | haiku | 桃 | コスト最適化 |
@@ -46,6 +48,12 @@
 | **frontend-design** | 公式（anthropics/skills, GitHub） | 平凡でない高品質なフロントUIを実装 |
 | **acl-permission** | カスタム | 4段階ACL（グループ権限）の正しい実装・確認手順 |
 | **laravel-feature** | カスタム | 新機能を end-to-end で追加する手順（model→…→test） |
+| **ui-polish** | カスタム | 既存 Blade の磨き込み（間隔/階層/タイポ/整列の統一） |
+| **accessibility** | カスタム | Blade の a11y 監査・修正（ラベル/ARIA/キーボード/コントラスト） |
+| **ui-motion** | カスタム | Alpine + Tailwind の節度ある・高性能なマイクロインタラクション |
+| **design-system** | カスタム | Tailwind トークンと共通コンポーネントの一貫運用・拡張 |
+| **interface-patterns** | カスタム | 一覧/フォーム/詳細/ダッシュボードの画面型紙（空状態・ACL表示制御） |
+| **epic-knowledge** | カスタム | 案件ノート(_epic.md)の読込・知識昇格・次タスク提案の手順 |
 
 > 公式の文書系スキル（docx/pdf/pptx/xlsx 等）は Claude 環境に既定で利用可能なため再導入していません。
 
@@ -60,6 +68,9 @@
 | `/migrate [status\|up]` | マイグレーション状態確認/適用（破壊的操作は除外） |
 | `/new-feature <name>` | 新機能開発ワークフロー（ブランチ→分担→テスト→レビュー→監査） |
 | `/acl-audit <target>` | 指定対象のACL認可を security-auditor で監査 |
+| `/epic-new <name>` | 新しい案件ノート（`.claude/epics/<slug>/_epic.md`）を作成 |
+| `/epic-done` | 直近の作業から決定/前提/学びを案件ノートへ昇格、完了タスクを整理 |
+| `/next` | 案件ノートの未解決事項から次タスクを1つ提案（わんこそば配膳） |
 
 ## 5. Hooks
 
@@ -71,6 +82,7 @@
 | **PreToolUse** | Bash | `block-dangerous.sh` | `rm -rf /`・main/devへのforce push・`--force`破壊的migration・`.env`のgit add を遮断（exit2） |
 | **PreToolUse** | Write/Edit | `protect-env.sh` | `.env`系への書込を遮断（`.env.example`は許可） |
 | **PostToolUse** | Write/Edit | `pint-format.sh` | 編集した `src/` の PHP を Pint 整形（Docker可なら自動、不可なら整形を促す） |
+| **Stop** | — | `epic-reminder.sh` | `feature/` ブランチで案件ノートがあれば、知識昇格（`/epic-done`）を促す（非ブロッキング） |
 | **PreToolUse**（db-migrator限定） | Bash | `guard-migrations.sh` | db-migrator の破壊的migration（fresh/reset/rollback/wipe）を遮断 |
 
 - いずれも検証済み：危険コマンドは exit 2 で遮断、通常コマンドは exit 0 で通過。
@@ -95,20 +107,38 @@
 | `blade-frontend.md` | `views/css/js` | Blade/Tailwind/Alpine 規約 |
 | `testing.md` | `tests/factories` | Pest テスト規約（ACL境界必須） |
 
-## 8. 利用上の注意（公式仕様）
+## 8. Epics（案件知識層 — 完了するたびに賢くなる仕組み）
+
+静的な規約（グローバル `CLAUDE.md` / 領域 `.claude/rules/`）に加え、**案件ごとに動的な知識を蓄積**する層。タスク完了のたびに知識を昇格し、過去の意図を踏まえて動けるようにする。
+
+**3階層の知識**（エージェントは上から順に読み込む）
+
+| 階層 | 役割 | 場所 |
+|------|------|------|
+| グローバル | 全共通ルール | ルート `CLAUDE.md` |
+| 領域 | ファイル種別・領域ごとの規約 | `.claude/rules/` ＋ `src/**/CLAUDE.md` |
+| **案件** | その案件の全記録（決定/前提/学び/未解決） | `.claude/epics/<slug>/_epic.md` |
+
+- **単位**: 1 エピック = 1 機能（基本は 1 `feature/` ブランチ）。
+- **昇格ループ**: 完了タスクから「決定事項・前提・学び・未解決事項」を抽出し `_epic.md` へ追記。個別タスク `tasks/NNN-*.md` は消えても知識は残る。
+- **運用**: 着手時 `/epic-new <name>` → 作業 → `/next` で次タスク提案 → 完了時 `/epic-done` で昇格。手順は `epic-knowledge` スキル、層の説明は `.claude/epics/README.md` を参照。
+- **セキュリティ**: 案件ノートは Git 共有資産。個人情報・釣果座標・`.env` 値等の機密は書かない（`.claude/rules/security.md`）。
+
+## 9. 利用上の注意（公式仕様）
 
 - **Hooks と settings.json は信頼ダイアログの承認が必要**。初回起動時にワークスペースを信頼してください（macOS: トラスト確認）。
 - ディスク上で agents/skills を追加・編集した場合、反映に**セッション再起動**が必要な場合があります（Skill の本文編集はライブ反映）。
 - Hooks のスクリプトは**ホスト側シェル**で実行されます。Docker がPATHにある環境では自動整形まで行います。
 - `commander` の `Agent(...)` による直接 spawn は `claude --agent commander` でメインスレッドとして起動した場合に有効です（Subagent は入れ子 spawn 不可）。
 
-## 9. 推奨ワークフロー
+## 10. 推奨ワークフロー
 
 ```
 /new-feature 釣果投稿機能
   → dev から feature/ ブランチ
+  → /epic-new 釣果投稿機能（案件ノート作成）
   → db-migrator（スキーマ） → laravel-backend + frontend-blade（実装）
   → pest-tester（テスト, ACL境界） → code-reviewer + security-auditor（検証）
   → /pint（整形） → docs-writer（ドキュメント）
-  → PR を dev へ
+  → /epic-done（決定/学びを案件ノートへ昇格） → PR を dev へ
 ```

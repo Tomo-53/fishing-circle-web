@@ -89,6 +89,24 @@ class Group extends Model
     }
 
     /**
+     * 指定ユーザーの UserGroup レコードを取得（user_id と group_id 両方でスコープ）
+     */
+    public function memberRecordOf(User $user): ?UserGroup
+    {
+        return $this->userGroups()
+            ->where('user_id', $user->id)
+            ->first();
+    }
+
+    /**
+     * 指定ユーザーがこのグループのオーナーかチェック
+     */
+    public function isOwnedBy(User $user): bool
+    {
+        return $this->master_user_id === $user->id;
+    }
+
+    /**
      * グループ作成時の処理
      */
     protected static function boot()
