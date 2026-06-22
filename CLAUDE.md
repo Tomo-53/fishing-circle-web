@@ -8,24 +8,51 @@
 新潟大学釣り同好会の会員制Webサイト。釣果情報の保護・公開制御と、後輩へ引き継げる開発基盤の構築が目的。
 コードベース・コメント・コミットメッセージは**日本語**を基本とする。
 
+## アーキテクチャの状態
+
+> **現在の状態（feature/nextjs-frontend-migration ブランチ）**:
+> `src/` の Laravel Blade 構成と `frontend/` の Next.js 構成が**並走**している移行期。
+> Blade は削除せず残っており、API ルート (`src/routes/api.php`) を追加した状態。
+> 詳細は `frontend/CLAUDE.md` を参照。
+
+```
+┌────────────────────────────────────────────┐
+│  ブラウザ                                   │
+│    ├── Next.js :3000  （移行先フロント）     │
+│    └── Blade :8000    （既存・並走中）       │
+└────────────────────────────────────────────┘
+         ↓ JSON + Cookie（Sanctum SPA認証）
+┌────────────────────────────────────────────┐
+│  Laravel API :8000（src/）                  │
+│    ├── routes/api.php   ← NEW              │
+│    └── routes/web.php   ← 既存 Blade       │
+└────────────────────────────────────────────┘
+         ↓
+      MySQL
+```
+
 ## 技術スタック
 
 - **Backend**: Laravel 12 / PHP 8.2+
-- **Frontend**: Blade + Tailwind CSS 3 + Alpine.js + Vite
+- **Frontend（移行先）**: Next.js 15 (App Router) + TypeScript + Tailwind CSS 3
+- **Frontend（既存・並走）**: Blade + Tailwind CSS 3 + Alpine.js + Vite
+- **API 認証**: Laravel Sanctum（SPA Cookie セッション）
 - **DB**: MySQL 8.0+（テストは SQLite in-memory）
 - **テスト**: Pest 3（PHPUnit ベース）
 - **整形/静的解析**: Laravel Pint（PHP整形）/ Larastan（PHP静的解析）/ ESLint + Prettier（JS/CSS）
-- **認証**: Laravel Breeze
+- **認証**: Laravel Breeze（Blade用）/ Sanctum（API用）
 - **環境**: Docker / Docker Compose / Nginx
 
 ## ディレクトリ構成
 
 - Laravel 本体はリポジトリ直下ではなく `src/` 配下にある。**パスは常に `src/` から始める**。
-- `src/app/` … Models, Http/Controllers, Http/Middleware, Http/Requests
-- `src/routes/web.php` `src/routes/auth.php` … ルート定義
+- `src/app/` … Models, Http/Controllers（Web + Api 両方）, Http/Middleware, Http/Requests
+- `src/routes/web.php` `src/routes/auth.php` … Blade 向けルート
+- `src/routes/api.php` … Next.js SPA 向け API ルート（NEW）
 - `src/database/migrations/` … スキーマ定義（マイグレーション中心運用）
-- `src/resources/views/` … Blade テンプレート
+- `src/resources/views/` … Blade テンプレート（並走中）
 - `src/tests/Feature` `src/tests/Unit` … Pest テスト
+- `frontend/` … Next.js フロントエンド（移行先）→ 詳細は `frontend/CLAUDE.md`
 
 ## 主要コマンド
 
@@ -44,11 +71,16 @@ docker-compose exec app npm run format:check      # 整形チェックのみ（C
 docker-compose exec app php artisan migrate       # マイグレーション
 docker-compose exec app php artisan migrate:status # 状態確認
 docker-compose exec app php artisan route:list     # ルート一覧
-docker-compose exec app npm run dev                # フロントビルド(開発)
-docker-compose exec app npm run build              # フロントビルド(本番)
+docker-compose exec app npm run dev                # Blade フロントビルド(開発)
+docker-compose exec app npm run build              # Blade フロントビルド(本番)
 ```
 
-- アプリ: http://localhost:8000 / phpMyAdmin: http://localhost:8080
+Next.js の起動（`frontend/` で実行、ホスト Node.js 必要）:
+```bash
+cd frontend && npm install && npm run dev  # http://localhost:3000
+```
+
+- Laravel: http://localhost:8000 / phpMyAdmin: http://localhost:8080 / Next.js: http://localhost:3000
 
 ## アーキテクチャの要点：4段階ACL（最重要）
 

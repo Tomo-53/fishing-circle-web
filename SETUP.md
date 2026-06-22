@@ -343,3 +343,96 @@ php artisan migrate --force
     ↓
 本番公開
 ```
+
+---
+
+## 7. Next.js フロントエンド（feature/nextjs-frontend-migration）
+
+> Laravel API + Next.js SPA 構成への移行ブランチ。
+> バック（Laravel）は Blade を残したまま並走。フロント（Next.js）を `frontend/` に追加。
+
+### 7.1 アーキテクチャ
+
+```
+ブラウザ → Next.js :3000 → Laravel API :8000 → MySQL
+                                ↓（既存 Blade も並走）
+```
+
+認証: **Sanctum SPA Cookie 認証**。`/sanctum/csrf-cookie` を先に叩いて CSRF Cookie を取得し、以降のリクエストに `X-XSRF-TOKEN` ヘッダを付与する。
+
+### 7.2 初回セットアップ（Next.js）
+
+```bash
+# frontend/ に移動
+cd frontend
+
+# 依存インストール
+npm install
+
+# .env.local を作成
+cp .env.local.example .env.local
+# NEXT_PUBLIC_API_URL=http://localhost:8000 を確認
+```
+
+### 7.3 Sanctum インストール（Laravel 側・Docker 起動後に実行）
+
+```bash
+docker-compose exec app composer require laravel/sanctum
+docker-compose exec app php artisan migrate
+```
+
+> `config/sanctum.php` と `config/cors.php` はすでにリポジトリに含まれています。
+
+### 7.4 .env に追加（Docker 起動後）
+
+```properties
+SANCTUM_STATEFUL_DOMAINS=localhost:3000
+FRONTEND_URL=http://localhost:3000
+```
+
+### 7.5 開発起動
+
+ターミナル1（Laravel）:
+```bash
+docker-compose up -d
+```
+
+ターミナル2（Next.js）:
+```bash
+cd frontend && npm run dev
+```
+
+- Laravel API: http://localhost:8000
+- Next.js フロント: http://localhost:3000
+
+### 7.6 本番デプロイ（Vercel + Railway）
+
+| サービス | 内容 |
+|---------|------|
+| **Railway** | Laravel API（既存設定のまま） |
+| **Vercel** | Next.js フロント |
+
+**Vercel 設定（Environment Variables）:**
+```
+NEXT_PUBLIC_API_URL=https://your-laravel-app.railway.app
+```
+
+**Railway 追加設定:**
+```
+SANCTUM_STATEFUL_DOMAINS=your-vercel-app.vercel.app
+FRONTEND_URL=https://your-vercel-app.vercel.app
+SESSION_SAME_SITE=none
+SESSION_SECURE_COOKIE=true
+```
+
+> ⚠️ `SESSION_SAME_SITE=none` + `SESSION_SECURE_COOKIE=true` はクロスオリジン Cookie に必須。
+> Vercel と Railway で異なるドメインになる場合は必ず設定すること。
+
+### 7.7 CSRF/CORS のトラブルシューティング
+
+| 症状 | 対処 |
+|------|------|
+| ログイン API が 419 を返す | `/sanctum/csrf-cookie` を先に叩いているか確認 |
+| API が 401 を返す | `SANCTUM_STATEFUL_DOMAINS` にフロントのドメインが含まれているか確認 |
+| CORS エラー | `config/cors.php` の `allowed_origins` にフロントの URL が含まれているか確認 |
+| Cookie が送信されない | `credentials: 'include'` が API クライアントに設定されているか確認 |
