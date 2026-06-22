@@ -11,11 +11,14 @@ use Laravel\Dusk\TestCase as BaseTestCase;
 abstract class DuskTestCase extends BaseTestCase
 {
     /**
-     * Dusk テスト実行前の準備。Sail 以外では ChromeDriver を起動する。
+     * Dusk テスト実行前の準備。
+     * - Sail 環境: Sail が ChromeDriver を管理するためスキップ。
+     * - CI 環境: e2e.yml で ChromeDriver を明示的にバックグラウンド起動するためスキップ。
+     * - ローカル: DuskTestCase が ChromeDriver を自動起動する。
      */
     public static function prepare(): void
     {
-        if (! static::runningInSail()) {
+        if (! static::runningInSail() && ! env('CI')) {
             static::startChromeDriver(['--port=9515']);
         }
     }

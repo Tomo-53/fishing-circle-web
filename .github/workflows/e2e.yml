@@ -41,29 +41,29 @@ jobs:
 
       - name: .env 準備（ファイル SQLite）
         run: |
-          cat > .env <<EOF
-          APP_NAME=新潟大学釣り同好会
-          APP_ENV=local
-          APP_KEY=
-          APP_DEBUG=true
-          APP_URL=http://127.0.0.1:8000
-          APP_LOCALE=ja
-          APP_FALLBACK_LOCALE=en
-          APP_FAKER_LOCALE=ja_JP
-          APP_MAINTENANCE_DRIVER=file
-          BCRYPT_ROUNDS=4
-          LOG_CHANNEL=stack
-          LOG_LEVEL=debug
-          DB_CONNECTION=sqlite
-          DB_DATABASE=$GITHUB_WORKSPACE/src/database/dusk.sqlite
-          SESSION_DRIVER=database
-          SESSION_LIFETIME=120
-          QUEUE_CONNECTION=sync
-          CACHE_STORE=database
-          MAIL_MAILER=array
-          VITE_APP_NAME=FishingCircle
-          EOF
-          touch "$GITHUB_WORKSPACE/src/database/dusk.sqlite"
+          cat > .env <<'EOF'
+APP_NAME=FishingCircle
+APP_ENV=local
+APP_KEY=
+APP_DEBUG=true
+APP_URL=http://127.0.0.1:8000
+APP_LOCALE=ja
+APP_FALLBACK_LOCALE=en
+APP_FAKER_LOCALE=ja_JP
+APP_MAINTENANCE_DRIVER=file
+BCRYPT_ROUNDS=4
+LOG_CHANNEL=stack
+LOG_LEVEL=debug
+DB_CONNECTION=sqlite
+DB_DATABASE=${{ github.workspace }}/src/database/dusk.sqlite
+SESSION_DRIVER=database
+SESSION_LIFETIME=120
+QUEUE_CONNECTION=sync
+CACHE_STORE=database
+MAIL_MAILER=array
+VITE_APP_NAME=FishingCircle
+EOF
+          touch "${{ github.workspace }}/src/database/dusk.sqlite"
           php artisan key:generate --force
           php artisan migrate --force
 
@@ -80,8 +80,21 @@ jobs:
       - name: フロントエンドビルド（実アセット）
         run: npm run build
 
-      - name: ChromeDriver 準備（インストール済み Chrome に追従）
-        run: php artisan dusk:chrome-driver --detect
+      - name: ChromeDriver セットアップ・起動
+        run: |
+          php artisan dusk:chrome-driver --detect
+          # DuskTestCase::prepare() は CI=true の時スキップするため、ここで明示的に起動する
+          chmod +x vendor/laravel/dusk/bin/chromedriver-linux
+          vendor/laravel/dusk/bin/chromedriver-linux --port=9515 &
+          # 起動待ち（最大 10 秒）
+          for i in $(seq 1 10); do
+            if curl -sSf http://localhost:9515/status >/dev/null 2>&1; then
+              echo "ChromeDriver is up"
+              break
+            fi
+            echo "waiting for ChromeDriver... ($i)"
+            sleep 1
+          done
 
       - name: アプリサーバー起動（バックグラウンド）
         run: |
