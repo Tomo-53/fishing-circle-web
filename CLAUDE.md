@@ -14,7 +14,7 @@
 - **Frontend**: Blade + Tailwind CSS 3 + Alpine.js + Vite
 - **DB**: MySQL 8.0+（テストは SQLite in-memory）
 - **テスト**: Pest 3（PHPUnit ベース）
-- **整形/静的解析**: Laravel Pint
+- **整形/静的解析**: Laravel Pint（PHP整形）/ Larastan（PHP静的解析）/ ESLint + Prettier（JS/CSS）
 - **認証**: Laravel Breeze
 - **環境**: Docker / Docker Compose / Nginx
 
@@ -36,6 +36,11 @@ docker-compose up -d                              # 環境起動
 docker-compose exec app php artisan test          # テスト実行（Pest）
 docker-compose exec app ./vendor/bin/pint         # コード整形（Pint）
 docker-compose exec app ./vendor/bin/pint --test  # 整形チェックのみ（CI向け）
+docker-compose exec app ./vendor/bin/phpstan analyse --memory-limit=512M  # 静的解析（Larastan）
+docker-compose exec app npm run lint              # JSリント（ESLint）
+docker-compose exec app npm run lint:fix          # JSリント自動修正
+docker-compose exec app npm run format            # JS/CSS整形（Prettier）
+docker-compose exec app npm run format:check      # 整形チェックのみ（CI向け）
 docker-compose exec app php artisan migrate       # マイグレーション
 docker-compose exec app php artisan migrate:status # 状態確認
 docker-compose exec app php artisan route:list     # ルート一覧

@@ -11,8 +11,11 @@
 - 粒度は小さく、意味のある単位で。
 - メッセージは日本語可。プレフィックス例：`feat:` `fix:` `refactor:` `docs:` `test:` `chore:`。
 - コミット前チェック：
-  1. `docker-compose exec app ./vendor/bin/pint`（整形）
-  2. `docker-compose exec app php artisan test`（影響範囲のテスト）
+  1. `docker-compose exec app ./vendor/bin/pint`（PHP整形）
+  2. `docker-compose exec app ./vendor/bin/phpstan analyse --memory-limit=512M`（静的解析）
+  3. `docker-compose exec app npm run lint`（JSリント）
+  4. `docker-compose exec app npm run format:check`（JS/CSS整形チェック）
+  5. `docker-compose exec app php artisan test`（影響範囲のテスト）
 - 機密ファイル（`.env` 等）が staged に含まれていないか確認する。
 
 ## PR

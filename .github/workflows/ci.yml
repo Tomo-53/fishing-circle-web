@@ -16,7 +16,7 @@ on:
 
 jobs:
   test:
-    name: Pint + Pest (PHP 8.2)
+    name: Lint + Test (PHP 8.2)
     runs-on: ubuntu-latest
 
     defaults:
@@ -69,6 +69,25 @@ jobs:
 
       - name: Pint（整形チェック）
         run: ./vendor/bin/pint --test
+
+      - name: PHPStan（静的解析）
+        run: ./vendor/bin/phpstan analyse --memory-limit=512M
+
+      - name: Node.js セットアップ
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: src/package-lock.json
+
+      - name: npm インストール
+        run: npm ci
+
+      - name: ESLint（JS リント）
+        run: npm run lint
+
+      - name: Prettier（フォーマットチェック）
+        run: npm run format:check
 
       - name: Pest（テスト実行）
         run: php artisan test

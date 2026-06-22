@@ -1,0 +1,20 @@
+{
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit"
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[css]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[php]": {
+        "editor.defaultFormatter": "open-southeners.laravel-pint"
+    },
+    "eslint.workingDirectories": [
+        { "directory": "src", "changeProcessCWD": true }
+    ],
+    "eslint.validate": ["javascript"],
+    "prettier.configPath": "src/.prettierrc"
+}
