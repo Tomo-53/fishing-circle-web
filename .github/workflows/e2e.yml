@@ -41,29 +41,29 @@ jobs:
 
       - name: .env 準備（ファイル SQLite）
         run: |
-          cat > .env <<'EOF'
-APP_NAME=FishingCircle
-APP_ENV=local
-APP_KEY=
-APP_DEBUG=true
-APP_URL=http://127.0.0.1:8000
-APP_LOCALE=ja
-APP_FALLBACK_LOCALE=en
-APP_FAKER_LOCALE=ja_JP
-APP_MAINTENANCE_DRIVER=file
-BCRYPT_ROUNDS=4
-LOG_CHANNEL=stack
-LOG_LEVEL=debug
-DB_CONNECTION=sqlite
-DB_DATABASE=${{ github.workspace }}/src/database/dusk.sqlite
-SESSION_DRIVER=database
-SESSION_LIFETIME=120
-QUEUE_CONNECTION=sync
-CACHE_STORE=database
-MAIL_MAILER=array
-VITE_APP_NAME=FishingCircle
-EOF
-          touch "${{ github.workspace }}/src/database/dusk.sqlite"
+          {
+            echo "APP_NAME=FishingCircle"
+            echo "APP_ENV=local"
+            echo "APP_KEY="
+            echo "APP_DEBUG=true"
+            echo "APP_URL=http://127.0.0.1:8000"
+            echo "APP_LOCALE=ja"
+            echo "APP_FALLBACK_LOCALE=en"
+            echo "APP_FAKER_LOCALE=ja_JP"
+            echo "APP_MAINTENANCE_DRIVER=file"
+            echo "BCRYPT_ROUNDS=4"
+            echo "LOG_CHANNEL=stack"
+            echo "LOG_LEVEL=debug"
+            echo "DB_CONNECTION=sqlite"
+            echo "DB_DATABASE=$GITHUB_WORKSPACE/src/database/dusk.sqlite"
+            echo "SESSION_DRIVER=database"
+            echo "SESSION_LIFETIME=120"
+            echo "QUEUE_CONNECTION=sync"
+            echo "CACHE_STORE=database"
+            echo "MAIL_MAILER=array"
+            echo "VITE_APP_NAME=FishingCircle"
+          } > .env
+          touch "$GITHUB_WORKSPACE/src/database/dusk.sqlite"
           php artisan key:generate --force
           php artisan migrate --force
 
