@@ -17,7 +17,7 @@ class Group extends Model
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'name',
@@ -93,6 +93,7 @@ class Group extends Model
      */
     public function memberRecordOf(User $user): ?UserGroup
     {
+        /** @var UserGroup|null */
         return $this->userGroups()
             ->where('user_id', $user->id)
             ->first();
