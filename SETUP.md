@@ -287,7 +287,64 @@ git add . && git commit -m "feat: ..."
 
 > CI に MySQL サービスは不要です。`phpunit.xml` が `DB_CONNECTION=sqlite` / `DB_DATABASE=:memory:` に上書きするため、本番と同じ `.env.example` をそのまま使えます。
 
-### 7.4 CD（Railway 自動デプロイ）
+### 7.4 E2E テスト（Laravel Dusk・ラベル起動）
+
+実ブラウザ（Chrome）で画面操作を検証する e2e テストは Laravel Dusk で実装しています。
+通常の CI（`ci.yml`）とは分離し、`.github/workflows/e2e.yml` で **PR に `run-e2e` ラベルが付いている時だけ** 実行します。
+
+**起動条件:**
+
+| トリガー | 動作 |
+|---------|------|
+| PR に `run-e2e` ラベルを付与（`labeled`） | e2e ジョブが起動 |
+| ラベル付き PR への push（`synchronize`） | e2e ジョブが再実行 |
+| ラベルが無い PR | ジョブごとスキップ（`if: contains(... 'run-e2e')`） |
+
+**初回のみ: ラベルを作成する**
+
+リポジトリに `run-e2e` ラベルが存在しないと付与できません。一度だけ作成します。
+
+```bash
+# GitHub CLI で作成（推奨）
+gh label create run-e2e --description "この PR で Dusk の e2e テストを実行する" --color 1d76db
+```
+
+もしくは GitHub の Web UI（リポジトリ → Issues → Labels → New label）で `run-e2e` を作成します。
+
+**使い方:**
+
+1. PR を作成する
+2. PR の右サイドバー（または `gh pr edit <番号> --add-label run-e2e`）で `run-e2e` ラベルを付ける
+3. Actions の `E2E (Dusk)` ジョブが起動し、成功/失敗が表示される
+4. e2e が不要になったらラベルを外す（以後は走らない）
+
+**CI 内の実行内容（`src/` 配下）:**
+
+1. PHP 8.2 + 拡張、`composer install`
+2. ファイル SQLite 用の `.env` を生成（`DB_DATABASE` を `database/dusk.sqlite` に設定）し `php artisan migrate --force`
+3. `npm ci` + `npm run build`（Dusk は実ページを読むため実アセットをビルド）
+4. `php artisan dusk:chrome-driver --detect`（インストール済み Chrome に追従）
+5. `php artisan serve` をバックグラウンド起動
+6. `php artisan dusk` を実行（失敗時はスクリーンショット/コンソールログを artifact として保存）
+
+> in-memory SQLite はサーバープロセスとテストプロセスで共有できないため、e2e では **ファイル SQLite** を使います。
+
+**ローカルで Dusk を実行する場合:**
+
+```bash
+# 1) e2e 用の環境ファイルを用意（ファイル SQLite を使う）
+cp src/.env.dusk.example src/.env.dusk.local
+docker-compose exec app php artisan key:generate --show   # 出力された base64:... を .env.dusk.local の APP_KEY に貼り付け
+
+# 2) e2e 用 DB を用意（--env=dusk.local で .env.dusk.local を読み込む）
+docker-compose exec app touch database/dusk.sqlite
+docker-compose exec app php artisan migrate --env=dusk.local
+
+# 3) 実行
+docker-compose exec app php artisan dusk
+```
+
+### 7.5 CD（Railway 自動デプロイ）
 
 `main` ブランチへのマージを Railway が検知し、自動でビルド・デプロイします。
 Railway 側の設定は以下の手順で行います（一度だけ）。
