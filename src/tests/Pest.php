@@ -15,6 +15,12 @@ pest()->extend(Tests\TestCase::class)
     ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
     ->in('Feature');
 
+// e2e（Dusk）はサーバープロセスと DB を共有するため、トランザクション方式の
+// RefreshDatabase ではなく DatabaseTruncation でテスト間の状態をリセットする。
+pest()->extend(Tests\DuskTestCase::class)
+    ->use(Illuminate\Foundation\Testing\DatabaseTruncation::class)
+    ->in('Browser');
+
 /*
 |--------------------------------------------------------------------------
 | Expectations
