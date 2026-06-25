@@ -21,6 +21,8 @@ test('誤ったパスワードではログインできずログイン画面に�
     $user = User::factory()->create();
 
     $this->browse(function (Browser $browser) use ($user) {
+        // 前のテストでログイン済みの場合があるため、クッキーを削除してセッションをリセット
+        $browser->driver->manage()->deleteAllCookies();
         $browser->visit('/login')
             ->type('email', $user->email)
             ->type('password', 'wrong-password')

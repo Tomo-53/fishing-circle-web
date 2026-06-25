@@ -329,20 +329,48 @@ gh label create run-e2e --description "この PR で Dusk の e2e テストを�
 
 > in-memory SQLite はサーバープロセスとテストプロセスで共有できないため、e2e では **ファイル SQLite** を使います。
 
-**ローカルで Dusk を実行する場合:**
+**ローカルで実ブラウザを見ながら確認したい場合（公式標準・例外的に PHP/Chrome をホストに用意）:**
+
+> **注:** このプロジェクトは通常「全部 Docker」で動かしますが、E2E のローカル目視に限っては  
+> ホストの Chrome + PHP が必要な公式 Dusk スタンダードを例外として採用します。  
+> `http://127.0.0.1`（ループバック）を使うため Chrome の HTTPS 自動アップグレードは起きません。
+
+前提: ホストに Google Chrome と PHP 8.2+ をインストール済みであること。
 
 ```bash
-# 1) e2e 用の環境ファイルを用意（ファイル SQLite を使う）
+# 一度だけ: .env.dusk.local を準備する
 cp src/.env.dusk.example src/.env.dusk.local
-docker-compose exec app php artisan key:generate --show   # 出力された base64:... を .env.dusk.local の APP_KEY に貼り付け
+# APP_KEY を生成して .env.dusk.local に設定する
+# （既存の src/.env の APP_KEY をコピーしても可）
 
-# 2) e2e 用 DB を用意（--env=dusk.local で .env.dusk.local を読み込む）
-docker-compose exec app touch database/dusk.sqlite
-docker-compose exec app php artisan migrate --env=dusk.local
+# 初回のみ: dusk.sqlite を作成して migrate する
+cd src
+touch database/dusk.sqlite
+php artisan migrate --env=dusk.local
 
-# 3) 実行
-docker-compose exec app php artisan dusk
+# ターミナル A: Dusk 用サーバー起動
+# ※ Docker nginx がホスト 8000 を使用中のため 8001 を使用（APP_URL と合わせること）
+cd src
+php artisan serve --env=dusk.local --host=127.0.0.1 --port=8001
+
+# ターミナル B: ChromeDriver を手動起動（.env.dusk.local の DUSK_DRIVER_URL=http://localhost:9515 と合わせる）
+cd src
+vendor/laravel/dusk/bin/chromedriver-linux --port=9515
+
+# ターミナル C: テスト実行
+cd src
+php artisan dusk --browse        # 実 Chrome ウィンドウが開く
+# php artisan dusk              # ヘッドレス（ウィンドウなし）
 ```
+
+失敗時の成果物:
+
+| 種別 | 場所 |
+|------|------|
+| スクリーンショット（失敗時自動） | `src/tests/Browser/screenshots/` |
+| コンソールログ（失敗時自動） | `src/tests/Browser/console/` |
+
+> スクリーンショットは Git 無視（`.gitignore`）です。釣果画面など機密情報が映りうるためコミットされません。
 
 ### 7.5 CD（Railway 自動デプロイ）
 
