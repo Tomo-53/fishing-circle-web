@@ -30,6 +30,7 @@
 ## 主要コマンド
 
 すべて Docker コンテナ `app` 内で実行する（ホストに PHP/Composer/Node を想定しない）。
+**例外:** E2E テストのローカル目視のみ、ホストの Chrome + PHP で `php artisan dusk --browse` を実行する（`http://127.0.0.1:8000` 使用）。詳細は SETUP.md §7.4 参照。
 
 ```bash
 docker-compose up -d                              # 環境起動
@@ -72,6 +73,24 @@ docker-compose exec app npm run build              # フロントビルド(本�
 - 機密情報（`.env`、`src/.env`、APP_KEY、メールパスワード）はコミットしない。`.env.example` のみ管理対象。
 - 認可は必ずサーバ側（ミドルウェア / Policy / FormRequest）で行う。Blade の表示制御だけに依存しない。
 - ユーザー入力は FormRequest でバリデーションする。Mass Assignment は `$fillable` で制御する。
+
+## サブエージェント委譲の既定
+
+**原則: 自分で抱え込まず、既定で専門エージェントに委譲する。**
+
+| 作業 | 委譲先 | タイミング |
+|------|--------|-----------|
+| バックエンド実装 | `laravel-backend` | Controller/Model/Middleware/ルートを触るとき |
+| フロント実装 | `frontend-blade` | Blade/Tailwind/Alpine を触るとき |
+| テスト | `pest-tester` | 実装完了後（必須）・テスト失敗時 |
+| コードレビュー | `code-reviewer` | 実装完了後（必須） |
+| UI/UX レビュー | `ui-reviewer` | Blade/CSS 変更後（必須） |
+| セキュリティ監査 | `security-auditor` | 認可・権限に触れた変更後（必須） |
+| スキーマ変更 | `db-migrator` | テーブル/カラム変更前 |
+| ドキュメント更新 | `docs-writer` | 機能追加・仕様変更後 |
+| 多工程の統括 | `commander` | 複数エージェントの協調が必要なとき |
+
+詳細ルーティング規約: `.claude/rules/agent-routing.md`（常時適用）。エージェント一覧: `.claude/AI_AGENT_GUIDE.md`。
 
 ## ワークフロー
 

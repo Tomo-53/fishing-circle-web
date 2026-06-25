@@ -1,6 +1,6 @@
 ---
 name: db-migrator
-description: データベース／マイグレーション専門。スキーマ設計、マイグレーション作成、モデルとの整合、ファクトリ／シーダーを担当。テーブル追加・カラム変更・リレーション変更を依頼されたときに使用。
+description: データベース／マイグレーション専門。スキーマ設計、マイグレーション作成、モデルとの整合、ファクトリ／シーダーを担当。テーブル追加・カラム変更・リレーション変更を依頼されたときに使用。Use proactively when a feature requires adding or changing database tables, columns, indexes, or relationships — always before laravel-backend starts implementing the feature.
 tools: Read, Edit, Write, Bash, Grep, Glob
 model: inherit
 color: orange
