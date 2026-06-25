@@ -1,6 +1,6 @@
 ---
 name: frontend-blade
-description: フロントエンド実装担当。Blade テンプレート・Tailwind CSS・Alpine.js・Vite アセットの作成と修正を行う。画面・UI・スタイル・フォームの実装を依頼されたときに使用。
+description: フロントエンド実装担当。Blade テンプレート・Tailwind CSS・Alpine.js・Vite アセットの作成と修正を行う。画面・UI・スタイル・フォームの実装を依頼されたときに使用。Use proactively when adding or modifying Blade views, Tailwind styles, Alpine.js components, or any frontend UI elements.
 tools: Read, Edit, Write, Bash, Grep, Glob, Skill
 model: inherit
 color: green
