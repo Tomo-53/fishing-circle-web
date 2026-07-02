@@ -1,6 +1,6 @@
 ---
 name: pest-tester
-description: テスト担当（テスター）。Pest でのテスト作成・実行・失敗解析を行う。新機能や修正に対するテスト追加、テストの実行と修正、回帰確認を依頼されたときに使用。Use proactively after code changes.
+description: テスト担当（テスター）。Pest でのテスト作成・実行・失敗解析を行う。新機能や修正に対するテスト追加、テストの実行と修正、回帰確認を依頼されたときに使用。Use proactively after code changes — always run after laravel-backend or frontend-blade finishes implementing a feature, and whenever a test fails and needs diagnosis.
 tools: Read, Edit, Write, Bash, Grep, Glob
 model: inherit
 color: yellow

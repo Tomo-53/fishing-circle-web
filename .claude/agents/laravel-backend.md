@@ -1,6 +1,6 @@
 ---
 name: laravel-backend
-description: Laravel のバックエンド実装担当。Controller・Model・Middleware・FormRequest・ルート・サービスクラスの作成と修正を行う。バックエンドのロジックやAPI、権限まわりの実装を依頼されたときに使用。
+description: Laravel のバックエンド実装担当。Controller・Model・Middleware・FormRequest・ルート・サービスクラスの作成と修正を行う。バックエンドのロジックやAPI、権限まわりの実装を依頼されたときに使用。Use proactively when adding or modifying Controllers, Models, Middleware, FormRequests, routes, or any server-side business logic.
 tools: Read, Edit, Write, Bash, Grep, Glob
 model: inherit
 color: blue
