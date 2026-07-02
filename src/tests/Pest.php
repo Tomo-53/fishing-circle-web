@@ -60,3 +60,17 @@ function joinGroup(\App\Models\User $user, \App\Models\Group $group, int $level,
         'is_approved' => $approved,
     ]);
 }
+
+/**
+ * ブラウザを未認証（ゲスト）状態にリセットするヘルパー。
+ *
+ * Dusk はテスト間でブラウザを使い回すため、前のテストのセッションクッキーが残る。
+ * DatabaseTruncation は DB のみリセットするので、セッションを持つクッキーを
+ * 明示的に削除しないと CSRF 不整合や guest ミドルウェアの誤動作が起きる。
+ * deleteAllCookies はドメイン上でないと no-op になるため、まずトップページへ遷移する。
+ */
+function freshGuest(\Laravel\Dusk\Browser $browser): void
+{
+    $browser->visit('/');
+    $browser->driver->manage()->deleteAllCookies();
+}

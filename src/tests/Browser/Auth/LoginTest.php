@@ -21,15 +21,16 @@ test('誤ったパスワードではログインできずログイン画面に�
     $user = User::factory()->create();
 
     $this->browse(function (Browser $browser) use ($user) {
-        // 前のテストでログイン済みの場合があるため、クッキーを削除してセッションをリセット
-        $browser->driver->manage()->deleteAllCookies();
+        // 前のテストでログイン済みの場合があるため、クッキーを削除してセッションをリセット。
+        // freshGuest() はドメイン上でクッキー削除するため about:blank での no-op を防ぐ。
+        freshGuest($browser);
         $browser->visit('/login')
             ->type('email', $user->email)
             ->type('password', 'wrong-password')
             ->press('ログイン')
-            // フォーム送信後にエラー要素（.text-red-600）が現れるまで待機。
+            // CSS クラスではなく表示テキストで待機することで Tailwind クラス変更に強くなる。
             // 「/login に留まっている＆未認証」という振る舞いで検証する。
-            ->waitFor('.text-red-600')
+            ->waitForText('メールアドレスまたはパスワードが正しくありません。')
             ->assertPathIs('/login')
             ->assertGuest();
     });
