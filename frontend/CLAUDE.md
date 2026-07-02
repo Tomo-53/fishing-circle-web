@@ -1,7 +1,8 @@
 # frontend/ — Next.js フロントエンド
 
 Laravel API と通信する SPA フロントエンド。
-`feature/nextjs-frontend-migration` ブランチで追加。**Laravel Blade（`src/resources/views/`）と並走中**。
+`feature/nextjs-frontend-migration` ブランチで追加。現在は **Laravel Blade（`src/resources/views/`）と並走中**。
+移行完了（Phase 4）後に `refactor/remove-blade` ブランチで Blade を削除し、Next.js 単独構成へ刷新する計画。詳細は `.claude/epics/nextjs-frontend-migration/_epic.md` を参照。
 
 ## 責務
 

@@ -1,0 +1,21 @@
+# 依存
+node_modules/
+
+# ビルド成果物
+.next/
+out/
+dist/
+
+# 環境変数（機密）
+.env
+.env.local
+.env.*.local
+
+# Next.js キャッシュ
+.next/
+*.tsbuildinfo
+next-env.d.ts
+
+# OS
+.DS_Store
+Thumbs.db

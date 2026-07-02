@@ -9,7 +9,6 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      // 既存 Laravel 側と同じデザイントークン
       colors: {
         ocean: {
           50: "#f0f9ff",
@@ -65,15 +64,27 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ["Noto Sans JP", "Figtree", ...defaultTheme.fontFamily.sans],
+        sans: ["var(--font-noto-sans-jp)", "Figtree", ...defaultTheme.fontFamily.sans],
         serif: ["Noto Serif JP", ...defaultTheme.fontFamily.serif],
-        display: ["Comfortaa", "Nunito", ...defaultTheme.fontFamily.sans],
+        display: ["var(--font-comfortaa)", "Nunito", ...defaultTheme.fontFamily.sans],
+      },
+      fontSize: {
+        hero: ["5rem", { lineHeight: "1.1" }],
+        display: ["4rem", { lineHeight: "1.2" }],
       },
       spacing: {
         "18": "4.5rem",
         "88": "22rem",
         "128": "32rem",
         "144": "36rem",
+      },
+      gridTemplateColumns: {
+        "13": "repeat(13, minmax(0, 1fr))",
+        "14": "repeat(14, minmax(0, 1fr))",
+        "15": "repeat(15, minmax(0, 1fr))",
+        "16": "repeat(16, minmax(0, 1fr))",
+        "auto-fit": "repeat(auto-fit, minmax(280px, 1fr))",
+        "auto-fill": "repeat(auto-fill, minmax(280px, 1fr))",
       },
       boxShadow: {
         soft: "0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)",
@@ -88,6 +99,9 @@ const config: Config = {
       animation: {
         "fade-in": "fadeIn 0.5s ease-in-out",
         "slide-up": "slideUp 0.3s ease-out",
+        "slide-down": "slideDown 0.3s ease-out",
+        "bounce-gentle": "bounceGentle 2s infinite",
+        "fade-in-up": "fadeInUp 0.6s ease-out forwards",
       },
       keyframes: {
         fadeIn: {
@@ -97,6 +111,18 @@ const config: Config = {
         slideUp: {
           "0%": { transform: "translateY(10px)", opacity: "0" },
           "100%": { transform: "translateY(0)", opacity: "1" },
+        },
+        slideDown: {
+          "0%": { transform: "translateY(-10px)", opacity: "0" },
+          "100%": { transform: "translateY(0)", opacity: "1" },
+        },
+        bounceGentle: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-5px)" },
+        },
+        fadeInUp: {
+          from: { opacity: "0", transform: "translateY(30px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
         },
       },
     },

@@ -4,39 +4,149 @@
 
 @layer base {
   html {
-    font-family: "Noto Sans JP", "Figtree", sans-serif;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply font-sans text-gray-900 bg-white antialiased;
+    font-feature-settings: "kern" 1, "liga" 1;
+  }
+
+  ::selection {
+    @apply bg-ocean-200 text-ocean-900;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-100;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-ocean-300 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-ocean-400;
   }
 }
 
 @layer components {
+  /* テキストグラデーション */
+  .text-gradient-ocean {
+    @apply bg-gradient-to-r from-ocean-500 to-ocean-700 bg-clip-text text-transparent;
+  }
+
+  .text-gradient-nature {
+    @apply bg-gradient-to-r from-nature-500 to-nature-700 bg-clip-text text-transparent;
+  }
+
+  .text-gradient-sunset {
+    @apply bg-gradient-to-r from-sunset-500 to-sunset-700 bg-clip-text text-transparent;
+  }
+
+  /* 背景グラデーション */
+  .bg-gradient-ocean {
+    @apply bg-gradient-to-br from-ocean-400 via-ocean-500 to-ocean-600;
+  }
+
+  .bg-gradient-nature {
+    @apply bg-gradient-to-br from-nature-400 via-nature-500 to-nature-600;
+  }
+
+  .bg-gradient-sunset {
+    @apply bg-gradient-to-br from-sunset-400 via-sunset-500 to-sunset-600;
+  }
+
+  /* ボタン */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2 font-medium rounded-button transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-button font-medium transition-all duration-200 focus:outline-none;
   }
+
   .btn-primary {
-    @apply bg-ocean-500 text-white hover:bg-ocean-600 focus:ring-ocean-300;
+    @apply bg-ocean-500 text-white hover:bg-ocean-600 focus:ring-2 focus:ring-ocean-200 focus:ring-offset-2;
   }
+
   .btn-secondary {
-    @apply bg-nature-500 text-white hover:bg-nature-600 focus:ring-nature-300;
+    @apply bg-nature-500 text-white hover:bg-nature-600 focus:ring-2 focus:ring-nature-200 focus:ring-offset-2;
   }
+
   .btn-accent {
-    @apply bg-sunset-500 text-white hover:bg-sunset-600 focus:ring-sunset-300;
+    @apply bg-sunset-500 text-white hover:bg-sunset-600 focus:ring-2 focus:ring-sunset-200 focus:ring-offset-2;
   }
+
   .btn-outline {
-    @apply bg-transparent text-ocean-600 border border-ocean-300 hover:bg-ocean-50 hover:border-ocean-400 focus:ring-ocean-200;
+    @apply bg-transparent text-ocean-600 border border-ocean-300 hover:bg-ocean-50 hover:border-ocean-400 focus:ring-2 focus:ring-ocean-200 focus:ring-offset-2;
   }
-  .btn-danger {
-    @apply bg-red-500 text-white hover:bg-red-600 focus:ring-red-300;
-  }
+
+  /* カード */
   .card {
     @apply bg-white rounded-card shadow-card p-6 transition-all duration-200;
   }
+
   .card-hover {
     @apply hover:shadow-floating hover:-translate-y-0.5;
   }
-  .input {
-    @apply w-full rounded-button border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-ocean-500 focus:outline-none focus:ring-2 focus:ring-ocean-200;
+
+  /* コンテナ */
+  .container-custom {
+    @apply w-full mx-auto px-4 sm:px-6 lg:px-8 max-w-screen-xl;
   }
+
+  /* セクション */
+  .section {
+    @apply py-16 md:py-20;
+  }
+
+  .section-sm {
+    @apply py-12 md:py-16;
+  }
+
+  /* 入力フィールド */
+  .input {
+    @apply w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-ocean-500 focus:border-transparent;
+  }
+
   .label {
     @apply block text-sm font-medium text-gray-700 mb-1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-bounce-gentle,
+  .animate-fade-in-up,
+  .animate-slide-down,
+  .animate-fade-in,
+  .animate-slide-up {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .scroll-mt-header {
+    scroll-margin-top: 80px;
+  }
+
+  .flex-center {
+    @apply flex items-center justify-center;
+  }
+
+  .flex-between {
+    @apply flex items-center justify-between;
+  }
+
+  .flex-start {
+    @apply flex items-center justify-start;
+  }
+
+  .flex-end {
+    @apply flex items-center justify-end;
   }
 }

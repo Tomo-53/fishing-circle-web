@@ -12,8 +12,8 @@
 
 > **現在の状態（feature/nextjs-frontend-migration ブランチ）**:
 > `src/` の Laravel Blade 構成と `frontend/` の Next.js 構成が**並走**している移行期。
-> Blade は削除せず残っており、API ルート (`src/routes/api.php`) を追加した状態。
-> 詳細は `frontend/CLAUDE.md` を参照。
+> Blade は移行完了（Phase 4）まで並走させ、その後 `refactor/remove-blade` ブランチで削除する計画。
+> API ルート (`src/routes/api.php`) を追加済み。詳細は `frontend/CLAUDE.md` および `.claude/epics/nextjs-frontend-migration/_epic.md` を参照。
 
 ```
 ┌────────────────────────────────────────────┐
@@ -50,7 +50,7 @@
 - `src/routes/web.php` `src/routes/auth.php` … Blade 向けルート
 - `src/routes/api.php` … Next.js SPA 向け API ルート（NEW）
 - `src/database/migrations/` … スキーマ定義（マイグレーション中心運用）
-- `src/resources/views/` … Blade テンプレート（並走中）
+- `src/resources/views/` … Blade テンプレート（移行期間中は並走。Phase 4 で削除予定）
 - `src/tests/Feature` `src/tests/Unit` … Pest テスト
 - `frontend/` … Next.js フロントエンド（移行先）→ 詳細は `frontend/CLAUDE.md`
 
