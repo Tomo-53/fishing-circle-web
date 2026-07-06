@@ -54,6 +54,17 @@
 | **design-system** | カスタム | Tailwind トークンと共通コンポーネントの一貫運用・拡張 |
 | **interface-patterns** | カスタム | 一覧/フォーム/詳細/ダッシュボードの画面型紙（空状態・ACL表示制御） |
 | **epic-knowledge** | カスタム | 案件ノート(_epic.md)の読込・知識昇格・次タスク提案の手順 |
+| **ui-ux-pro-max** | 導入（[nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill)・約100k★） | 新規画面の**デザイン方針決め**。67 UIスタイル・161色パレット・フォントペア・UXガイドを BM25 検索して提案（要ホスト python3） |
+| **design-taste-frontend** | 導入（[Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill)・約37k★） | LP・トップ・特設ページの**「AI 臭い」量産型デザイン防止**。ブリーフ読解→方向決め→プリフライト検査 |
+| **emil-design-eng** | 導入（[emilkowalski/skills](https://github.com/emilkowalski/skills)・animations.dev 主宰） | UI の質感・**モーション判断基準**（動かすべき所/止めるべき所）。ui-motion の作法を実務家の知見で補強 |
+| **review-animations** | 導入（同上・手動実行専用） | 実装済みアニメーションの**厳格レビュー**（transform/opacity・時間・イージングの craft bar） |
+| **animation-vocabulary** | 導入（同上） | 「あのポップっと出るやつ」→ 正式なモーション用語への**逆引き辞書**（指示の言語化に使う） |
+
+**フロント開発での使い分け（推奨フロー）**
+1. 新規画面のデザイン方針決め → **ui-ux-pro-max**（提案は design-system トークンへ寄せる）
+2. LP・特設ページの実装 → **design-taste-frontend** ＋ frontend-design ／ 会員機能画面の実装 → **interface-patterns**
+3. 動きの設計 → **ui-motion**（作法）＋ **emil-design-eng**（判断基準）
+4. 仕上げ → **ui-polish**（静的な磨き）→ `/review-animations`（動きのレビュー）→ ui-reviewer
 
 > 公式の文書系スキル（docx/pdf/pptx/xlsx 等）は Claude 環境に既定で利用可能なため再導入していません。
 

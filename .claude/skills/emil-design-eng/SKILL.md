@@ -5,6 +5,10 @@ description: This skill encodes Emil Kowalski's philosophy on UI polish, compone
 
 # Design Engineering
 
+> **このプロジェクトでの使い方（釣りサークル web / 上流: emilkowalski/skills）**
+> - モーションの実装は **Alpine.js `x-transition` + Tailwind transition が第一選択**（作法は `ui-motion` スキル）。本スキルは「どこを・どう動かすべきか」の判断基準として使い、Motion / Framer Motion 等の React 例は CSS / Alpine に読み替える。
+> - 配色・フォントは `design-system` スキルのトークンが常に優先。
+
 ## Initial Response
 
 When this skill is first invoked without a specific question, respond only with:

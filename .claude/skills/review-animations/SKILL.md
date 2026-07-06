@@ -6,6 +6,10 @@ disable-model-invocation: true
 
 # Reviewing Animations
 
+> **このプロジェクトでの使い方（釣りサークル web / 上流: emilkowalski/skills）**
+> - レビュー対象は Blade/Alpine の `x-transition`・Tailwind の transition ユーティリティ・`src/tailwind.config.js` の `animate-*`。
+> - `ui-motion` スキルの原則（`transform`/`opacity` のみ・150〜250ms・`motion-reduce:` 配慮）との整合も必ず確認する。
+
 A specialized review skill. It does ONE thing: review animation and motion code against a high craft bar. It does not write features, fix unrelated bugs, or review non-motion code. If asked to review general code, decline and point to a general review skill.
 
 ## Operating Posture

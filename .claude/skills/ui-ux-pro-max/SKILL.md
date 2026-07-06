@@ -5,6 +5,11 @@ description: "UI/UX design intelligence for web and mobile. Includes 50+ styles,
 
 # UI/UX Pro Max - Design Intelligence
 
+> **このプロジェクトでの使い方（釣りサークル web / 上流: nextlevelbuilder/ui-ux-pro-max-skill）**
+> - スタックは **Blade + Tailwind CSS 3 + Alpine.js**。検索は `--stack html-tailwind`（Blade に読み替え）か `--stack laravel` を使う。
+> - 配色・フォントの最終決定は **`design-system` スキルのトークン（ocean/nature/sunset/warm、Noto Sans JP / Comfortaa）が常に優先**。本スキルの提案（hex 直値・Google Fonts）は既存トークンへ寄せ、足りない場合のみ `src/tailwind.config.js` にトークンとして追加する。
+> - スクリプトは**ホストの python3** で実行する（Docker コンテナ `app` に Python は無い）。
+
 Comprehensive design guide for web and mobile applications. Contains 50+ styles, 161 color palettes, 57 font pairings, 161 product types with reasoning rules, 99 UX guidelines, and 25 chart types across 10 technology stacks. Searchable database with priority-based recommendations.
 
 ## When to Apply

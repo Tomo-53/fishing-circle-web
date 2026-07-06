@@ -5,6 +5,11 @@ description: Anti-slop frontend skill for landing pages, portfolios, and redesig
 
 # tasteskill: Anti-Slop Frontend Skill
 
+> **このプロジェクトでの使い方（釣りサークル web / 上流: Leonxlnx/taste-skill）**
+> - 対象は LP・トップページ・特設ページ等の「見せる」画面。会員機能画面（一覧/フォーム/ダッシュボード）の型紙は `interface-patterns`、既存画面の磨きは `ui-polish` が担当。
+> - スタックは **Blade + Tailwind CSS 3 + Alpine.js**。React/Next 前提の記述は読み替える。
+> - 配色・フォントは **`design-system` スキルのトークンが常に優先**（新しい色・フォントを勝手に増やさない）。
+
 > Landing pages, portfolios, and redesigns. Not dashboards, not data tables, not multi-step product UI.
 > Every rule below is **contextual**. None of it fires automatically. First read the brief, then pull only what fits.
 
