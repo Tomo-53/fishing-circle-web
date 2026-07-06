@@ -18,9 +18,16 @@ description: 会員制サイトの定番画面（一覧/フォーム/詳細/ダ�
 
 グループ権限が絡む画面では、表示制御とサーバ側認可を**二重**で守る。
 
-- 表示: `@can` / `@if($userLevel >= ...)` で操作ボタン等を出し分ける。
-- 本体: ルートの `check.group.permission:LEVEL` と Policy/FormRequest が真の防御（`acl-permission` スキル）。
+- 表示: グループ内画面ではミドルウェアが付与する `current_user_group` で出し分ける（下記例）。**このプロジェクトに Policy は未定義のため `@can('xxx', Model::class)` は常に false になり、ボタンが一切表示されない**。Policy を導入してから `@can` へ移行する。
+- 本体: ルートの `check.group.permission:LEVEL` と FormRequest の `authorize()` が真の防御（`acl-permission` スキル）。
 - **表示制御だけに頼らない**。ボタンを隠してもエンドポイントは保護されていること。
+
+```blade
+@php $userGroup = request()->get('current_user_group'); @endphp
+@if ($userGroup?->hasPermissionLevel(\App\Enums\PermissionLevel::Admin))
+  <a href="{{ route('groups.members', $group) }}" class="btn btn-outline">メンバー管理</a>
+@endif
+```
 
 ## 1. 一覧（リスト）
 
@@ -29,9 +36,9 @@ description: 会員制サイトの定番画面（一覧/フォーム/詳細/ダ�
   <div class="container-custom section-sm">
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-2xl font-display font-semibold text-gray-900">グループ一覧</h1>
-      @can('create', App\Models\Group::class)
+      @auth {{-- Policy 未定義のため @can は使わない（上記「ACL 表示制御」参照） --}}
         <a href="{{ route('groups.create') }}" class="btn btn-primary">新規作成</a>
-      @endcan
+      @endauth
     </div>
 
     @forelse ($groups as $group)
@@ -40,9 +47,9 @@ description: 会員制サイトの定番画面（一覧/フォーム/詳細/ダ�
       {{-- 空状態: アイコン + 説明 + 主要アクション --}}
       <div class="card text-center text-gray-500">
         <p class="mb-4">まだグループがありません。</p>
-        @can('create', App\Models\Group::class)
+        @auth
           <a href="{{ route('groups.create') }}" class="btn btn-primary">最初のグループを作る</a>
-        @endcan
+        @endauth
       </div>
     @endforelse
 
@@ -68,7 +75,7 @@ description: 会員制サイトの定番画面（一覧/フォーム/詳細/ダ�
     <x-input-error :messages="$errors->get('name')" id="name-error" class="mt-2" />
   </div>
   <div class="flex items-center justify-end gap-3">
-    <a href="{{ route('groups.index') }}" class="btn btn-outline">キャンセル</a>
+    <a href="{{ route('groups.myGroups') }}" class="btn btn-outline">キャンセル</a>
     <x-primary-button>保存</x-primary-button>
   </div>
 </form>
@@ -80,7 +87,7 @@ description: 会員制サイトの定番画面（一覧/フォーム/詳細/ダ�
 
 ## 3. 詳細（show）
 
-- 見出し + メタ情報 + 本文。操作（編集/削除）は権限で出し分け（`@can`）。
+- 見出し + メタ情報 + 本文。操作（編集/削除）は権限で出し分け（`current_user_group` — 上記「ACL 表示制御」の例）。
 - ラベルと値は `flex`/`grid` で整列。関連一覧があれば「1. 一覧」型を内包。
 
 ## 4. ダッシュボード的サマリ

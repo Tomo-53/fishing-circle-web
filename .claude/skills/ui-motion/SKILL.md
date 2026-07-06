@@ -25,8 +25,8 @@ description: Alpine.js の x-transition と Tailwind の transition ユーティ
 
 ```blade
 <button class="transition-colors duration-150 ease-out
-               bg-indigo-600 hover:bg-indigo-700
-               focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+               bg-ocean-500 hover:bg-ocean-600
+               focus:outline-none focus:ring-2 focus:ring-ocean-500 focus:ring-offset-2">
   送信
 </button>
 ```
