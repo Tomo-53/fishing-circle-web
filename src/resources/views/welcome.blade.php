@@ -4,6 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ config('app.name', '新潟大学釣り同好会') }}</title>
+    <meta name="description" content="新潟大学唯一の釣りサークル。釣り技術の向上・仲間との交流・大会出場。初心者大歓迎。入部案内・活動内容はこちら。">
+    <meta property="og:title" content="{{ config('app.name', '新潟大学釣り同好会') }}">
+    <meta property="og:description" content="新潟大学唯一の釣りサークル。初心者から上級者まで、仲間と自然と深く潜ろう。">
+    <meta property="og:type" content="website">
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('favicon.png') }}">
 
@@ -77,7 +81,7 @@
             100% { transform: translateY(-100%); opacity: 0; }
         }
         #opening.closing {
-            animation: openingExit 1.2s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+            animation: openingExit 0.7s cubic-bezier(0.76, 0, 0.24, 1) forwards;
         }
         @keyframes waveFloat {
             0%   { transform: translateX(0); }
@@ -205,7 +209,7 @@
             </h2>
             <div class="mt-5 flex items-center justify-center gap-3">
                 <div class="h-px w-12 bg-white/25"></div>
-                <p class="text-white/45 text-xs tracking-[0.3em] uppercase">Dive Into Fishing</p>
+                <p class="text-white/70 text-xs tracking-[0.3em] uppercase">Dive Into Fishing</p>
                 <div class="h-px w-12 bg-white/25"></div>
             </div>
         </div>
@@ -259,10 +263,10 @@
 
                     {{-- Desktop Nav --}}
                     <nav class="hidden md:flex items-center gap-8" aria-label="メインナビゲーション">
-                        <a href="{{ route('about') }}" class="nav-link text-white/75 hover:text-white text-sm tracking-wider transition-colors">サークル紹介</a>
-                        <a href="{{ route('activities') }}" class="nav-link text-white/75 hover:text-white text-sm tracking-wider transition-colors">活動内容</a>
-                        <a href="{{ route('gallery') }}" class="nav-link text-white/75 hover:text-white text-sm tracking-wider transition-colors">ギャラリー</a>
-                        <a href="{{ route('join') }}" class="nav-link text-white/75 hover:text-white text-sm tracking-wider transition-colors">入部案内</a>
+                        <a href="{{ route('about') }}" class="nav-link text-white/75 hover:text-white text-sm tracking-wider transition-colors rounded-sm focus:outline-none focus:ring-2 focus:ring-white/60">サークル紹介</a>
+                        <a href="{{ route('activities') }}" class="nav-link text-white/75 hover:text-white text-sm tracking-wider transition-colors rounded-sm focus:outline-none focus:ring-2 focus:ring-white/60">活動内容</a>
+                        <a href="{{ route('gallery') }}" class="nav-link text-white/75 hover:text-white text-sm tracking-wider transition-colors rounded-sm focus:outline-none focus:ring-2 focus:ring-white/60">ギャラリー</a>
+                        <a href="{{ route('join') }}" class="nav-link text-white/75 hover:text-white text-sm tracking-wider transition-colors rounded-sm focus:outline-none focus:ring-2 focus:ring-white/60">入部案内</a>
                     </nav>
 
                     {{-- Right: SNS + Auth + Hamburger --}}
@@ -669,17 +673,20 @@
     {{-- ─────────────── H. Theme Toggle (fixed bottom-right) ─────────────── --}}
     <div class="fixed bottom-6 right-6 z-50 flex flex-col gap-2" role="group" aria-label="時間帯テーマ切替">
         <button onclick="setTheme('dawn')"
-                class="w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm border border-white/20 text-base hover:border-white/50 hover:bg-black/60 transition-colors focus:outline-none focus:ring-2 focus:ring-white/40"
+                class="w-11 h-11 rounded-full bg-black/40 backdrop-blur-sm border border-white/20 text-base hover:border-white/50 hover:bg-black/60 transition-colors focus:outline-none focus:ring-2 focus:ring-white/40"
+                data-theme-btn="dawn" aria-pressed="false"
                 title="朝テーマ" aria-label="朝のテーマに切替">
             🌅
         </button>
         <button onclick="setTheme('day')"
-                class="w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm border border-white/20 text-base hover:border-white/50 hover:bg-black/60 transition-colors focus:outline-none focus:ring-2 focus:ring-white/40"
+                class="w-11 h-11 rounded-full bg-black/40 backdrop-blur-sm border border-white/20 text-base hover:border-white/50 hover:bg-black/60 transition-colors focus:outline-none focus:ring-2 focus:ring-white/40"
+                data-theme-btn="day" aria-pressed="false"
                 title="昼テーマ" aria-label="昼のテーマに切替">
             ☀️
         </button>
         <button onclick="setTheme('night')"
-                class="w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm border border-white/20 text-base hover:border-white/50 hover:bg-black/60 transition-colors focus:outline-none focus:ring-2 focus:ring-white/40"
+                class="w-11 h-11 rounded-full bg-black/40 backdrop-blur-sm border border-white/20 text-base hover:border-white/50 hover:bg-black/60 transition-colors focus:outline-none focus:ring-2 focus:ring-white/40"
+                data-theme-btn="night" aria-pressed="false"
                 title="夜テーマ" aria-label="夜のテーマに切替">
             🌙
         </button>
@@ -688,8 +695,14 @@
 
     {{-- ─────────────── JavaScript ─────────────── --}}
     <script>
-        // テーマ手動切替
-        function setTheme(t) { document.documentElement.dataset.theme = t; }
+        // テーマ手動切替（aria-pressed 連動）
+        function setTheme(t) {
+            document.documentElement.dataset.theme = t;
+            document.querySelectorAll('[data-theme-btn]').forEach(function(btn) {
+                btn.setAttribute('aria-pressed', btn.dataset.themeBtn === t ? 'true' : 'false');
+                btn.style.opacity = btn.dataset.themeBtn === t ? '1' : '0.55';
+            });
+        }
 
         // ─── Opening animation ───
         (function() {
@@ -697,18 +710,21 @@
             var seen = sessionStorage.getItem('fca_opening_seen');
             var opening = document.getElementById('opening');
             var main = document.getElementById('main-content');
+            var closing = false;
 
             function showMain() { if(main) main.style.opacity = '1'; }
 
             function closeOpening() {
+                if (closing) return;
+                closing = true;
                 sessionStorage.setItem('fca_opening_seen', '1');
                 var txt = document.getElementById('opening-text');
                 if(txt) txt.style.opacity = '0';
                 setTimeout(function() {
                     opening.classList.add('closing');
                     showMain();
-                    setTimeout(function() { if(opening) opening.style.display = 'none'; }, 1200);
-                }, 300);
+                    setTimeout(function() { if(opening) opening.style.display = 'none'; }, 700);
+                }, 200);
             }
 
             if (reduced || seen) {
@@ -716,7 +732,7 @@
                 showMain(); return;
             }
 
-            var timer = setTimeout(closeOpening, 2800);
+            var timer = setTimeout(closeOpening, 1500);
             var skipBtn = document.getElementById('skip-btn');
             if(skipBtn) skipBtn.addEventListener('click', function() {
                 clearTimeout(timer); closeOpening();
@@ -758,6 +774,12 @@
                     bg.style.transform = 'translateY(' + (window.scrollY * 0.22) + 'px)';
                 }
             }, { passive: true });
+        })();
+
+        // ─── 初期テーマのボタン状態を同期 ───
+        (function() {
+            var current = document.documentElement.dataset.theme || 'day';
+            setTheme(current);
         })();
 
         // ─── CTA ripple effect ───
