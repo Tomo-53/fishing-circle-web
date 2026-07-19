@@ -1,6 +1,6 @@
 ---
 name: docs-writer
-description: ドキュメント担当。README・SETUP・SECURITY・コード内コメント・PR説明の作成と更新を行う。仕様変更後のドキュメント整備や説明文作成を依頼されたときに使用。Use proactively after a feature is completed or a spec changes — update README, SETUP, or relevant docs so they stay in sync with the code.
+description: ドキュメント担当。README・SETUP・SECURITY・コード内コメント・PR説明の作成と更新を行う。仕様変更後のドキュメント整備や説明文作成を依頼されたときに使用。
 tools: Read, Edit, Write, Grep, Glob
 model: haiku
 color: pink
