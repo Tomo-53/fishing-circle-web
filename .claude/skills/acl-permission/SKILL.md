@@ -47,18 +47,23 @@ Route::prefix('groups/{group}')->group(function () {
 ミドルウェアだけで足りない細かい判定は `UserGroup` のメソッドを使う：
 
 ```php
+use App\Enums\PermissionLevel;
+
 $userGroup = $request->get('current_user_group'); // ミドルウェアが付与
-if (! $userGroup->hasPermissionLevel(UserGroup::PERMISSION_LEVEL_ADMIN)) {
+if (! $userGroup->hasPermissionLevel(PermissionLevel::Admin)) {
     abort(403);
 }
 ```
+
+**比較は `PermissionLevel` enum を渡す**（`hasPermissionLevel()` の引数は enum 型。int 定数を渡すと TypeError）。
+`UserGroup::PERMISSION_LEVEL_*` の int 定数は書き込み・テスト・Factory 用の数値エイリアス（`UserGroup.php` のコメント参照）。
 
 ## やってはいけないこと（権限漏れの典型）
 
 - `group_id` を見ずに `user_id` だけで権限を引く → **別グループの権限で操作できてしまう**。必ず両方でスコープ。
 - 承認待ち（`is_approved=false`）を通す。
 - Blade の `@can`/`@auth` 表示制御だけで「守った気になる」→ サーバ側認可が本体。
-- 自前で `permission_level` を数値直書き → 定数（`UserGroup::PERMISSION_LEVEL_*`）を使う。
+- 自前で `permission_level` を数値直書き → 比較は enum（`PermissionLevel::*`）、書き込み・Factory は定数（`UserGroup::PERMISSION_LEVEL_*`）を使う。
 
 ## 追加したら必ずテストする（`pest-tester` / `.claude/rules/testing.md`）
 

@@ -33,7 +33,7 @@ description: Blade テンプレートのアクセシビリティ(a11y)監査と�
 ## Alpine の開閉 UI（モーダル/ドロップダウン）
 
 - トリガに `:aria-expanded="open"`、対象に `aria-controls` と `id` を付ける。
-- モーダルは `role="dialog"` `aria-modal="true"`、開いたらフォーカスを内部へ、`Escape` で閉じる（`x-on:keydown.escape.window`）。`x-trap` があればフォーカストラップに使う。
+- モーダルは `role="dialog"` `aria-modal="true"`、開いたらフォーカスを内部へ、`Escape` で閉じる（`x-on:keydown.escape.window`）。フォーカストラップ用の `x-trap`（`@alpinejs/focus` プラグイン）は**未導入**。使う場合は `src/package.json` に追加してから。
 
 ```blade
 <button type="button" x-on:click="open = !open"
