@@ -1,368 +1,776 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="day">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ config('app.name', '新潟大学釣り同好会') }}</title>
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('favicon.png') }}">
 
-        <title>{{ config('app.name', '新潟大学釣り同好会') }}</title>
+    {{-- FOUC防止: テーマ適用を最初に行う --}}
+    <script>
+    (function(){
+        var h = new Date().getHours();
+        var t = (h>=5&&h<10)?'dawn':(h>=10&&h<17)?'day':'night';
+        document.documentElement.dataset.theme = t;
+    })();
+    </script>
 
-        <!-- Favicon -->
-        <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
-        <link rel="apple-touch-icon" href="{{ asset('favicon.png') }}">
-        <link rel="shortcut icon" href="{{ asset('favicon.png') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&family=Comfortaa:wght@400;600;700&display=swap" rel="stylesheet">
 
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
+    @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @endif
 
-        @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
-            @vite(['resources/css/app.css', 'resources/js/app.js'])
-        @else
-            <style>
-                /*! tailwindcss v4.0.7 | MIT License | https://tailwindcss.com */@layer theme{:root,:host{--font-sans:'Instrument Sans',ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";--font-serif:ui-serif,Georgia,Cambria,"Times New Roman",Times,serif;--font-mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;--color-red-50:oklch(.971 .013 17.38);--color-red-100:oklch(.936 .032 17.717);--color-red-200:oklch(.885 .062 18.334);--color-red-300:oklch(.808 .114 19.571);--color-red-400:oklch(.704 .191 22.216);--color-red-500:oklch(.637 .237 25.331);--color-red-600:oklch(.577 .245 27.325);--color-red-700:oklch(.505 .213 27.518);--color-red-800:oklch(.444 .177 26.899);--color-red-900:oklch(.396 .141 25.723);--color-red-950:oklch(.258 .092 26.042);--color-orange-50:oklch(.98 .016 73.684);--color-orange-100:oklch(.954 .038 75.164);--color-orange-200:oklch(.901 .076 70.697);--color-orange-300:oklch(.837 .128 66.29);--color-orange-400:oklch(.75 .183 55.934);--color-orange-500:oklch(.705 .213 47.604);--color-orange-600:oklch(.646 .222 41.116);--color-orange-700:oklch(.553 .195 38.402);--color-orange-800:oklch(.47 .157 37.304);--color-orange-900:oklch(.408 .123 38.172);--color-orange-950:oklch(.266 .079 36.259);--color-amber-50:oklch(.987 .022 95.277);--color-amber-100:oklch(.962 .059 95.617);--color-amber-200:oklch(.924 .12 95.746);--color-amber-300:oklch(.879 .169 91.605);--color-amber-400:oklch(.828 .189 84.429);--color-amber-500:oklch(.769 .188 70.08);--color-amber-600:oklch(.666 .179 58.318);--color-amber-700:oklch(.555 .163 48.998);--color-amber-800:oklch(.473 .137 46.201);--color-amber-900:oklch(.414 .112 45.904);--color-amber-950:oklch(.279 .077 45.635);--color-yellow-50:oklch(.987 .026 102.212);--color-yellow-100:oklch(.973 .071 103.193);--color-yellow-200:oklch(.945 .129 101.54);--color-yellow-300:oklch(.905 .182 98.111);--color-yellow-400:oklch(.852 .199 91.936);--color-yellow-500:oklch(.795 .184 86.047);--color-yellow-600:oklch(.681 .162 75.834);--color-yellow-700:oklch(.554 .135 66.442);--color-yellow-800:oklch(.476 .114 61.907);--color-yellow-900:oklch(.421 .095 57.708);--color-yellow-950:oklch(.286 .066 53.813);--color-lime-50:oklch(.986 .031 120.757);--color-lime-100:oklch(.967 .067 122.328);--color-lime-200:oklch(.938 .127 124.321);--color-lime-300:oklch(.897 .196 126.665);--color-lime-400:oklch(.841 .238 128.85);--color-lime-500:oklch(.768 .233 130.85);--color-lime-600:oklch(.648 .2 131.684);--color-lime-700:oklch(.532 .157 131.589);--color-lime-800:oklch(.453 .124 130.933);--color-lime-900:oklch(.405 .101 131.063);--color-lime-950:oklch(.274 .072 132.109);--color-green-50:oklch(.982 .018 155.826);--color-green-100:oklch(.962 .044 156.743);--color-green-200:oklch(.925 .084 155.995);--color-green-300:oklch(.871 .15 154.449);--color-green-400:oklch(.792 .209 151.711);--color-green-500:oklch(.723 .219 149.579);--color-green-600:oklch(.627 .194 149.214);--color-green-700:oklch(.527 .154 150.069);--color-green-800:oklch(.448 .119 151.328);--color-green-900:oklch(.393 .095 152.535);--color-green-950:oklch(.266 .065 152.934);--color-emerald-50:oklch(.979 .021 166.113);--color-emerald-100:oklch(.95 .052 163.051);--color-emerald-200:oklch(.905 .093 164.15);--color-emerald-300:oklch(.845 .143 164.978);--color-emerald-400:oklch(.765 .177 163.223);--color-emerald-500:oklch(.696 .17 162.48);--color-emerald-600:oklch(.596 .145 163.225);--color-emerald-700:oklch(.508 .118 165.612);--color-emerald-800:oklch(.432 .095 166.913);--color-emerald-900:oklch(.378 .077 168.94);--color-emerald-950:oklch(.262 .051 172.552);--color-teal-50:oklch(.984 .014 180.72);--color-teal-100:oklch(.953 .051 180.801);--color-teal-200:oklch(.91 .096 180.426);--color-teal-300:oklch(.855 .138 181.071);--color-teal-400:oklch(.777 .152 181.912);--color-teal-500:oklch(.704 .14 182.503);--color-teal-600:oklch(.6 .118 184.704);--color-teal-700:oklch(.511 .096 186.391);--color-teal-800:oklch(.437 .078 188.216);--color-teal-900:oklch(.386 .063 188.416);--color-teal-950:oklch(.277 .046 192.524);--color-cyan-50:oklch(.984 .019 200.873);--color-cyan-100:oklch(.956 .045 203.388);--color-cyan-200:oklch(.917 .08 205.041);--color-cyan-300:oklch(.865 .127 207.078);--color-cyan-400:oklch(.789 .154 211.53);--color-cyan-500:oklch(.715 .143 215.221);--color-cyan-600:oklch(.609 .126 221.723);--color-cyan-700:oklch(.52 .105 223.128);--color-cyan-800:oklch(.45 .085 224.283);--color-cyan-900:oklch(.398 .07 227.392);--color-cyan-950:oklch(.302 .056 229.695);--color-sky-50:oklch(.977 .013 236.62);--color-sky-100:oklch(.951 .026 236.824);--color-sky-200:oklch(.901 .058 230.902);--color-sky-300:oklch(.828 .111 230.318);--color-sky-400:oklch(.746 .16 232.661);--color-sky-500:oklch(.685 .169 237.323);--color-sky-600:oklch(.588 .158 241.966);--color-sky-700:oklch(.5 .134 242.749);--color-sky-800:oklch(.443 .11 240.79);--color-sky-900:oklch(.391 .09 240.876);--color-sky-950:oklch(.293 .066 243.157);--color-blue-50:oklch(.97 .014 254.604);--color-blue-100:oklch(.932 .032 255.585);--color-blue-200:oklch(.882 .059 254.128);--color-blue-300:oklch(.809 .105 251.813);--color-blue-400:oklch(.707 .165 254.624);--color-blue-500:oklch(.623 .214 259.815);--color-blue-600:oklch(.546 .245 262.881);--color-blue-700:oklch(.488 .243 264.376);--color-blue-800:oklch(.424 .199 265.638);--color-blue-900:oklch(.379 .146 265.522);--color-blue-950:oklch(.282 .091 267.935);--color-indigo-50:oklch(.962 .018 272.314);--color-indigo-100:oklch(.93 .034 272.788);--color-indigo-200:oklch(.87 .065 274.039);--color-indigo-300:oklch(.785 .115 274.713);--color-indigo-400:oklch(.673 .182 276.935);--color-indigo-500:oklch(.585 .233 277.117);--color-indigo-600:oklch(.511 .262 276.966);--color-indigo-700:oklch(.457 .24 277.023);--color-indigo-800:oklch(.398 .195 277.366);--color-indigo-900:oklch(.359 .144 278.697);--color-indigo-950:oklch(.257 .09 281.288);--color-violet-50:oklch(.969 .016 293.756);--color-violet-100:oklch(.943 .029 294.588);--color-violet-200:oklch(.894 .057 293.283);--color-violet-300:oklch(.811 .111 293.571);--color-violet-400:oklch(.702 .183 293.541);--color-violet-500:oklch(.606 .25 292.717);--color-violet-600:oklch(.541 .281 293.009);--color-violet-700:oklch(.491 .27 292.581);--color-violet-800:oklch(.432 .232 292.759);--color-violet-900:oklch(.38 .189 293.745);--color-violet-950:oklch(.283 .141 291.089);--color-purple-50:oklch(.977 .014 308.299);--color-purple-100:oklch(.946 .033 307.174);--color-purple-200:oklch(.902 .063 306.703);--color-purple-300:oklch(.827 .119 306.383);--color-purple-400:oklch(.714 .203 305.504);--color-purple-500:oklch(.627 .265 303.9);--color-purple-600:oklch(.558 .288 302.321);--color-purple-700:oklch(.496 .265 301.924);--color-purple-800:oklch(.438 .218 303.724);--color-purple-900:oklch(.381 .176 304.987);--color-purple-950:oklch(.291 .149 302.717);--color-fuchsia-50:oklch(.977 .017 320.058);--color-fuchsia-100:oklch(.952 .037 318.852);--color-fuchsia-200:oklch(.903 .076 319.62);--color-fuchsia-300:oklch(.833 .145 321.434);--color-fuchsia-400:oklch(.74 .238 322.16);--color-fuchsia-500:oklch(.667 .295 322.15);--color-fuchsia-600:oklch(.591 .293 322.896);--color-fuchsia-700:oklch(.518 .253 323.949);--color-fuchsia-800:oklch(.452 .211 324.591);--color-fuchsia-900:oklch(.401 .17 325.612);--color-fuchsia-950:oklch(.293 .136 325.661);--color-pink-50:oklch(.971 .014 343.198);--color-pink-100:oklch(.948 .028 342.258);--color-pink-200:oklch(.899 .061 343.231);--color-pink-300:oklch(.823 .12 346.018);--color-pink-400:oklch(.718 .202 349.761);--color-pink-500:oklch(.656 .241 354.308);--color-pink-600:oklch(.592 .249 .584);--color-pink-700:oklch(.525 .223 3.958);--color-pink-800:oklch(.459 .187 3.815);--color-pink-900:oklch(.408 .153 2.432);--color-pink-950:oklch(.284 .109 3.907);--color-rose-50:oklch(.969 .015 12.422);--color-rose-100:oklch(.941 .03 12.58);--color-rose-200:oklch(.892 .058 10.001);--color-rose-300:oklch(.81 .117 11.638);--color-rose-400:oklch(.712 .194 13.428);--color-rose-500:oklch(.645 .246 16.439);--color-rose-600:oklch(.586 .253 17.585);--color-rose-700:oklch(.514 .222 16.935);--color-rose-800:oklch(.455 .188 13.697);--color-rose-900:oklch(.41 .159 10.272);--color-rose-950:oklch(.271 .105 12.094);--color-slate-50:oklch(.984 .003 247.858);--color-slate-100:oklch(.968 .007 247.896);--color-slate-200:oklch(.929 .013 255.508);--color-slate-300:oklch(.869 .022 252.894);--color-slate-400:oklch(.704 .04 256.788);--color-slate-500:oklch(.554 .046 257.417);--color-slate-600:oklch(.446 .043 257.281);--color-slate-700:oklch(.372 .044 257.287);--color-slate-800:oklch(.279 .041 260.031);--color-slate-900:oklch(.208 .042 265.755);--color-slate-950:oklch(.129 .042 264.695);--color-gray-50:oklch(.985 .002 247.839);--color-gray-100:oklch(.967 .003 264.542);--color-gray-200:oklch(.928 .006 264.531);--color-gray-300:oklch(.872 .01 258.338);--color-gray-400:oklch(.707 .022 261.325);--color-gray-500:oklch(.551 .027 264.364);--color-gray-600:oklch(.446 .03 256.802);--color-gray-700:oklch(.373 .034 259.733);--color-gray-800:oklch(.278 .033 256.848);--color-gray-900:oklch(.21 .034 264.665);--color-gray-950:oklch(.13 .028 261.692);--color-zinc-50:oklch(.985 0 0);--color-zinc-100:oklch(.967 .001 286.375);--color-zinc-200:oklch(.92 .004 286.32);--color-zinc-300:oklch(.871 .006 286.286);--color-zinc-400:oklch(.705 .015 286.067);--color-zinc-500:oklch(.552 .016 285.938);--color-zinc-600:oklch(.442 .017 285.786);--color-zinc-700:oklch(.37 .013 285.805);--color-zinc-800:oklch(.274 .006 286.033);--color-zinc-900:oklch(.21 .006 285.885);--color-zinc-950:oklch(.141 .005 285.823);--color-neutral-50:oklch(.985 0 0);--color-neutral-100:oklch(.97 0 0);--color-neutral-200:oklch(.922 0 0);--color-neutral-300:oklch(.87 0 0);--color-neutral-400:oklch(.708 0 0);--color-neutral-500:oklch(.556 0 0);--color-neutral-600:oklch(.439 0 0);--color-neutral-700:oklch(.371 0 0);--color-neutral-800:oklch(.269 0 0);--color-neutral-900:oklch(.205 0 0);--color-neutral-950:oklch(.145 0 0);--color-stone-50:oklch(.985 .001 106.423);--color-stone-100:oklch(.97 .001 106.424);--color-stone-200:oklch(.923 .003 48.717);--color-stone-300:oklch(.869 .005 56.366);--color-stone-400:oklch(.709 .01 56.259);--color-stone-500:oklch(.553 .013 58.071);--color-stone-600:oklch(.444 .011 73.639);--color-stone-700:oklch(.374 .01 67.558);--color-stone-800:oklch(.268 .007 34.298);--color-stone-900:oklch(.216 .006 56.043);--color-stone-950:oklch(.147 .004 49.25);--color-black:#000;--color-white:#fff;--spacing:.25rem;--breakpoint-sm:40rem;--breakpoint-md:48rem;--breakpoint-lg:64rem;--breakpoint-xl:80rem;--breakpoint-2xl:96rem;--container-3xs:16rem;--container-2xs:18rem;--container-xs:20rem;--container-sm:24rem;--container-md:28rem;--container-lg:32rem;--container-xl:36rem;--container-2xl:42rem;--container-3xl:48rem;--container-4xl:56rem;--container-5xl:64rem;--container-6xl:72rem;--container-7xl:80rem;--text-xs:.75rem;--text-xs--line-height:calc(1/.75);--text-sm:.875rem;--text-sm--line-height:calc(1.25/.875);--text-base:1rem;--text-base--line-height: 1.5 ;--text-lg:1.125rem;--text-lg--line-height:calc(1.75/1.125);--text-xl:1.25rem;--text-xl--line-height:calc(1.75/1.25);--text-2xl:1.5rem;--text-2xl--line-height:calc(2/1.5);--text-3xl:1.875rem;--text-3xl--line-height: 1.2 ;--text-4xl:2.25rem;--text-4xl--line-height:calc(2.5/2.25);--text-5xl:3rem;--text-5xl--line-height:1;--text-6xl:3.75rem;--text-6xl--line-height:1;--text-7xl:4.5rem;--text-7xl--line-height:1;--text-8xl:6rem;--text-8xl--line-height:1;--text-9xl:8rem;--text-9xl--line-height:1;--font-weight-thin:100;--font-weight-extralight:200;--font-weight-light:300;--font-weight-normal:400;--font-weight-medium:500;--font-weight-semibold:600;--font-weight-bold:700;--font-weight-extrabold:800;--font-weight-black:900;--tracking-tighter:-.05em;--tracking-tight:-.025em;--tracking-normal:0em;--tracking-wide:.025em;--tracking-wider:.05em;--tracking-widest:.1em;--leading-tight:1.25;--leading-snug:1.375;--leading-normal:1.5;--leading-relaxed:1.625;--leading-loose:2;--radius-xs:.125rem;--radius-sm:.25rem;--radius-md:.375rem;--radius-lg:.5rem;--radius-xl:.75rem;--radius-2xl:1rem;--radius-3xl:1.5rem;--radius-4xl:2rem;--shadow-2xs:0 1px #0000000d;--shadow-xs:0 1px 2px 0 #0000000d;--shadow-sm:0 1px 3px 0 #0000001a,0 1px 2px -1px #0000001a;--shadow-md:0 4px 6px -1px #0000001a,0 2px 4px -2px #0000001a;--shadow-lg:0 10px 15px -3px #0000001a,0 4px 6px -4px #0000001a;--shadow-xl:0 20px 25px -5px #0000001a,0 8px 10px -6px #0000001a;--shadow-2xl:0 25px 50px -12px #00000040;--inset-shadow-2xs:inset 0 1px #0000000d;--inset-shadow-xs:inset 0 1px 1px #0000000d;--inset-shadow-sm:inset 0 2px 4px #0000000d;--drop-shadow-xs:0 1px 1px #0000000d;--drop-shadow-sm:0 1px 2px #00000026;--drop-shadow-md:0 3px 3px #0000001f;--drop-shadow-lg:0 4px 4px #00000026;--drop-shadow-xl:0 9px 7px #0000001a;--drop-shadow-2xl:0 25px 25px #00000026;--ease-in:cubic-bezier(.4,0,1,1);--ease-out:cubic-bezier(0,0,.2,1);--ease-in-out:cubic-bezier(.4,0,.2,1);--animate-spin:spin 1s linear infinite;--animate-ping:ping 1s cubic-bezier(0,0,.2,1)infinite;--animate-pulse:pulse 2s cubic-bezier(.4,0,.6,1)infinite;--animate-bounce:bounce 1s infinite;--blur-xs:4px;--blur-sm:8px;--blur-md:12px;--blur-lg:16px;--blur-xl:24px;--blur-2xl:40px;--blur-3xl:64px;--perspective-dramatic:100px;--perspective-near:300px;--perspective-normal:500px;--perspective-midrange:800px;--perspective-distant:1200px;--aspect-video:16/9;--default-transition-duration:.15s;--default-transition-timing-function:cubic-bezier(.4,0,.2,1);--default-font-family:var(--font-sans);--default-font-feature-settings:var(--font-sans--font-feature-settings);--default-font-variation-settings:var(--font-sans--font-variation-settings);--default-mono-font-family:var(--font-mono);--default-mono-font-feature-settings:var(--font-mono--font-feature-settings);--default-mono-font-variation-settings:var(--font-mono--font-variation-settings)}}@layer base{*,:after,:before,::backdrop{box-sizing:border-box;border:0 solid;margin:0;padding:0}::file-selector-button{box-sizing:border-box;border:0 solid;margin:0;padding:0}html,:host{-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;line-height:1.5;font-family:var(--default-font-family,ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji");font-feature-settings:var(--default-font-feature-settings,normal);font-variation-settings:var(--default-font-variation-settings,normal);-webkit-tap-highlight-color:transparent}body{line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;-webkit-text-decoration:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,samp,pre{font-family:var(--default-mono-font-family,ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace);font-feature-settings:var(--default-mono-font-feature-settings,normal);font-variation-settings:var(--default-mono-font-variation-settings,normal);font-size:1em}small{font-size:80%}sub,sup{vertical-align:baseline;font-size:75%;line-height:0;position:relative}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}:-moz-focusring{outline:auto}progress{vertical-align:baseline}summary{display:list-item}ol,ul,menu{list-style:none}img,svg,video,canvas,audio,iframe,embed,object{vertical-align:middle;display:block}img,video{max-width:100%;height:auto}button,input,select,optgroup,textarea{font:inherit;font-feature-settings:inherit;font-variation-settings:inherit;letter-spacing:inherit;color:inherit;opacity:1;background-color:#0000;border-radius:0}::file-selector-button{font:inherit;font-feature-settings:inherit;font-variation-settings:inherit;letter-spacing:inherit;color:inherit;opacity:1;background-color:#0000;border-radius:0}:where(select:is([multiple],[size])) optgroup{font-weight:bolder}:where(select:is([multiple],[size])) optgroup option{padding-inline-start:20px}::file-selector-button{margin-inline-end:4px}::placeholder{opacity:1;color:color-mix(in oklab,currentColor 50%,transparent)}textarea{resize:vertical}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-date-and-time-value{min-height:1lh;text-align:inherit}::-webkit-datetime-edit{display:inline-flex}::-webkit-datetime-edit-fields-wrapper{padding:0}::-webkit-datetime-edit{padding-block:0}::-webkit-datetime-edit-year-field{padding-block:0}::-webkit-datetime-edit-month-field{padding-block:0}::-webkit-datetime-edit-day-field{padding-block:0}::-webkit-datetime-edit-hour-field{padding-block:0}::-webkit-datetime-edit-minute-field{padding-block:0}::-webkit-datetime-edit-second-field{padding-block:0}::-webkit-datetime-edit-millisecond-field{padding-block:0}::-webkit-datetime-edit-meridiem-field{padding-block:0}:-moz-ui-invalid{box-shadow:none}button,input:where([type=button],[type=reset],[type=submit]){-webkit-appearance:button;-moz-appearance:button;appearance:button}::file-selector-button{-webkit-appearance:button;-moz-appearance:button;appearance:button}::-webkit-inner-spin-button{height:auto}::-webkit-outer-spin-button{height:auto}[hidden]:where(:not([hidden=until-found])){display:none!important}}@layer components;@layer utilities{.absolute{position:absolute}.relative{position:relative}.static{position:static}.inset-0{inset:calc(var(--spacing)*0)}.-mt-\[4\.9rem\]{margin-top:-4.9rem}.-mb-px{margin-bottom:-1px}.mb-1{margin-bottom:calc(var(--spacing)*1)}.mb-2{margin-bottom:calc(var(--spacing)*2)}.mb-4{margin-bottom:calc(var(--spacing)*4)}.mb-6{margin-bottom:calc(var(--spacing)*6)}.-ml-8{margin-left:calc(var(--spacing)*-8)}.flex{display:flex}.hidden{display:none}.inline-block{display:inline-block}.inline-flex{display:inline-flex}.table{display:table}.aspect-\[335\/376\]{aspect-ratio:335/376}.h-1{height:calc(var(--spacing)*1)}.h-1\.5{height:calc(var(--spacing)*1.5)}.h-2{height:calc(var(--spacing)*2)}.h-2\.5{height:calc(var(--spacing)*2.5)}.h-3{height:calc(var(--spacing)*3)}.h-3\.5{height:calc(var(--spacing)*3.5)}.h-14{height:calc(var(--spacing)*14)}.h-14\.5{height:calc(var(--spacing)*14.5)}.min-h-screen{min-height:100vh}.w-1{width:calc(var(--spacing)*1)}.w-1\.5{width:calc(var(--spacing)*1.5)}.w-2{width:calc(var(--spacing)*2)}.w-2\.5{width:calc(var(--spacing)*2.5)}.w-3{width:calc(var(--spacing)*3)}.w-3\.5{width:calc(var(--spacing)*3.5)}.w-\[448px\]{width:448px}.w-full{width:100%}.max-w-\[335px\]{max-width:335px}.max-w-none{max-width:none}.flex-1{flex:1}.shrink-0{flex-shrink:0}.translate-y-0{--tw-translate-y:calc(var(--spacing)*0);translate:var(--tw-translate-x)var(--tw-translate-y)}.transform{transform:var(--tw-rotate-x)var(--tw-rotate-y)var(--tw-rotate-z)var(--tw-skew-x)var(--tw-skew-y)}.flex-col{flex-direction:column}.flex-col-reverse{flex-direction:column-reverse}.items-center{align-items:center}.justify-center{justify-content:center}.justify-end{justify-content:flex-end}.gap-3{gap:calc(var(--spacing)*3)}.gap-4{gap:calc(var(--spacing)*4)}:where(.space-x-1>:not(:last-child)){--tw-space-x-reverse:0;margin-inline-start:calc(calc(var(--spacing)*1)*var(--tw-space-x-reverse));margin-inline-end:calc(calc(var(--spacing)*1)*calc(1 - var(--tw-space-x-reverse)))}.overflow-hidden{overflow:hidden}.rounded-full{border-radius:3.40282e38px}.rounded-sm{border-radius:var(--radius-sm)}.rounded-t-lg{border-top-left-radius:var(--radius-lg);border-top-right-radius:var(--radius-lg)}.rounded-br-lg{border-bottom-right-radius:var(--radius-lg)}.rounded-bl-lg{border-bottom-left-radius:var(--radius-lg)}.border{border-style:var(--tw-border-style);border-width:1px}.border-\[\#19140035\]{border-color:#19140035}.border-\[\#e3e3e0\]{border-color:#e3e3e0}.border-black{border-color:var(--color-black)}.border-transparent{border-color:#0000}.bg-\[\#1b1b18\]{background-color:#1b1b18}.bg-\[\#FDFDFC\]{background-color:#fdfdfc}.bg-\[\#dbdbd7\]{background-color:#dbdbd7}.bg-\[\#fff2f2\]{background-color:#fff2f2}.bg-white{background-color:var(--color-white)}.p-6{padding:calc(var(--spacing)*6)}.px-5{padding-inline:calc(var(--spacing)*5)}.py-1{padding-block:calc(var(--spacing)*1)}.py-1\.5{padding-block:calc(var(--spacing)*1.5)}.py-2{padding-block:calc(var(--spacing)*2)}.pb-12{padding-bottom:calc(var(--spacing)*12)}.text-sm{font-size:var(--text-sm);line-height:var(--tw-leading,var(--text-sm--line-height))}.text-\[13px\]{font-size:13px}.leading-\[20px\]{--tw-leading:20px;line-height:20px}.leading-normal{--tw-leading:var(--leading-normal);line-height:var(--leading-normal)}.font-medium{--tw-font-weight:var(--font-weight-medium);font-weight:var(--font-weight-medium)}.text-\[\#1b1b18\]{color:#1b1b18}.text-\[\#706f6c\]{color:#706f6c}.text-\[\#F53003\],.text-\[\#f53003\]{color:#f53003}.text-white{color:var(--color-white)}.underline{text-decoration-line:underline}.underline-offset-4{text-underline-offset:4px}.opacity-100{opacity:1}.shadow-\[0px_0px_1px_0px_rgba\(0\,0\,0\,0\.03\)\,0px_1px_2px_0px_rgba\(0\,0\,0\,0\.06\)\]{--tw-shadow:0px 0px 1px 0px var(--tw-shadow-color,#00000008),0px 1px 2px 0px var(--tw-shadow-color,#0000000f);box-shadow:var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow)}.shadow-\[inset_0px_0px_0px_1px_rgba\(26\,26\,0\,0\.16\)\]{--tw-shadow:inset 0px 0px 0px 1px var(--tw-shadow-color,#1a1a0029);box-shadow:var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow)}.\!filter{filter:var(--tw-blur,)var(--tw-brightness,)var(--tw-contrast,)var(--tw-grayscale,)var(--tw-hue-rotate,)var(--tw-invert,)var(--tw-saturate,)var(--tw-sepia,)var(--tw-drop-shadow,)!important}.filter{filter:var(--tw-blur,)var(--tw-brightness,)var(--tw-contrast,)var(--tw-grayscale,)var(--tw-hue-rotate,)var(--tw-invert,)var(--tw-saturate,)var(--tw-sepia,)var(--tw-drop-shadow,)}.transition-all{transition-property:all;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.transition-opacity{transition-property:opacity;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.delay-300{transition-delay:.3s}.duration-750{--tw-duration:.75s;transition-duration:.75s}.not-has-\[nav\]\:hidden:not(:has(:is(nav))){display:none}.before\:absolute:before{content:var(--tw-content);position:absolute}.before\:top-0:before{content:var(--tw-content);top:calc(var(--spacing)*0)}.before\:top-1\/2:before{content:var(--tw-content);top:50%}.before\:bottom-0:before{content:var(--tw-content);bottom:calc(var(--spacing)*0)}.before\:bottom-1\/2:before{content:var(--tw-content);bottom:50%}.before\:left-\[0\.4rem\]:before{content:var(--tw-content);left:.4rem}.before\:border-l:before{content:var(--tw-content);border-left-style:var(--tw-border-style);border-left-width:1px}.before\:border-\[\#e3e3e0\]:before{content:var(--tw-content);border-color:#e3e3e0}@media (hover:hover){.hover\:border-\[\#1915014a\]:hover{border-color:#1915014a}.hover\:border-\[\#19140035\]:hover{border-color:#19140035}.hover\:border-black:hover{border-color:var(--color-black)}.hover\:bg-black:hover{background-color:var(--color-black)}}@media (width>=64rem){.lg\:-mt-\[6\.6rem\]{margin-top:-6.6rem}.lg\:mb-0{margin-bottom:calc(var(--spacing)*0)}.lg\:mb-6{margin-bottom:calc(var(--spacing)*6)}.lg\:-ml-px{margin-left:-1px}.lg\:ml-0{margin-left:calc(var(--spacing)*0)}.lg\:block{display:block}.lg\:aspect-auto{aspect-ratio:auto}.lg\:w-\[438px\]{width:438px}.lg\:max-w-4xl{max-width:var(--container-4xl)}.lg\:grow{flex-grow:1}.lg\:flex-row{flex-direction:row}.lg\:justify-center{justify-content:center}.lg\:rounded-t-none{border-top-left-radius:0;border-top-right-radius:0}.lg\:rounded-tl-lg{border-top-left-radius:var(--radius-lg)}.lg\:rounded-r-lg{border-top-right-radius:var(--radius-lg);border-bottom-right-radius:var(--radius-lg)}.lg\:rounded-br-none{border-bottom-right-radius:0}.lg\:p-8{padding:calc(var(--spacing)*8)}.lg\:p-20{padding:calc(var(--spacing)*20)}}@media (prefers-color-scheme:dark){.dark\:block{display:block}.dark\:hidden{display:none}.dark\:border-\[\#3E3E3A\]{border-color:#3e3e3a}.dark\:border-\[\#eeeeec\]{border-color:#eeeeec}.dark\:bg-\[\#0a0a0a\]{background-color:#0a0a0a}.dark\:bg-\[\#1D0002\]{background-color:#1d0002}.dark\:bg-\[\#3E3E3A\]{background-color:#3e3e3a}.dark\:bg-\[\#161615\]{background-color:#161615}.dark\:bg-\[\#eeeeec\]{background-color:#eeeeec}.dark\:text-\[\#1C1C1A\]{color:#1c1c1a}.dark\:text-\[\#A1A09A\]{color:#a1a09a}.dark\:text-\[\#EDEDEC\]{color:#ededec}.dark\:text-\[\#F61500\]{color:#f61500}.dark\:text-\[\#FF4433\]{color:#f43}.dark\:shadow-\[inset_0px_0px_0px_1px_\#fffaed2d\]{--tw-shadow:inset 0px 0px 0px 1px var(--tw-shadow-color,#fffaed2d);box-shadow:var(--tw-inset-shadow),var(--tw-inset-ring-shadow),var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow)}.dark\:before\:border-\[\#3E3E3A\]:before{content:var(--tw-content);border-color:#3e3e3a}@media (hover:hover){.dark\:hover\:border-\[\#3E3E3A\]:hover{border-color:#3e3e3a}.dark\:hover\:border-\[\#62605b\]:hover{border-color:#62605b}.dark\:hover\:border-white:hover{border-color:var(--color-white)}.dark\:hover\:bg-white:hover{background-color:var(--color-white)}}}@starting-style{.starting\:translate-y-4{--tw-translate-y:calc(var(--spacing)*4);translate:var(--tw-translate-x)var(--tw-translate-y)}}@starting-style{.starting\:translate-y-6{--tw-translate-y:calc(var(--spacing)*6);translate:var(--tw-translate-x)var(--tw-translate-y)}}@starting-style{.starting\:opacity-0{opacity:0}}}@keyframes spin{to{transform:rotate(360deg)}}@keyframes ping{75%,to{opacity:0;transform:scale(2)}}@keyframes pulse{50%{opacity:.5}}@keyframes bounce{0%,to{animation-timing-function:cubic-bezier(.8,0,1,1);transform:translateY(-25%)}50%{animation-timing-function:cubic-bezier(0,0,.2,1);transform:none}}@property --tw-translate-x{syntax:"*";inherits:false;initial-value:0}@property --tw-translate-y{syntax:"*";inherits:false;initial-value:0}@property --tw-translate-z{syntax:"*";inherits:false;initial-value:0}@property --tw-rotate-x{syntax:"*";inherits:false;initial-value:rotateX(0)}@property --tw-rotate-y{syntax:"*";inherits:false;initial-value:rotateY(0)}@property --tw-rotate-z{syntax:"*";inherits:false;initial-value:rotateZ(0)}@property --tw-skew-x{syntax:"*";inherits:false;initial-value:skewX(0)}@property --tw-skew-y{syntax:"*";inherits:false;initial-value:skewY(0)}@property --tw-space-x-reverse{syntax:"*";inherits:false;initial-value:0}@property --tw-border-style{syntax:"*";inherits:false;initial-value:solid}@property --tw-leading{syntax:"*";inherits:false}@property --tw-font-weight{syntax:"*";inherits:false}@property --tw-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-shadow-color{syntax:"*";inherits:false}@property --tw-inset-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-inset-shadow-color{syntax:"*";inherits:false}@property --tw-ring-color{syntax:"*";inherits:false}@property --tw-ring-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-inset-ring-color{syntax:"*";inherits:false}@property --tw-inset-ring-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-ring-inset{syntax:"*";inherits:false}@property --tw-ring-offset-width{syntax:"<length>";inherits:false;initial-value:0}@property --tw-ring-offset-color{syntax:"*";inherits:false;initial-value:#fff}@property --tw-ring-offset-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-blur{syntax:"*";inherits:false}@property --tw-brightness{syntax:"*";inherits:false}@property --tw-contrast{syntax:"*";inherits:false}@property --tw-grayscale{syntax:"*";inherits:false}@property --tw-hue-rotate{syntax:"*";inherits:false}@property --tw-invert{syntax:"*";inherits:false}@property --tw-opacity{syntax:"*";inherits:false}@property --tw-saturate{syntax:"*";inherits:false}@property --tw-sepia{syntax:"*";inherits:false}@property --tw-drop-shadow{syntax:"*";inherits:false}@property --tw-duration{syntax:"*";inherits:false}@property --tw-content{syntax:"*";inherits:false;initial-value:""}
-            </style>
-        @endif
-    </head>
-    <body class="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-blue-900 text-gray-800 dark:text-gray-200 min-h-screen">
-        <header class="bg-white dark:bg-gray-800 shadow-lg">
+    <style>
+        /* ─── Time-based CSS variables ─── */
+        :root, html[data-theme="day"] {
+            --sky-from: #38bdf8;
+            --sky-mid:  #0ea5e9;
+            --sky-to:   #0369a1;
+            --sky-deep: #0c4a6e;
+            --water-surface: rgba(3, 105, 161, 0.72);
+            --wave-back: rgba(56, 189, 248, 0.4);
+            --wave-mid:  rgba(14, 165, 233, 0.6);
+            --wave-front: rgba(3, 105, 161, 0.85);
+            --celestial-color: #fef08a;
+            --celestial-glow: rgba(254, 240, 138, 0.5);
+            --accent-warm: #f97316;
+            --text-bright: rgba(255,255,255,0.95);
+        }
+        html[data-theme="dawn"] {
+            --sky-from: #fbbf24;
+            --sky-mid:  #f97316;
+            --sky-to:   #dc2626;
+            --sky-deep: #7c2d12;
+            --water-surface: rgba(194, 65, 12, 0.65);
+            --wave-back: rgba(251, 191, 36, 0.35);
+            --wave-mid:  rgba(249, 115, 22, 0.55);
+            --wave-front: rgba(124, 45, 18, 0.85);
+            --celestial-color: #fde68a;
+            --celestial-glow: rgba(253, 230, 138, 0.7);
+            --accent-warm: #f97316;
+            --text-bright: rgba(255,255,250,0.95);
+        }
+        html[data-theme="night"] {
+            --sky-from: #0c4a6e;
+            --sky-mid:  #082f49;
+            --sky-to:   #020d18;
+            --sky-deep: #010812;
+            --water-surface: rgba(7, 89, 133, 0.75);
+            --wave-back: rgba(12, 74, 110, 0.5);
+            --wave-mid:  rgba(8, 47, 73, 0.7);
+            --wave-front: rgba(1, 8, 18, 0.88);
+            --celestial-color: #fef3c7;
+            --celestial-glow: rgba(254, 243, 199, 0.35);
+            --accent-warm: #eab308;
+            --text-bright: rgba(220,240,255,0.95);
+        }
+
+        /* x-cloak for Alpine */
+        [x-cloak] { display: none !important; }
+
+        /* ─── Opening animation ─── */
+        @keyframes openingExit {
+            0%   { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-100%); opacity: 0; }
+        }
+        #opening.closing {
+            animation: openingExit 1.2s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+        }
+        @keyframes waveFloat {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .wave-animated { animation: waveFloat 4s linear infinite; width: 200%; }
+
+        /* Bubble particles */
+        .bubble {
+            position: absolute; border-radius: 50%;
+            background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+            animation: bubbleRise linear infinite;
+        }
+        @keyframes bubbleRise {
+            0%   { transform: translateY(0) scale(1); opacity: 0.5; }
+            100% { transform: translateY(-120vh) scale(0.4); opacity: 0; }
+        }
+
+        /* ─── Reveal animation ─── */
+        .reveal {
+            opacity: 0; transform: translateY(1.75rem);
+            transition: opacity 0.65s ease-out, transform 0.65s ease-out;
+        }
+        .reveal.is-visible { opacity: 1; transform: translateY(0); }
+        .reveal-delay-1 { transition-delay: 0.15s; }
+        .reveal-delay-2 { transition-delay: 0.30s; }
+        .reveal-delay-3 { transition-delay: 0.45s; }
+
+        /* ─── Header scroll ─── */
+        #site-header { background: transparent; transition: background 0.3s ease, box-shadow 0.3s ease; }
+        #site-header.scrolled { background: rgba(12,74,110,0.93); backdrop-filter: blur(10px); box-shadow: 0 2px 24px rgba(0,0,0,0.35); }
+        html[data-theme="dawn"] #site-header.scrolled { background: rgba(124,45,18,0.93); }
+        html[data-theme="night"] #site-header.scrolled { background: rgba(1,8,18,0.95); }
+
+        /* ─── CTA ripple ─── */
+        .cta-ripple { transition: transform 0.2s ease, opacity 0.2s ease; }
+        .cta-ripple:hover { transform: scale(1.04); filter: brightness(1.08); }
+        .ripple-ring {
+            position: absolute; border-radius: 50%; background: rgba(255,255,255,0.35);
+            width: 60px; height: 60px; margin: -30px;
+            animation: rippleEffect 0.85s ease-out forwards; pointer-events: none;
+        }
+        @keyframes rippleEffect {
+            from { transform: scale(0); opacity: 0.5; }
+            to   { transform: scale(4); opacity: 0; }
+        }
+
+        /* ─── Fish swim animation ─── */
+        @keyframes fishSwim {
+            0%, 100% { transform: translateY(0); }
+            50%       { transform: translateY(-10px); }
+        }
+
+        /* ─── Texture depth background ─── */
+        .texture-depth-bg {
+            background:
+                radial-gradient(ellipse at 15% 85%, rgba(255,255,255,0.03) 0%, transparent 50%),
+                radial-gradient(ellipse at 85% 15%, rgba(255,255,255,0.015) 0%, transparent 40%),
+                linear-gradient(to bottom, var(--sky-deep) 0%, #111827 100%);
+        }
+        .texture-dot {
+            position: absolute; border-radius: 50%; background: rgba(255,255,255,0.07);
+        }
+
+        /* ─── Photo hover ─── */
+        .photo-card { overflow: hidden; position: relative; }
+        .photo-card img { transition: transform 0.5s ease; }
+        .photo-card:hover img { transform: scale(1.06); }
+        .photo-card .photo-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 55%);
+            opacity: 0; transition: opacity 0.4s ease;
+        }
+        .photo-card:hover .photo-overlay { opacity: 1; }
+
+        /* ─── reduced-motion ─── */
+        @media (prefers-reduced-motion: reduce) {
+            .bubble { animation: none; }
+            #opening { display: none !important; }
+            .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+            .wave-animated { animation: none; }
+            /* W-1/W-2: fish swim & scroll bounce */
+            [style*="fishSwim"], [style*="animation: fishSwim"] { animation: none !important; }
+            .animate-bounce { animation: none !important; }
+            /* W-4: nav link underline hover */
+            .nav-link::after { transition: none; }
+            /* photo hover scale */
+            .photo-card img { transition: none; }
+            .photo-card .photo-overlay { transition: none; }
+        }
+
+        /* ─── Nav link underline ─── */
+        .nav-link {
+            position: relative; padding-bottom: 2px;
+        }
+        .nav-link::after {
+            content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+            height: 1px; background: white; transform: scaleX(0);
+            transition: transform 0.2s ease; transform-origin: right;
+        }
+        .nav-link:hover::after { transform: scaleX(1); transform-origin: left; }
+
+        /* ─── main-content hidden until opening completes ─── */
+        #main-content { opacity: 0; transition: opacity 0.4s ease; }
+    </style>
+</head>
+<body class="bg-gray-900 text-white overflow-x-hidden">
+
+    {{-- ─────────────── Opening Screen ─────────────── --}}
+    <div id="opening"
+         class="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden select-none"
+         role="presentation" aria-hidden="true"
+         style="background: linear-gradient(180deg, var(--sky-deep) 0%, var(--wave-front) 100%)">
+
+        <button id="skip-btn"
+                class="absolute top-5 right-5 text-sm text-white/60 hover:text-white/90 transition-colors tracking-wider px-4 py-1 rounded-full border border-white/20 hover:border-white/50 focus:outline-none focus:ring-2 focus:ring-white/40"
+                aria-label="スキップ">
+            SKIP ×
+        </button>
+
+        <div id="opening-text" class="relative z-10 text-center mb-20 px-4 transition-opacity duration-500">
+            <p class="text-xs tracking-[0.5em] text-white/50 mb-3 uppercase font-sans">Niigata University</p>
+            <h2 class="font-bold text-white leading-none" style="font-family: 'Comfortaa', 'Noto Sans JP', sans-serif; font-size: clamp(2.5rem, 8vw, 5rem)">
+                新潟大学<br>釣り同好会
+            </h2>
+            <div class="mt-5 flex items-center justify-center gap-3">
+                <div class="h-px w-12 bg-white/25"></div>
+                <p class="text-white/45 text-xs tracking-[0.3em] uppercase">Dive Into Fishing</p>
+                <div class="h-px w-12 bg-white/25"></div>
+            </div>
+        </div>
+
+        <div class="relative z-10 mb-6 opacity-50" aria-hidden="true" style="animation: fishSwim 3.5s ease-in-out infinite">
+            <svg width="72" height="36" viewBox="0 0 72 36" fill="white">
+                <ellipse cx="28" cy="18" rx="28" ry="13"/>
+                <path d="M54,18 Q64,7 72,0 Q72,36 63,29 Q68,18 54,18 Z" opacity="0.7"/>
+                <circle cx="47" cy="14" r="4" fill="rgba(0,30,60,0.7)"/>
+                <circle cx="47" cy="14" r="1.8" fill="white"/>
+            </svg>
+        </div>
+
+        {{-- 3層波 --}}
+        <div class="absolute bottom-0 left-0 w-full overflow-hidden pointer-events-none" style="height:220px">
+            <div class="absolute bottom-0 left-0 w-full" style="height:160px; z-index:1">
+                <svg class="wave-animated" viewBox="0 0 2880 160" preserveAspectRatio="none" style="height:160px">
+                    <path d="M0,60 C240,100 480,20 720,60 C960,100 1200,20 1440,60 C1680,100 1920,20 2160,60 C2400,100 2640,20 2880,60 L2880,160 L0,160 Z" fill="var(--wave-back)"/>
+                </svg>
+            </div>
+            <div class="absolute bottom-0 left-0 w-full" style="height:180px; z-index:2">
+                <svg class="wave-animated" viewBox="0 0 2880 180" preserveAspectRatio="none" style="height:180px; animation-delay:-1.5s; animation-duration:5.5s">
+                    <path d="M0,100 C360,50 720,140 1080,100 C1440,60 1800,140 2160,100 C2520,60 2700,130 2880,100 L2880,180 L0,180 Z" fill="var(--wave-mid)"/>
+                </svg>
+            </div>
+            <div class="absolute bottom-0 left-0 w-full" style="height:200px; z-index:3">
+                <svg class="wave-animated" viewBox="0 0 2880 200" preserveAspectRatio="none" style="height:200px; animation-delay:-0.8s; animation-duration:3.2s">
+                    <path d="M0,120 C180,75 360,155 540,120 C720,85 900,155 1080,120 C1260,85 1440,155 1620,120 C1800,85 1980,155 2160,120 C2340,85 2520,155 2700,120 L2880,120 L2880,200 L0,200 Z" fill="var(--wave-front)"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+    {{-- /Opening --}}
+
+
+    <div id="main-content">
+
+        {{-- ─────────────── Fixed Header ─────────────── --}}
+        <header id="site-header" class="fixed top-0 left-0 right-0 z-40"
+                x-data="{ mobileOpen: false }">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center py-4">
-                    <!-- ロゴ・タイトル -->
-                    <div class="flex items-center">
-                        <h1 class="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                            新潟大学釣り同好会
-                        </h1>
-                    </div>
+                <div class="flex items-center justify-between h-16">
 
-                    <!-- ハンバーガーメニューボタン -->
-                    <div class="md:hidden">
-                        <button id="hamburger-btn" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 focus:outline-none">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                            </svg>
-                        </button>
-                    </div>
+                    {{-- Logo --}}
+                    <a href="{{ route('welcome') }}" class="flex items-center gap-3 flex-shrink-0">
+                        <img src="{{ asset('images/logo.png') }}" alt="釣り同好会ロゴ" class="h-8 w-8 object-contain" onerror="this.style.display='none'">
+                        <span class="font-bold text-white text-sm tracking-wider" style="font-family: 'Comfortaa', sans-serif;">
+                            新大釣り同好会
+                        </span>
+                    </a>
 
-                    <!-- デスクトップメニュー -->
-                    <div class="hidden md:flex items-center space-x-8">
-                        <nav class="flex space-x-6">
-                            <a href="{{ route('welcome') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium">
-                                ホーム
-                            </a>
-                            <a href="{{ route('about') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium">
-                                サークル紹介
-                            </a>
-                            <a href="{{ route('activities') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium">
-                                活動内容
-                            </a>
-                            <a href="{{ route('gallery') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium">
-                                ギャラリー
-                            </a>
-                            <a href="{{ route('join') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium">
-                                入部案内
-                            </a>
-                        </nav>
+                    {{-- Desktop Nav --}}
+                    <nav class="hidden md:flex items-center gap-8" aria-label="メインナビゲーション">
+                        <a href="{{ route('about') }}" class="nav-link text-white/75 hover:text-white text-sm tracking-wider transition-colors">サークル紹介</a>
+                        <a href="{{ route('activities') }}" class="nav-link text-white/75 hover:text-white text-sm tracking-wider transition-colors">活動内容</a>
+                        <a href="{{ route('gallery') }}" class="nav-link text-white/75 hover:text-white text-sm tracking-wider transition-colors">ギャラリー</a>
+                        <a href="{{ route('join') }}" class="nav-link text-white/75 hover:text-white text-sm tracking-wider transition-colors">入部案内</a>
+                    </nav>
 
-                        <!-- SNSアイコン -->
-                        <div class="flex items-center space-x-3 ml-6">
-                            <a href="https://x.com/new_river_runs" target="_blank" class="text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition duration-200">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                                </svg>
-                            </a>
-                            <a href="https://instagram.com/new_river_run" target="_blank" class="text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400transition duration-200">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    {{-- Right: SNS + Auth + Hamburger --}}
+                    <div class="flex items-center gap-4">
+                        {{-- SNS icons --}}
+                        <div class="hidden md:flex items-center gap-3">
+                            <a href="https://instagram.com/new_river_run" target="_blank" rel="noopener noreferrer"
+                               class="text-white/55 hover:text-white transition-colors" aria-label="Instagram">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
                                 </svg>
                             </a>
+                            <a href="https://x.com/new_river_runs" target="_blank" rel="noopener noreferrer"
+                               class="text-white/55 hover:text-white transition-colors" aria-label="X (Twitter)">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                                </svg>
+                            </a>
                         </div>
 
                         @auth
-                            <a href="{{ url('/dashboard') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium ml-4">
+                            <a href="{{ url('/dashboard') }}"
+                               class="hidden md:inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium text-white border border-white/30 hover:bg-white/10 transition-colors">
                                 ダッシュボード
                             </a>
                         @else
-                            <div class="flex space-x-2 ml-4">
-                                <a href="{{ route('register') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium">
-                                    新規登録
-                                </a>
-                                <a href="{{ route('login') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                            <div class="hidden md:flex items-center gap-2">
+                                <a href="{{ route('login') }}"
+                                   class="px-4 py-1.5 rounded-full text-sm text-white/75 hover:text-white border border-white/25 hover:border-white/50 transition-colors">
                                     ログイン
+                                </a>
+                                <a href="{{ route('register') }}"
+                                   class="px-4 py-1.5 rounded-full text-sm font-semibold text-white transition-colors"
+                                   style="background: var(--accent-warm)">
+                                    新規登録
                                 </a>
                             </div>
                         @endauth
+
+                        {{-- Hamburger --}}
+                        <button @click="mobileOpen = !mobileOpen"
+                                class="md:hidden text-white/75 hover:text-white p-1 focus:outline-none focus:ring-2 focus:ring-white/40 rounded"
+                                :aria-expanded="mobileOpen.toString()"
+                                :aria-label="mobileOpen ? 'メニューを閉じる' : 'メニューを開く'"
+                                aria-controls="mobile-nav">
+                            <svg x-show="!mobileOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                            </svg>
+                            <svg x-show="mobileOpen" x-cloak class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
                     </div>
                 </div>
 
-                <!-- モバイルメニュー -->
-                <div id="mobile-menu" class="md:hidden hidden">
-                    <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                        <a href="{{ route('welcome') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 block px-3 py-2 rounded-md text-base font-medium">
-                            ホーム
-                        </a>
-                        <a href="{{ route('about') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 block px-3 py-2 rounded-md text-base font-medium">
-                            サークル紹介
-                        </a>
-                        <a href="{{ route('activities') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 block px-3 py-2 rounded-md text-base font-medium">
-                            活動内容
-                        </a>
-                        <a href="{{ route('gallery') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 block px-3 py-2 rounded-md text-base font-medium">
-                            ギャラリー
-                        </a>
-                        <a href="{{ route('join') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 block px-3 py-2 rounded-md text-base font-medium">
-                            入部案内
-                        </a>
+                {{-- Mobile Menu --}}
+                <div x-show="mobileOpen" x-cloak
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0 -translate-y-2"
+                     x-transition:enter-end="opacity-100 translate-y-0"
+                     x-transition:leave="transition ease-in duration-150"
+                     x-transition:leave-start="opacity-100 translate-y-0"
+                     x-transition:leave-end="opacity-0 -translate-y-2"
+                     id="mobile-nav"
+                     class="md:hidden pb-4 border-t border-white/10 mt-2 pt-4"
+                     style="background: rgba(0,0,0,0.6); backdrop-filter: blur(12px);"
+                     role="navigation" aria-label="モバイルナビゲーション">
+                    <nav class="flex flex-col gap-1">
+                        <a href="{{ route('about') }}" class="px-4 py-2.5 text-white/80 hover:text-white hover:bg-white/10 rounded-lg text-sm tracking-wide transition-colors">サークル紹介</a>
+                        <a href="{{ route('activities') }}" class="px-4 py-2.5 text-white/80 hover:text-white hover:bg-white/10 rounded-lg text-sm tracking-wide transition-colors">活動内容</a>
+                        <a href="{{ route('gallery') }}" class="px-4 py-2.5 text-white/80 hover:text-white hover:bg-white/10 rounded-lg text-sm tracking-wide transition-colors">ギャラリー</a>
+                        <a href="{{ route('join') }}" class="px-4 py-2.5 text-white/80 hover:text-white hover:bg-white/10 rounded-lg text-sm tracking-wide transition-colors">入部案内</a>
                         @auth
-                            <a href="{{ url('/dashboard') }}" class="bg-blue-600 hover:bg-blue-700 text-white block px-3 py-2 rounded-md text-base font-medium">
-                                ダッシュボード
-                            </a>
+                            <a href="{{ url('/dashboard') }}" class="mt-2 mx-4 py-2.5 text-center rounded-full text-sm font-semibold text-white" style="background: var(--accent-warm)">ダッシュボード</a>
                         @else
-                            <a href="{{ route('register') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 block px-3 py-2 rounded-md text-base font-medium">
-                                新規登録
-                            </a>
-                            <a href="{{ route('login') }}" class="bg-blue-600 hover:bg-blue-700 text-white block px-3 py-2 rounded-md text-base font-medium">
-                                ログイン
-                            </a>
+                            <div class="flex gap-2 mt-2 px-4">
+                                <a href="{{ route('login') }}" class="flex-1 py-2 text-center rounded-full text-sm text-white/80 border border-white/30">ログイン</a>
+                                <a href="{{ route('register') }}" class="flex-1 py-2 text-center rounded-full text-sm font-semibold text-white" style="background: var(--accent-warm)">新規登録</a>
+                            </div>
                         @endauth
-                    </div>
+                    </nav>
                 </div>
             </div>
         </header>
+        {{-- /Header --}}
 
-        <!-- メインコンテンツ -->
-        <main class="flex-1">
-            <!-- ヒーローセクション -->
-            <section class="relative h-screen flex">
-                <!-- 左側：画像エリア -->
-                <div class="w-1/2 relative">
-                    <img src="{{ asset('images/welcome.jpg') }}" alt="釣りの背景" class="w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-black bg-opacity-20"></div>
+
+        <main>
+
+            {{-- ─────────────── C. Hero Section ─────────────── --}}
+            <section class="relative min-h-screen flex flex-col overflow-hidden"
+                     style="background: linear-gradient(180deg, var(--sky-from) 0%, var(--sky-mid) 45%, var(--sky-deep) 100%)">
+
+                {{-- Background photo with parallax --}}
+                <div id="hero-bg" class="absolute inset-0" style="will-change: transform">
+                    <img src="{{ asset('images/welcome.jpg') }}" alt="" class="w-full h-full object-cover" loading="eager" aria-hidden="true">
+                    <div class="absolute inset-0" style="background: linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.35) 55%, var(--sky-deep) 95%)"></div>
+                    <div class="absolute inset-0" style="background: linear-gradient(180deg, var(--sky-from) 0%, transparent 30%)"></div>
                 </div>
 
-                <!-- 右側：テキストコンテンツ -->
-                <div class="w-1/2 flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-blue-900">
-                    <div class="max-w-lg px-8">
-                        <h1 class="text-4xl md:text-5xl font-bold mb-6 text-gray-800 dark:text-white">
+                {{-- Bubble particles --}}
+                <div class="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+                    <div class="bubble" style="left:7%;bottom:4%;width:38px;height:38px;animation-duration:9s;animation-delay:0s"></div>
+                    <div class="bubble" style="left:20%;bottom:9%;width:26px;height:26px;animation-duration:11s;animation-delay:-2s"></div>
+                    <div class="bubble" style="left:68%;bottom:3%;width:44px;height:44px;animation-duration:8s;animation-delay:-1.5s"></div>
+                    <div class="bubble" style="left:84%;bottom:13%;width:30px;height:30px;animation-duration:10s;animation-delay:-4s"></div>
+                    <div class="bubble" style="left:42%;bottom:28%;width:18px;height:18px;animation-duration:13s;animation-delay:-3s;opacity:0.08"></div>
+                    <div class="bubble" style="left:62%;bottom:35%;width:14px;height:14px;animation-duration:15s;animation-delay:-6s;opacity:0.08"></div>
+                    <div class="bubble" style="left:28%;bottom:55%;width:7px;height:7px;animation-duration:17s;animation-delay:-9s;opacity:0.05"></div>
+                    <div class="bubble" style="left:77%;bottom:62%;width:5px;height:5px;animation-duration:20s;animation-delay:-12s;opacity:0.04"></div>
+                </div>
+
+                {{-- Celestial body (sun / moon) --}}
+                <div class="absolute z-[3] pointer-events-none" style="top:13%; right:10%" aria-hidden="true">
+                    <div style="width:52px;height:52px;background:var(--celestial-color);border-radius:50%;box-shadow:0 0 0 14px var(--celestial-glow),0 0 70px var(--celestial-glow)"></div>
+                </div>
+
+                {{-- Fish silhouettes (z=5: between photo and text → depth cue) --}}
+                <div class="absolute inset-0 z-[5] pointer-events-none overflow-hidden" aria-hidden="true">
+                    <div style="position:absolute;bottom:36%;right:5%;animation:fishSwim 4s ease-in-out infinite">
+                        <svg width="160" height="80" viewBox="0 0 160 80" fill="white" opacity="0.13">
+                            <ellipse cx="62" cy="40" rx="58" ry="27"/>
+                            <path d="M118,40 Q138,20 160,5 Q160,75 140,60 Q148,40 118,40 Z" opacity="0.8"/>
+                            <circle cx="106" cy="33" r="5" fill="rgba(0,25,55,0.8)"/>
+                            <circle cx="106" cy="33" r="2" fill="rgba(255,255,255,0.9)"/>
+                            <line x1="18" y1="28" x2="32" y2="24" stroke="rgba(255,255,255,0.35)" stroke-width="1.5"/>
+                            <line x1="18" y1="40" x2="35" y2="40" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+                            <line x1="18" y1="52" x2="32" y2="56" stroke="rgba(255,255,255,0.35)" stroke-width="1.5"/>
+                        </svg>
+                    </div>
+                    <div style="position:absolute;top:26%;left:7%;animation:fishSwim 5.5s ease-in-out infinite;animation-delay:-2s">
+                        <svg width="55" height="28" viewBox="0 0 55 28" fill="white" opacity="0.06">
+                            <ellipse cx="22" cy="14" rx="20" ry="9"/>
+                            <path d="M40,14 Q48,7 55,2 Q55,26 48,20 Q52,14 40,14 Z"/>
+                        </svg>
+                    </div>
+                </div>
+
+                {{-- Figure-ground headline (z=10, above fish) --}}
+                <div class="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-4 pt-24 pb-16">
+
+                    <div class="relative inline-block mb-6">
+                        <p class="text-xs tracking-[0.45em] text-white/55 mb-4 uppercase font-sans">Niigata University Fishing Circle</p>
+
+                        <h1 class="font-bold leading-none"
+                            style="font-family: 'Comfortaa', 'Noto Sans JP', sans-serif; font-size: clamp(3rem, 10vw, 7.5rem); letter-spacing: -0.03em; color: var(--text-bright); text-shadow: 0 2px 24px rgba(0,0,0,0.45)">
                             新潟大学<br>釣り同好会
                         </h1>
-                        <div class="bg-white dark:bg-gray-800 bg-opacity-95 dark:bg-opacity-95 text-gray-800 dark:text-gray-200 p-6 rounded-lg shadow-lg">
-                            <h2 class="text-xl font-bold mb-4 text-blue-600 dark:text-blue-400">新大唯一の釣りサークル</h2>
-                            <p class="text-base leading-relaxed">
-                                「新潟大学釣り同好会」のHPへようこそ！<br>
-                                当同好会のサークル概要や活動内容、入部方法などについて紹介してます。当メンバーの釣果記録や活動様子もご覧ください！<br>
-                                新潟大学釣り同好会ホームページ
-                            </p>
+
+                        {{-- Water surface mask: bottom 42% of text appears submerged --}}
+                        <div class="absolute left-[-8%] right-[-8%] bottom-0 overflow-hidden pointer-events-none"
+                             style="height: 42%; z-index: 2" aria-hidden="true">
+                            <svg viewBox="0 0 800 130" preserveAspectRatio="none" style="width:100%;height:100%">
+                                <path d="M0,18 C120,55 240,0 360,22 C480,44 600,4 720,26 C770,36 790,14 800,18 L800,130 L0,130 Z"
+                                      fill="var(--water-surface)"/>
+                                <path d="M0,18 C120,55 240,0 360,22 C480,44 600,4 720,26 C770,36 790,14 800,18"
+                                      fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+                            </svg>
                         </div>
                     </div>
+
+                    <p class="text-white/65 text-base md:text-lg tracking-wider font-sans mb-10 max-w-sm leading-relaxed">
+                        新大唯一の釣りサークル — 仲間と自然と、深く潜ろう。
+                    </p>
+
+                    <div class="flex flex-wrap items-center justify-center gap-4">
+                        <a href="{{ route('join') }}"
+                           class="cta-ripple relative overflow-hidden px-8 py-3 rounded-full font-semibold text-white text-sm tracking-wider shadow-xl focus:outline-none focus:ring-2 focus:ring-white/50"
+                           style="background: var(--accent-warm)"
+                           onclick="addRipple(event)"
+                           aria-label="入部案内ページへ">
+                            入部案内 →
+                        </a>
+                        <a href="{{ route('about') }}"
+                           class="px-8 py-3 rounded-full font-medium text-white/80 hover:text-white text-sm tracking-wider border border-white/30 hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-white/40">
+                            サークル紹介
+                        </a>
+                    </div>
+                </div>
+
+                {{-- Scroll indicator --}}
+                <div class="relative z-10 flex justify-center pb-8" aria-hidden="true">
+                    <div class="flex flex-col items-center gap-2 text-white/35">
+                        <span class="text-xs tracking-widest uppercase font-sans">Scroll</span>
+                        <svg class="w-4 h-4 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7"/>
+                        </svg>
+                    </div>
+                </div>
+
+                {{-- Wave transition to About section --}}
+                <div class="absolute bottom-0 left-0 right-0 pointer-events-none z-[6]" aria-hidden="true">
+                    <svg viewBox="0 0 1440 55" preserveAspectRatio="none" style="width:100%;height:55px;display:block;fill:#111827">
+                        <path d="M0,28 C240,55 480,0 720,28 C960,55 1200,0 1440,28 L1440,55 L0,55 Z"/>
+                    </svg>
                 </div>
             </section>
+            {{-- /Hero --}}
 
-            <!-- 新大釣りサークルについて -->
-            <section class="py-16 bg-gray-50 dark:bg-gray-800">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <h2 class="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">
-                        新大釣りサークルについて
-                    </h2>
 
-                    <!-- スライドカード -->
-                    <div class="relative">
-                        <!-- 左矢印ボタン -->
-                        <button id="prev-btn" class="absolute left-0 top-1/2 transform -translate-y-1/2 text-gray-600 dark:text-gray-300 z-20">
-                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                            </svg>
-                        </button>
+            {{-- ─────────────── D. About Section ─────────────── --}}
+            <section class="relative py-24 overflow-hidden" style="background: #111827">
 
-                        <!-- 右矢印ボタン -->
-                        <button id="next-btn" class="absolute right-0 top-1/2 transform -translate-y-1/2 text-gray-600 dark:text-gray-300 z-20">
-                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                            </svg>
-                        </button>
+                {{-- Large fish silhouette behind heading (occlusion depth) --}}
+                <div class="absolute inset-0 pointer-events-none" aria-hidden="true" style="z-index:1">
+                    <svg style="position:absolute;top:5%;left:-5%;width:55%;opacity:0.03" viewBox="0 0 400 200" fill="white">
+                        <ellipse cx="155" cy="100" rx="145" ry="65"/>
+                        <path d="M290,100 Q345,55 400,20 Q400,180 355,145 Q375,100 290,100 Z"/>
+                        <circle cx="265" cy="82" r="12" fill="rgba(0,10,30,0.8)"/>
+                        <circle cx="265" cy="82" r="5" fill="white"/>
+                    </svg>
+                </div>
 
-                        <!-- カード1：目指しているもの -->
-                        <div id="slide-0" class="slide-card px-12">
-                            <div class="bg-white dark:bg-gray-700 rounded-lg shadow-lg p-8 mx-auto max-w-4xl">
-                                <h3 class="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-4">目指しているもの</h3>
-                                <p class="text-gray-700 dark:text-gray-300 text-lg leading-relaxed">
-                                    釣り技術の向上・釣りを通した学生間の交流・釣り文化や自然環境の理解と普及<br>
-                                    みんなで楽しく釣りが出来ることを目指しています！
-                                </p>
-                            </div>
-                        </div>
+                <div class="relative z-[2] max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
-                        <!-- カード2：雰囲気は？ -->
-                        <div id="slide-1" class="slide-card hidden px-12">
-                            <div class="bg-white dark:bg-gray-700 rounded-lg shadow-lg p-8 mx-auto max-w-4xl">
-                                <h3 class="text-2xl font-bold text-green-600 dark:text-green-400 mb-4">雰囲気は？</h3>
-                                <p class="text-gray-700 dark:text-gray-300 text-lg leading-relaxed">
-                                    全体での釣り会では初心者も含めみんなでワイワイと釣りしてます。また、釣り以外でも定期的に宅飲み会や食事会（釣れた魚料理！タコパ！）、冬のゲーム大会⁉なんかもやって楽しんでます！<br><br>
-                                    さらなる釣りバカ達はしょっちゅう一緒に釣りに行ったり、定期的に遠征（佐渡粟島・福島など）に行きます。遠征で苦難・喜びを共にし絆を深めた者達は最高の仲間といえるでしょう。<br><br>
-                                    さぁ、釣りをきっかけに最高の仲間を手に入れよう！
-                                </p>
-                            </div>
-                        </div>
+                    {{-- Section header --}}
+                    <div class="text-center mb-16 reveal">
+                        <p class="text-xs tracking-[0.5em] text-sky-400/70 uppercase mb-3">About Us</p>
+                        <h2 class="text-3xl md:text-4xl font-bold text-white mb-4"
+                            style="font-family: 'Comfortaa', 'Noto Sans JP', sans-serif">
+                            新大釣りサークルについて
+                        </h2>
+                        <div class="mx-auto h-px w-16 bg-sky-500/40"></div>
+                    </div>
 
-                        <!-- カード3：大会実績 -->
-                        <div id="slide-2" class="slide-card hidden px-12">
-                            <div class="bg-white dark:bg-gray-700 rounded-lg shadow-lg p-8 mx-auto max-w-4xl">
-                                <h3 class="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-4">大会実績</h3>
-                                <div class="text-gray-700 dark:text-gray-300 text-lg">
-                                    <h4 class="font-bold text-xl mb-2">2024</h4>
-                                    <ul class="mb-4 space-y-1">
-                                        <li>・第5回 佐渡ビックゲーム FishRankerカップ 出場</li>
-                                        <li>・第17回 学釣連シーバス大会（GSBC） 第6位・第8位・ベストフォト賞受賞</li>
-                                    </ul>
-                                    <h4 class="font-bold text-xl">2025</h4>
+                    {{-- 3-column info cards with stagger reveal --}}
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+
+                        {{-- Card 1: 目指すもの --}}
+                        <div class="reveal reveal-delay-1 relative bg-white/5 border border-white/10 rounded-2xl p-8 overflow-hidden hover:bg-white/8 transition-colors">
+                            <div class="absolute bottom-4 right-4 text-7xl font-black text-sky-400/8 leading-none select-none" aria-hidden="true">01</div>
+                            <div class="relative z-10">
+                                <div class="w-10 h-10 rounded-xl bg-sky-500/20 flex items-center justify-center mb-5">
+                                    <svg class="w-5 h-5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                    </svg>
                                 </div>
+                                <h3 class="text-lg font-bold text-white mb-3">目指しているもの</h3>
+                                <p class="text-white/60 text-sm leading-relaxed">
+                                    釣り技術の向上・学生間の交流・釣り文化や自然環境の理解と普及。みんなで楽しく釣りができることを目指しています！
+                                </p>
+                            </div>
+                        </div>
+
+                        {{-- Card 2: 雰囲気 --}}
+                        <div class="reveal reveal-delay-2 relative bg-white/5 border border-white/10 rounded-2xl p-8 overflow-hidden hover:bg-white/8 transition-colors">
+                            <div class="absolute bottom-4 right-4 text-7xl font-black text-sky-400/8 leading-none select-none" aria-hidden="true">02</div>
+                            <div class="relative z-10">
+                                <div class="w-10 h-10 rounded-xl bg-sky-500/20 flex items-center justify-center mb-5">
+                                    <svg class="w-5 h-5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/>
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-bold text-white mb-3">雰囲気は？</h3>
+                                <p class="text-white/60 text-sm leading-relaxed">
+                                    初心者もベテランもワイワイと。宅飲みや食事会（釣れた魚料理！）、佐渡・粟島などへの遠征も。苦難と喜びを共にした仲間は最高の絆に。
+                                </p>
+                            </div>
+                        </div>
+
+                        {{-- Card 3: 大会実績 --}}
+                        <div class="reveal reveal-delay-3 relative bg-white/5 border border-white/10 rounded-2xl p-8 overflow-hidden hover:bg-white/8 transition-colors">
+                            <div class="absolute bottom-4 right-4 text-7xl font-black text-sky-400/8 leading-none select-none" aria-hidden="true">03</div>
+                            <div class="relative z-10">
+                                <div class="w-10 h-10 rounded-xl bg-sky-500/20 flex items-center justify-center mb-5">
+                                    <svg class="w-5 h-5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-bold text-white mb-3">大会実績</h3>
+                                <ul class="text-white/60 text-sm leading-relaxed space-y-1.5">
+                                    <li class="flex items-start gap-2">
+                                        <span class="text-sky-400 mt-0.5 flex-shrink-0">—</span>
+                                        第5回 佐渡ビックゲーム FishRankerカップ 出場（2024）
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <span class="text-sky-400 mt-0.5 flex-shrink-0">—</span>
+                                        第17回 GSBC 第6位・第8位・ベストフォト賞（2024）
+                                    </li>
+                                </ul>
                             </div>
                         </div>
                     </div>
 
-                        <!-- スライドインジケーター -->
-                        <div class="flex justify-center mt-8 space-x-3">
-                            <button class="slider-dot w-2 h-2 bg-blue-600 rounded-full" data-slide="0"></button>
-                            <button class="slider-dot w-2 h-2 bg-white rounded-full" data-slide="1"></button>
-                            <button class="slider-dot w-2 h-2 bg-white rounded-full" data-slide="2"></button>
+                    {{-- About images --}}
+                    <div class="grid grid-cols-2 gap-4 mt-12 reveal">
+                        <div class="rounded-2xl overflow-hidden aspect-video">
+                            <img src="{{ asset('images/about1.jpg') }}" alt="活動風景1" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
+                        </div>
+                        <div class="rounded-2xl overflow-hidden aspect-video">
+                            <img src="{{ asset('images/about2.jpg') }}" alt="活動風景2" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
                         </div>
                     </div>
                 </div>
-            </section>
 
-            <!-- お問い合わせセクション -->
-            <section class="py-16 bg-blue-900 text-white">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <h2 class="text-3xl font-bold mb-8">お問い合わせ</h2>
-                    <div class="space-y-4">
-                        <div class="flex justify-center space-x-6">
-                            <a href="https://instagram.com/new_river_run" target="_blank" class="text-white hover:text-pink-400 transition duration-200">
-                                <span class="flex items-center">
-                                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                                    </svg>
-                                    instagram.com/new_river_run
-                                </span>
-                            </a>
-                            <a href="https://x.com/new_river_runs" target="_blank" class="text-white hover:text-blue-400 transition duration-200">
-                                <span class="flex items-center">
-                                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                                    </svg>
-                                    x.com/new_river_runs
-                                </span>
-                            </a>
+                {{-- Wave to activities section --}}
+                <div class="absolute bottom-0 left-0 right-0 pointer-events-none z-[3]" aria-hidden="true">
+                    <svg viewBox="0 0 1440 48" preserveAspectRatio="none" style="width:100%;height:48px;display:block;fill:#0c4a6e">
+                        <path d="M0,24 C360,48 720,0 1080,24 C1260,36 1380,12 1440,24 L1440,48 L0,48 Z" fill="#0c4a6e"/>
+                    </svg>
+                </div>
+            </section>
+            {{-- /About --}}
+
+
+            {{-- ─────────────── E. Activity Photos Section ─────────────── --}}
+            <section class="relative py-24 overflow-hidden texture-depth-bg">
+
+                {{-- Texture dots (size gradient = depth cue) --}}
+                <div class="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+                    <div class="texture-dot" style="width:160px;height:160px;bottom:5%;left:2%;opacity:0.04"></div>
+                    <div class="texture-dot" style="width:110px;height:110px;bottom:15%;right:3%;opacity:0.04"></div>
+                    <div class="texture-dot" style="width:70px;height:70px;top:20%;left:8%;opacity:0.025"></div>
+                    <div class="texture-dot" style="width:45px;height:45px;top:35%;right:12%;opacity:0.02"></div>
+                    <div class="texture-dot" style="width:25px;height:25px;top:55%;left:25%;opacity:0.015"></div>
+                    <div class="texture-dot" style="width:15px;height:15px;top:65%;right:35%;opacity:0.01"></div>
+                </div>
+
+                <div class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+
+                    <div class="text-center mb-14 reveal">
+                        <p class="text-xs tracking-[0.5em] text-sky-400/70 uppercase mb-3">Activities</p>
+                        <h2 class="text-3xl md:text-4xl font-bold text-white"
+                            style="font-family: 'Comfortaa', 'Noto Sans JP', sans-serif">
+                            活動フォト
+                        </h2>
+                    </div>
+
+                    {{-- 2×2 photo grid --}}
+                    <div class="grid grid-cols-2 gap-3 md:gap-4">
+                        @foreach(['active1', 'active2', 'active3', 'active4'] as $i => $img)
+                        <div class="photo-card reveal reveal-delay-{{ $i < 2 ? $i + 1 : $i - 1 }} rounded-xl aspect-video cursor-pointer">
+                            <img src="{{ asset('images/' . $img . '.jpg') }}"
+                                 alt="活動写真{{ $i + 1 }}"
+                                 class="w-full h-full object-cover">
+                            <div class="photo-overlay"></div>
                         </div>
-                        <div class="flex justify-center">
-                            <a href="mailto:newriverruns.projectf@gmail.com" class="hover:text-gray-300 transition duration-200">
-                                <span class="flex items-center">
-                                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
-                                    </svg>
-                                    newriverruns.projectf@gmail.com
-                                </span>
+                        @endforeach
+                    </div>
+
+                    <div class="text-center mt-10 reveal">
+                        <a href="{{ route('gallery') }}"
+                           class="inline-flex items-center gap-2 px-8 py-3 rounded-full text-sm font-medium text-white/80 hover:text-white border border-white/25 hover:border-white/50 hover:bg-white/8 transition-colors">
+                            ギャラリーをもっと見る
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </section>
+            {{-- /Activities --}}
+
+
+            {{-- ─────────────── F. Join CTA Section ─────────────── --}}
+            <section class="relative py-28 overflow-hidden">
+
+                {{-- Full bleed background --}}
+                <div class="absolute inset-0">
+                    <img src="{{ asset('images/join1.jpg') }}" alt="" class="w-full h-full object-cover" aria-hidden="true">
+                    <div class="absolute inset-0" style="background: rgba(1,8,18,0.82)"></div>
+                    <div class="absolute inset-0" style="background: linear-gradient(135deg, rgba(12,74,110,0.5) 0%, rgba(1,8,18,0.4) 100%)"></div>
+                </div>
+
+                <div class="relative z-10 max-w-2xl mx-auto px-4 text-center">
+                    <div class="reveal">
+                        <p class="text-xs tracking-[0.5em] text-sky-400/75 uppercase mb-4">Join Us</p>
+                        <h2 class="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight"
+                            style="font-family: 'Comfortaa', 'Noto Sans JP', sans-serif">
+                            釣りを、もっと<br>深く楽しもう。
+                        </h2>
+                        <p class="text-white/60 mb-10 leading-relaxed max-w-md mx-auto">
+                            新大生なら誰でも入部歓迎。経験不問、竿なし道具なしでも大丈夫。まず一緒に海へ出かけましょう。
+                        </p>
+                        <div class="flex flex-wrap justify-center gap-4">
+                            <a href="{{ route('join') }}"
+                               class="cta-ripple relative overflow-hidden px-10 py-4 rounded-full font-bold text-white text-base tracking-wider shadow-2xl focus:outline-none focus:ring-2 focus:ring-white/50"
+                               style="background: var(--accent-warm)"
+                               onclick="addRipple(event)"
+                               aria-label="入部案内ページへ">
+                                入部案内を見る →
+                            </a>
+                            <a href="https://instagram.com/new_river_run" target="_blank" rel="noopener noreferrer"
+                               class="px-8 py-4 rounded-full font-medium text-white/75 hover:text-white text-sm tracking-wider border border-white/30 hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-white/40 flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                                </svg>
+                                Instagram をフォロー
                             </a>
                         </div>
                     </div>
                 </div>
             </section>
+            {{-- /CTA --}}
+
         </main>
 
-        <!-- JavaScript for hamburger menu and slider -->
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const hamburgerBtn = document.getElementById('hamburger-btn');
-                const mobileMenu = document.getElementById('mobile-menu');
+        {{-- ─────────────── I. Footer ─────────────── --}}
+        @include('components.layout.footer')
 
-                hamburgerBtn.addEventListener('click', function() {
-                    mobileMenu.classList.toggle('hidden');
-                });
+    </div>{{-- /main-content --}}
 
-                // Close mobile menu when clicking outside
-                document.addEventListener('click', function(event) {
-                    if (!hamburgerBtn.contains(event.target) && !mobileMenu.contains(event.target)) {
-                        mobileMenu.classList.add('hidden');
+
+    {{-- ─────────────── H. Theme Toggle (fixed bottom-right) ─────────────── --}}
+    <div class="fixed bottom-6 right-6 z-50 flex flex-col gap-2" role="group" aria-label="時間帯テーマ切替">
+        <button onclick="setTheme('dawn')"
+                class="w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm border border-white/20 text-base hover:border-white/50 hover:bg-black/60 transition-colors focus:outline-none focus:ring-2 focus:ring-white/40"
+                title="朝テーマ" aria-label="朝のテーマに切替">
+            🌅
+        </button>
+        <button onclick="setTheme('day')"
+                class="w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm border border-white/20 text-base hover:border-white/50 hover:bg-black/60 transition-colors focus:outline-none focus:ring-2 focus:ring-white/40"
+                title="昼テーマ" aria-label="昼のテーマに切替">
+            ☀️
+        </button>
+        <button onclick="setTheme('night')"
+                class="w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm border border-white/20 text-base hover:border-white/50 hover:bg-black/60 transition-colors focus:outline-none focus:ring-2 focus:ring-white/40"
+                title="夜テーマ" aria-label="夜のテーマに切替">
+            🌙
+        </button>
+    </div>
+
+
+    {{-- ─────────────── JavaScript ─────────────── --}}
+    <script>
+        // テーマ手動切替
+        function setTheme(t) { document.documentElement.dataset.theme = t; }
+
+        // ─── Opening animation ───
+        (function() {
+            var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            var seen = sessionStorage.getItem('fca_opening_seen');
+            var opening = document.getElementById('opening');
+            var main = document.getElementById('main-content');
+
+            function showMain() { if(main) main.style.opacity = '1'; }
+
+            function closeOpening() {
+                sessionStorage.setItem('fca_opening_seen', '1');
+                var txt = document.getElementById('opening-text');
+                if(txt) txt.style.opacity = '0';
+                setTimeout(function() {
+                    opening.classList.add('closing');
+                    showMain();
+                    setTimeout(function() { if(opening) opening.style.display = 'none'; }, 1200);
+                }, 300);
+            }
+
+            if (reduced || seen) {
+                if(opening) opening.style.display = 'none';
+                showMain(); return;
+            }
+
+            var timer = setTimeout(closeOpening, 2800);
+            var skipBtn = document.getElementById('skip-btn');
+            if(skipBtn) skipBtn.addEventListener('click', function() {
+                clearTimeout(timer); closeOpening();
+            });
+        })();
+
+        // ─── IntersectionObserver scroll reveal ───
+        (function() {
+            if (!('IntersectionObserver' in window)) {
+                document.querySelectorAll('.reveal').forEach(function(el) { el.classList.add('is-visible'); });
+                return;
+            }
+            var io = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        io.unobserve(entry.target);
                     }
                 });
+            }, { threshold: 0.10 });
+            document.querySelectorAll('.reveal').forEach(function(el) { io.observe(el); });
+        })();
 
-                // Slider functionality
-                const dots = document.querySelectorAll('.slider-dot');
-                const slideCards = document.querySelectorAll('.slide-card');
-                const prevBtn = document.getElementById('prev-btn');
-                const nextBtn = document.getElementById('next-btn');
-                let currentSlide = 0;
-                const totalSlides = 3;
-                let autoSlideInterval;
+        // ─── Header scroll ───
+        (function() {
+            var header = document.getElementById('site-header');
+            if (!header) return;
+            window.addEventListener('scroll', function() {
+                header.classList.toggle('scrolled', window.scrollY > 60);
+            }, { passive: true });
+        })();
 
-                function updateSlider() {
-                    // すべてのスライドカードを非表示にする
-                    slideCards.forEach((card, index) => {
-                        if (index === currentSlide) {
-                            card.classList.remove('hidden');
-                        } else {
-                            card.classList.add('hidden');
-                        }
-                    });
-
-                    // ドットの表示を更新
-                    dots.forEach((dot, index) => {
-                        if (index === currentSlide) {
-                            dot.classList.remove('bg-white');
-                            dot.classList.add('bg-blue-600');
-                        } else {
-                            dot.classList.remove('bg-blue-600');
-                            dot.classList.add('bg-white');
-                        }
-                    });
+        // ─── Parallax hero bg (transform only, reduced-motion safe) ───
+        (function() {
+            var bg = document.getElementById('hero-bg');
+            if (!bg || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            window.addEventListener('scroll', function() {
+                if (window.scrollY < window.innerHeight) {
+                    bg.style.transform = 'translateY(' + (window.scrollY * 0.22) + 'px)';
                 }
+            }, { passive: true });
+        })();
 
-                function nextSlide() {
-                    currentSlide = (currentSlide + 1) % totalSlides;
-                    updateSlider();
-                }
+        // ─── CTA ripple effect ───
+        function addRipple(e) {
+            var btn = e.currentTarget;
+            var rect = btn.getBoundingClientRect();
+            var ripple = document.createElement('span');
+            ripple.className = 'ripple-ring';
+            ripple.style.cssText = 'left:' + (e.clientX - rect.left) + 'px;top:' + (e.clientY - rect.top) + 'px';
+            btn.appendChild(ripple);
+            setTimeout(function() { if(ripple.parentNode) ripple.parentNode.removeChild(ripple); }, 900);
+        }
+    </script>
 
-                function prevSlide() {
-                    currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
-                    updateSlider();
-                }
-
-                function startAutoSlide() {
-                    autoSlideInterval = setInterval(nextSlide, 5000);
-                }
-
-                function stopAutoSlide() {
-                    clearInterval(autoSlideInterval);
-                }
-
-                // 5秒ごとに自動でスライドを切り替え
-                startAutoSlide();
-
-                // 矢印ボタンクリック機能
-                nextBtn.addEventListener('click', () => {
-                    stopAutoSlide();
-                    nextSlide();
-                    startAutoSlide(); // 手動操作後、自動スライドを再開
-                });
-
-                prevBtn.addEventListener('click', () => {
-                    stopAutoSlide();
-                    prevSlide();
-                    startAutoSlide(); // 手動操作後、自動スライドを再開
-                });
-
-                // ドットクリック機能
-                dots.forEach((dot, index) => {
-                    dot.addEventListener('click', () => {
-                        stopAutoSlide();
-                        currentSlide = index;
-                        updateSlider();
-                        startAutoSlide(); // 手動操作後、自動スライドを再開
-                    });
-                });
-            });
-        </script>
-
-        {{-- 調整用の要素も削除または空に --}}
-        @if (Route::has('login'))
-            <div class="h-14.5 hidden lg:block"></div>
-        @endif
-    </body>
+</body>
 </html>
