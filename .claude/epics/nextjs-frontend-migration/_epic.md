@@ -101,6 +101,29 @@ Next.js 版が本番相当で安定稼働しており、全機能（認証・グ
 - `config/sanctum.php` に `Sanctum::currentApplicationUrlWithPort()` を書くとパッケージ未インストール時にエラーになる。代わりに env 変数のみで構成した。
 - 新リポジトリ / dev2 ブランチは採用しない。Git タグで「削除前の状態」を保存し、単一リポジトリで刷新を完結させる方が履歴・CI・ドキュメント基盤を失わずに済む。
 
+## テスト未実施（要対応）
+
+### Next.js フロントエンド側（Phase 2 で整備予定）
+
+- [ ] `npm run build` による本番ビルド確認（型エラー・静的解析の通過確認）
+- [ ] E2E テスト（Playwright）: ログイン → ダッシュボード → グループ作成 → メンバー承認 の一連フロー
+- [ ] E2E テスト（Playwright）: 未ログインで `/dashboard` アクセス → `/login` リダイレクト確認
+- [ ] E2E テスト（Playwright）: モバイルビュー（375px）でのナビゲーション・ヒーローレイアウト確認
+- [ ] `next lint` でゼロエラーの確認（既存の `react-hooks/exhaustive-deps` warning 修正）
+
+### Laravel バックエンド側（Phase 1 完了前に必須）
+
+- [ ] `docker-compose exec app php artisan test` — Sanctum インストール後の全テスト通過確認
+- [ ] `src/.env` に `SANCTUM_STATEFUL_DOMAINS=localhost:3000` と `FRONTEND_URL=http://localhost:3000` が設定されているか確認
+- [ ] `docker-compose exec app ./vendor/bin/pint --test` — 整形チェック（`composer require laravel/sanctum` で変更された `composer.json` / `composer.lock` を含む）
+- [ ] `docker-compose exec app ./vendor/bin/phpstan analyse --memory-limit=512M` — 静的解析
+
+### 動作確認（手動・Phase 1 完了前）
+
+- [ ] ログイン → グループ作成 → メンバー承認 の E2E 動作確認（ブラウザ手動）
+- [ ] パスワードリセット完了ページ（`/reset-password`）の実装・動作確認
+- [ ] メール確認（`/verify-email`）ページの実装・動作確認
+
 ## タスク履歴
 
 - 2026-06-23 — `dev` から `feature/nextjs-frontend-migration` を切り出し
@@ -109,3 +132,6 @@ Next.js 版が本番相当で安定稼働しており、全機能（認証・グ
 - 2026-06-23 — API 認可テスト追加（AuthApiTest / GroupApiTest で ACL 境界値テスト）
 - 2026-06-23 — SETUP.md・CLAUDE.md・frontend/CLAUDE.md にドキュメントを追記
 - 2026-07-02 — 開発計画を見直し。リポジトリ戦略を決定し、フェーズ制ロードマップに再編
+- 2026-07-02 — Blade デザイン資産を Next.js に移植（全公開ページ + Nav/Footer + デザイントークン統一）
+- 2026-07-02 — ui-reviewer 指摘を修正（モバイルヒーロー崩れ・prefers-reduced-motion・cyan-50・aria属性）
+- 2026-07-03 — `laravel/sanctum` を Composer でインストール・マイグレーション適用（Docker 起動後）
