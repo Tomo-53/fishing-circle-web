@@ -26,6 +26,10 @@ class CheckGroupPermission
     {
         // 1. ユーザーがログインしているかチェック
         if (! Auth::check()) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'ログインが必要です'], 401);
+            }
+
             return redirect()->route('login')->with('error', 'ログインが必要です');
         }
 
@@ -34,40 +38,61 @@ class CheckGroupPermission
 
         // 3. Groupモデルかチェック
         if (! $group instanceof Group) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'グループが見つかりません'], 404);
+            }
             abort(404, 'グループが見つかりません');
         }
 
         // 4. 現在のユーザーIDを取得
         $currentUserId = Auth::id();
 
-        // 5. 【最重要】特定のグループでの権限をチェック
+        // 5. 【最重要】特定のグループでの権限をチェック（user_id × group_id の二重スコープ）
         $userGroup = UserGroup::where('user_id', $currentUserId)
-            ->where('group_id', $group->id)  // ←この行でグループ権限の独立性を保証
+            ->where('group_id', $group->id)
             ->first();
 
-        // 7. そのグループに参加していない場合は403エラー
+        // 6. そのグループに参加していない場合は403エラー
         if (! $userGroup) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'このグループにアクセスする権限がありません。グループに参加申請を行ってください。',
+                    'code' => 'NOT_MEMBER',
+                ], 403);
+            }
             abort(403, 'このグループにアクセスする権限がありません。グループに参加申請を行ってください。');
         }
 
-        // 8. 承認されていない場合は403エラー
+        // 7. 承認されていない場合は403エラー
         if (! $userGroup->is_approved) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'グループ参加申請が承認されていません。管理者の承認をお待ちください。',
+                    'code' => 'PENDING_APPROVAL',
+                ], 403);
+            }
             abort(403, 'グループ参加申請が承認されていません。管理者の承認をお待ちください。');
         }
 
-        // 9. 権限レベルが不足している場合は403エラー
+        // 8. 権限レベルが不足している場合は403エラー
         $required = PermissionLevel::from($requiredLevel);
         if (! $userGroup->permission_level->atLeast($required)) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => "この機能には{$required->label()}が必要です。現在の権限: {$userGroup->permission_level->label()}",
+                    'code' => 'INSUFFICIENT_PERMISSION',
+                    'required_level' => $required->value,
+                    'current_level' => $userGroup->permission_level->value,
+                ], 403);
+            }
             abort(403, "この機能には{$required->label()}が必要です。現在の権限: {$userGroup->permission_level->label()}");
         }
 
-        // 10. リクエストにグループ情報を追加（コントローラーで使用可能）
+        // 9. リクエストにグループ情報を追加（コントローラーで使用可能）
         $request->merge([
             'current_group' => $group,
             'current_user_group' => $userGroup,
         ]);
-
-        // 11. 全てのチェックをパスした場合のみ次へ進む
 
         return $next($request);
     }
