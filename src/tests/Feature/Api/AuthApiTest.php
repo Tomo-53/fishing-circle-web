@@ -12,18 +12,19 @@ uses(RefreshDatabase::class);
 test('正しい認証情報でログインできる', function () {
     $user = User::factory()->create();
 
-    $this->postJson('/api/login', [
-        'email'    => $user->email,
-        'password' => 'password',
-    ])->assertOk()
-      ->assertJsonPath('email', $user->email);
+    $this->withHeaders(['Referer' => 'http://localhost'])
+        ->postJson('/api/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ])->assertOk()
+        ->assertJsonPath('email', $user->email);
 });
 
 test('誤ったパスワードでは401を返す', function () {
     $user = User::factory()->create();
 
     $this->postJson('/api/login', [
-        'email'    => $user->email,
+        'email' => $user->email,
         'password' => 'wrong-password',
     ])->assertUnprocessable();
 });
@@ -33,13 +34,14 @@ test('誤ったパスワードでは401を返す', function () {
 // ========================
 
 test('新規ユーザーを登録できる', function () {
-    $this->postJson('/api/register', [
-        'name'                  => 'テストユーザー',
-        'email'                 => 'test@example.com',
-        'password'              => 'password1234!',
-        'password_confirmation' => 'password1234!',
-    ])->assertCreated()
-      ->assertJsonPath('email', 'test@example.com');
+    $this->withHeaders(['Referer' => 'http://localhost'])
+        ->postJson('/api/register', [
+            'name' => 'テストユーザー',
+            'email' => 'test@example.com',
+            'password' => 'password1234!',
+            'password_confirmation' => 'password1234!',
+        ])->assertCreated()
+        ->assertJsonPath('email', 'test@example.com');
 
     $this->assertDatabaseHas('users', ['email' => 'test@example.com']);
 });
@@ -48,12 +50,12 @@ test('メールアドレスが重複している場合422を返す', function ()
     $user = User::factory()->create(['email' => 'dup@example.com']);
 
     $this->postJson('/api/register', [
-        'name'                  => '別ユーザー',
-        'email'                 => 'dup@example.com',
-        'password'              => 'password1234!',
+        'name' => '別ユーザー',
+        'email' => 'dup@example.com',
+        'password' => 'password1234!',
         'password_confirmation' => 'password1234!',
     ])->assertUnprocessable()
-      ->assertJsonValidationErrors(['email']);
+        ->assertJsonValidationErrors(['email']);
 });
 
 // ========================
@@ -81,6 +83,7 @@ test('ログアウトできる', function () {
     $user = User::factory()->create();
 
     $this->actingAs($user)
+        ->withHeaders(['Referer' => 'http://localhost'])
         ->postJson('/api/logout')
         ->assertOk()
         ->assertJsonPath('message', 'ログアウトしました');

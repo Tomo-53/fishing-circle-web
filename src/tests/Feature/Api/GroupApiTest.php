@@ -47,10 +47,10 @@ test('一般メンバー（lv2）はグループ詳細を取得できる', funct
     $group = Group::factory()->create(['master_user_id' => $owner->id]);
 
     UserGroup::create([
-        'user_id'          => $member->id,
-        'group_id'         => $group->id,
+        'user_id' => $member->id,
+        'group_id' => $group->id,
         'permission_level' => UserGroup::PERMISSION_LEVEL_MEMBER,
-        'is_approved'      => true,
+        'is_approved' => true,
     ]);
 
     $this->actingAs($member)
@@ -65,10 +65,10 @@ test('承認待ち（lv1）のユーザーはグループ詳細にアクセス�
     $group = Group::factory()->create(['master_user_id' => $owner->id]);
 
     UserGroup::create([
-        'user_id'          => $pending->id,
-        'group_id'         => $group->id,
+        'user_id' => $pending->id,
+        'group_id' => $group->id,
         'permission_level' => UserGroup::PERMISSION_LEVEL_PENDING,
-        'is_approved'      => false,
+        'is_approved' => false,
     ]);
 
     $this->actingAs($pending)
@@ -110,10 +110,10 @@ test('管理者（lv3）はメンバー一覧を取得できる', function () {
     $group = Group::factory()->create(['master_user_id' => $owner->id]);
 
     UserGroup::create([
-        'user_id'          => $admin->id,
-        'group_id'         => $group->id,
+        'user_id' => $admin->id,
+        'group_id' => $group->id,
         'permission_level' => UserGroup::PERMISSION_LEVEL_ADMIN,
-        'is_approved'      => true,
+        'is_approved' => true,
     ]);
 
     $this->actingAs($admin)
@@ -127,10 +127,10 @@ test('一般メンバー（lv2）はメンバー管理にアクセスできな�
     $group = Group::factory()->create(['master_user_id' => $owner->id]);
 
     UserGroup::create([
-        'user_id'          => $member->id,
-        'group_id'         => $group->id,
+        'user_id' => $member->id,
+        'group_id' => $group->id,
         'permission_level' => UserGroup::PERMISSION_LEVEL_MEMBER,
-        'is_approved'      => true,
+        'is_approved' => true,
     ]);
 
     $this->actingAs($member)
@@ -144,10 +144,10 @@ test('オーナーのみがグループを削除できる', function () {
     $group = Group::factory()->create(['master_user_id' => $owner->id]);
 
     UserGroup::create([
-        'user_id'          => $admin->id,
-        'group_id'         => $group->id,
+        'user_id' => $admin->id,
+        'group_id' => $group->id,
         'permission_level' => UserGroup::PERMISSION_LEVEL_ADMIN,
-        'is_approved'      => true,
+        'is_approved' => true,
     ]);
 
     // 管理者は削除できない
@@ -177,8 +177,8 @@ test('認証済みユーザーがグループに参加申請できる', function
         ->assertCreated();
 
     $this->assertDatabaseHas('user_groups', [
-        'user_id'     => $applicant->id,
-        'group_id'    => $group->id,
+        'user_id' => $applicant->id,
+        'group_id' => $group->id,
         'is_approved' => false,
     ]);
 });
@@ -189,10 +189,10 @@ test('既に参加済みのユーザーが再申請すると409を返す', funct
     $group = Group::factory()->create(['master_user_id' => $owner->id]);
 
     UserGroup::create([
-        'user_id'          => $member->id,
-        'group_id'         => $group->id,
+        'user_id' => $member->id,
+        'group_id' => $group->id,
         'permission_level' => UserGroup::PERMISSION_LEVEL_MEMBER,
-        'is_approved'      => true,
+        'is_approved' => true,
     ]);
 
     $this->actingAs($member)
@@ -211,16 +211,16 @@ test('管理者がメンバーを承認できる', function () {
     $group = Group::factory()->create(['master_user_id' => $owner->id]);
 
     UserGroup::create([
-        'user_id'          => $admin->id,
-        'group_id'         => $group->id,
+        'user_id' => $admin->id,
+        'group_id' => $group->id,
         'permission_level' => UserGroup::PERMISSION_LEVEL_ADMIN,
-        'is_approved'      => true,
+        'is_approved' => true,
     ]);
     UserGroup::create([
-        'user_id'          => $pending->id,
-        'group_id'         => $group->id,
+        'user_id' => $pending->id,
+        'group_id' => $group->id,
         'permission_level' => UserGroup::PERMISSION_LEVEL_PENDING,
-        'is_approved'      => false,
+        'is_approved' => false,
     ]);
 
     $this->actingAs($admin)
@@ -228,9 +228,9 @@ test('管理者がメンバーを承認できる', function () {
         ->assertOk();
 
     $this->assertDatabaseHas('user_groups', [
-        'user_id'          => $pending->id,
-        'group_id'         => $group->id,
-        'is_approved'      => true,
+        'user_id' => $pending->id,
+        'group_id' => $group->id,
+        'is_approved' => true,
         'permission_level' => UserGroup::PERMISSION_LEVEL_MEMBER,
     ]);
 });
@@ -242,16 +242,16 @@ test('オーナーのみがメンバーを管理者に昇格できる', function
     $group = Group::factory()->create(['master_user_id' => $owner->id]);
 
     UserGroup::create([
-        'user_id'          => $admin->id,
-        'group_id'         => $group->id,
+        'user_id' => $admin->id,
+        'group_id' => $group->id,
         'permission_level' => UserGroup::PERMISSION_LEVEL_ADMIN,
-        'is_approved'      => true,
+        'is_approved' => true,
     ]);
     UserGroup::create([
-        'user_id'          => $member->id,
-        'group_id'         => $group->id,
+        'user_id' => $member->id,
+        'group_id' => $group->id,
         'permission_level' => UserGroup::PERMISSION_LEVEL_MEMBER,
-        'is_approved'      => true,
+        'is_approved' => true,
     ]);
 
     // 管理者は昇格できない（オーナーのみ）
@@ -265,8 +265,8 @@ test('オーナーのみがメンバーを管理者に昇格できる', function
         ->assertOk();
 
     $this->assertDatabaseHas('user_groups', [
-        'user_id'          => $member->id,
-        'group_id'         => $group->id,
+        'user_id' => $member->id,
+        'group_id' => $group->id,
         'permission_level' => UserGroup::PERMISSION_LEVEL_ADMIN,
     ]);
 });

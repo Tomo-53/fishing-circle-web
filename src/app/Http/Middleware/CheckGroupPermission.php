@@ -57,7 +57,7 @@ class CheckGroupPermission
             if ($request->expectsJson()) {
                 return response()->json([
                     'message' => 'このグループにアクセスする権限がありません。グループに参加申請を行ってください。',
-                    'code'    => 'NOT_MEMBER',
+                    'code' => 'NOT_MEMBER',
                 ], 403);
             }
             abort(403, 'このグループにアクセスする権限がありません。グループに参加申請を行ってください。');
@@ -68,7 +68,7 @@ class CheckGroupPermission
             if ($request->expectsJson()) {
                 return response()->json([
                     'message' => 'グループ参加申請が承認されていません。管理者の承認をお待ちください。',
-                    'code'    => 'PENDING_APPROVAL',
+                    'code' => 'PENDING_APPROVAL',
                 ], 403);
             }
             abort(403, 'グループ参加申請が承認されていません。管理者の承認をお待ちください。');
@@ -80,9 +80,9 @@ class CheckGroupPermission
             if ($request->expectsJson()) {
                 return response()->json([
                     'message' => "この機能には{$required->label()}が必要です。現在の権限: {$userGroup->permission_level->label()}",
-                    'code'    => 'INSUFFICIENT_PERMISSION',
+                    'code' => 'INSUFFICIENT_PERMISSION',
                     'required_level' => $required->value,
-                    'current_level'  => $userGroup->permission_level->value,
+                    'current_level' => $userGroup->permission_level->value,
                 ], 403);
             }
             abort(403, "この機能には{$required->label()}が必要です。現在の権限: {$userGroup->permission_level->label()}");
@@ -90,7 +90,7 @@ class CheckGroupPermission
 
         // 9. リクエストにグループ情報を追加（コントローラーで使用可能）
         $request->merge([
-            'current_group'      => $group,
+            'current_group' => $group,
             'current_user_group' => $userGroup,
         ]);
 

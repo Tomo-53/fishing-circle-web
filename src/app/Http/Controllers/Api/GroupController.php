@@ -60,12 +60,12 @@ class GroupController extends Controller
         $userGroupIds = $user->groups()->pluck('groups.id')->toArray();
 
         return response()->json([
-            'groups'       => GroupResource::collection($allGroups->items()),
-            'pagination'   => [
-                'total'        => $allGroups->total(),
-                'per_page'     => $allGroups->perPage(),
+            'groups' => GroupResource::collection($allGroups->items()),
+            'pagination' => [
+                'total' => $allGroups->total(),
+                'per_page' => $allGroups->perPage(),
                 'current_page' => $allGroups->currentPage(),
-                'last_page'    => $allGroups->lastPage(),
+                'last_page' => $allGroups->lastPage(),
             ],
             'user_group_ids' => $userGroupIds,
         ]);
@@ -77,7 +77,7 @@ class GroupController extends Controller
     public function store(StoreGroupRequest $request): JsonResponse
     {
         $group = Group::create([
-            'name'           => $request->validated('name'),
+            'name' => $request->validated('name'),
             'master_user_id' => Auth::id(),
         ]);
 
@@ -104,16 +104,16 @@ class GroupController extends Controller
             : 0;
 
         return response()->json([
-            'group'              => new GroupResource($group->load('masterUser')->loadCount('approvedUsers')),
-            'members'            => MemberResource::collection($members),
+            'group' => new GroupResource($group->load('masterUser')->loadCount('approvedUsers')),
+            'members' => MemberResource::collection($members),
             'current_user_group' => [
                 'permission_level' => $currentUserGroup->permission_level->value,
                 'permission_label' => $currentUserGroup->permission_level->label(),
                 'permission_short' => $currentUserGroup->permission_level->shortLabel(),
-                'is_approved'      => $currentUserGroup->is_approved,
-                'is_owner'         => $currentUserGroup->isOwner(),
-                'is_admin'         => $currentUserGroup->isAdmin(),
-                'has_admin_perm'   => $currentUserGroup->hasAdminPermission(),
+                'is_approved' => $currentUserGroup->is_approved,
+                'is_owner' => $currentUserGroup->isOwner(),
+                'is_admin' => $currentUserGroup->isAdmin(),
+                'has_admin_perm' => $currentUserGroup->hasAdminPermission(),
             ],
             'pending_count' => $pendingCount,
         ]);
@@ -138,10 +138,10 @@ class GroupController extends Controller
         }
 
         UserGroup::create([
-            'user_id'          => $authUser->id,
-            'group_id'         => $group->id,
+            'user_id' => $authUser->id,
+            'group_id' => $group->id,
             'permission_level' => UserGroup::PERMISSION_LEVEL_PENDING,
-            'is_approved'      => false,
+            'is_approved' => false,
         ]);
 
         return response()->json(['message' => 'グループ「'.$group->name.'」への参加申請を送信しました'], 201);
@@ -164,12 +164,12 @@ class GroupController extends Controller
             ->get();
 
         return response()->json([
-            'group'           => new GroupResource($group->load('masterUser')),
+            'group' => new GroupResource($group->load('masterUser')),
             'approved_members' => MemberResource::collection($approvedMembers),
-            'pending_members'  => MemberResource::collection($pendingMembers),
+            'pending_members' => MemberResource::collection($pendingMembers),
             'current_user_group' => [
                 'permission_level' => $request->current_user_group->permission_level->value,
-                'is_owner'         => $request->current_user_group->isOwner(),
+                'is_owner' => $request->current_user_group->isOwner(),
             ],
         ]);
     }
@@ -186,7 +186,7 @@ class GroupController extends Controller
         }
 
         $userGroup->update([
-            'is_approved'      => true,
+            'is_approved' => true,
             'permission_level' => UserGroup::PERMISSION_LEVEL_MEMBER,
         ]);
 
