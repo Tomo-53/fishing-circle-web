@@ -18,18 +18,19 @@ Blade 版トップページ（`src/resources/views/welcome.blade.php`）を、�
 - **スコープはトップページのみ**。about / activities / gallery / join / 会員エリアへの展開は後続。
 - **時間帯テーマ**は `html[data-theme="dawn|day|night"]` + CSS カスタムプロパティ（`--sky-from` 等）。
   - 朝 5–10時 / 昼 10–17時 / 夜 17–5時。FOUC 防止のため `<style>` より前のインラインスクリプトで適用。
-  - 右下フローティングボタン（🌅☀️🌙）と右上天体ボタンは **開発用プレビューのみ**（`app.env !== production`）。本番では非表示。`aria-pressed` 連動。
-- **オープニング**はテーマ連動2層 SVG 波のせり上がり（砂浜/空 → rise → ロゴ → 退出）。固定色は使わず `--sky-*` / `--wave-*` を共有。`sessionStorage` でセッション1回のみ。スキップ（ボタン + Escape）可。`prefers-reduced-motion` 時は即スキップ。
-  - 自動退出 ~2200ms / 退出アニメ 0.7s。JS は `resources/js/welcome.js` を `app.js` から import（専用 Vite エントリは権限・manifest 都合で見送り）。
-  - 再生中は `#main-content` に `inert`、オープニングは `role="dialog"`。
-  - ヒーロー見出しの figure-ground 水面マスクは廃止（文字遮蔽が問題だったため）。図地効果はオープニング側に移管。
+  - 右下フローティングボタン（🌅☀️🌙）は **開発用プレビューのみ**（`app.env !== production`）。本番では非表示。`aria-pressed` 連動。ヒーロー上の天体オーブ（`#hero-celestial`）は廃止。
+  - **night テーマは暗所閲覧向けダークモード**として扱う（純黒回避・暖かいオフホワイト本文・琥珀 CTA `#c9852a`・`--text-muted` / `--text-subtle`）。
+- **オープニング**は **一時撤去（作り直し予定）**。旧実装（SVG 2層 rise）と WebGL 試行はいずれも不採用。ヒーローから即表示。
+  - 再実装時は `views/welcome/_opening.blade.php` + `welcome.css` + `welcome.js` を戻し、`welcome/CLAUDE.md` を更新する。
+  - JS は引き続き `resources/js/welcome.js` を `app.js` から import。
   - 魚シルエットはスクロール parallax + bobbing（ヒーロー可視中のみ rAF）。
 - **心理学原則の割当**:
-  - 図と地の多義性 → オープニングの砂浜→没入（ヒーロー見出しマスクは廃止）
+  - 図と地の多義性 → （opening 再実装後に再配置）現状はヒーロー写真が地、見出しが図
   - 色による奥行 → 暖色（sunset/warm）= 手前 CTA、寒色（ocean 深色）= 背景
   - 遮蔽（オクルージョン）→ 魚シルエットを z=5（写真 z=0 と本文 z=10 の間）に配置
   - テクスチャ勾配 → 泡パーティクル（手前=大/濃、奥=小/薄）
   - サッカード誘導 → IntersectionObserver スタッガ reveal + CTA リップル
+- **構造**: `welcome.css` 外出し + `views/welcome/_*.blade.php` partial 分割。責務表は `views/welcome/CLAUDE.md`。
 - **アニメ規約**: `transform` / `opacity` のみ。`transition-all` 禁止。`box-shadow` トランジションも避ける。
 - **追加アセットは初版では不要**だったが、実写ヒーロー3枚を後から追加済み（下記）。
 - **ヒーロー実写3テーマ**（2026-07-19）:
@@ -65,11 +66,12 @@ Blade 版トップページ（`src/resources/views/welcome.blade.php`）を、�
 
 ## 未解決事項
 
-- [ ] ブラウザで 3 テーマ + オープニング（砂浜→rise）+ reduced-motion + 魚 parallax を目視確認する。
-- [ ] PR #29 のレビュー対応・`dev` へのマージ（今回のオープニング改修分を含む）。
+- [ ] ブラウザで 3 テーマ + reduced-motion + 魚 parallax を目視確認する。
+- [ ] PR #29 のレビュー対応・`dev` へのマージ。
 - [x] 朝マヅメ / 日中 / 夜釣りの海景画像 3 枚をヒーロー背景に適用（実写・テーマ別パレット同期済み）。
 - [x] インライン JS を `resources/js/welcome.js` に分離（`app.js` から import）。
-- [ ] （任意・後続）オープニングを AI 生成の波ループ動画（mp4/webm）に差し替える構造は用意済みだが未着手。
+- [x] インライン CSS を `resources/css/welcome.css` に外出し + Blade partial（`views/welcome/_*.blade.php`）化。Vite 未 build 時は Blade フォールバックで CSS を読む。
+- [ ] オープニング再実装（旧 SVG / WebGL 試行は不採用。仕様は別途決定）。
 - [ ] （後続エピック候補）公開下層（about / activities / gallery / join）へ時間帯テーマと共通ヘッダーを展開する。
 - [ ] 既存フッターのプレースホルダ連絡先（`contact@fishing-circle.com` 等）は実情報への差し替えが別途必要（本エピック外）。
 
@@ -81,3 +83,6 @@ Blade 版トップページ（`src/resources/views/welcome.blade.php`）を、�
 - 2026-07-19 004 PR #29（base: `dev`）を作成し、レビュー指摘の追加修正をプッシュ
 - 2026-07-19 005 実写ヒーロー3枚（dawn/day/night）を配置し、テーマ別 object-position・オーバーレイ・CSS パレット・celestial 可視性を同期
 - 2026-07-19 006 オープニングをテーマ連動2層波せり上がりに刷新。水面マスク削除・魚 parallax・開発用テーマ切替。`welcome.js` 分離。Pest 54 件 PASS / Vite build 成功。ui-reviewer・code-reviewer 指摘（a11y inert / skip race / dawn コントラスト）を反映
+- 2026-07-21 007 `welcome.css` 外出し + `views/welcome/` partial 分割。Vite 未 build 時の CSS フォールバック。`welcome/CLAUDE.md` で partial 責務を記載。
+- 2026-07-21 008 night を暗所ダークモード向けに再調整（トークン・オーバーレイ・`--text-muted` 等）。`#hero-celestial`（太陽／月オーブ）を削除。右下テーマ切替は維持
+- 2026-07-21 009 オープニングを一時撤去（SVG / WebGL 試行を却下）。ヒーロー即表示。再実装は未解決事項へ移動
