@@ -1,4 +1,9 @@
 <!DOCTYPE html>
+{{--
+  トップページ専用スタンドアロン Blade（レイアウトコンポーネント未使用）。
+  時間帯テーマ: html[data-theme] + CSS変数。JS は resources/js/welcome.js（app.js 経由）。
+  オープニング → #main-content の順。詳細は .claude/epics/toppage-immersive-redesign/_epic.md
+--}}
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="day">
 <head>
     <meta charset="utf-8">
@@ -28,54 +33,61 @@
     @endif
 
     <style>
-        /* ─── Time-based CSS variables ─── */
+        {{-- 朝/昼/夜で --sky-* / --wave-* が変わる。色は hero-*.jpg のトーンに同期 --}}
+        /* ─── Time-based CSS variables（写真に合わせたパレット） ─── */
         :root, html[data-theme="day"] {
-            --sky-from: #38bdf8;
-            --sky-mid:  #0ea5e9;
-            --sky-to:   #0369a1;
-            --sky-deep: #0c4a6e;
-            --water-surface: rgba(3, 105, 161, 0.72);
-            --wave-back: rgba(56, 189, 248, 0.4);
-            --wave-mid:  rgba(14, 165, 233, 0.6);
-            --wave-front: rgba(3, 105, 161, 0.85);
-            --celestial-color: #fef08a;
-            --celestial-glow: rgba(254, 240, 138, 0.5);
-            --accent-warm: #f97316;
+            --sky-from: #4a5d72;
+            --sky-mid:  #2c3a4a;
+            --sky-to:   #1a2430;
+            --sky-deep: #0d1218;
+            --wave-back: rgba(74, 93, 114, 0.4);
+            --wave-mid:  rgba(44, 58, 74, 0.6);
+            --wave-front: rgba(13, 18, 24, 0.88);
+            --celestial-color: #f5c07a;
+            --celestial-glow: rgba(245, 192, 122, 0.35);
+            --accent-warm: #c2410c;
             --text-bright: rgba(255,255,255,0.95);
         }
         html[data-theme="dawn"] {
-            --sky-from: #fbbf24;
-            --sky-mid:  #f97316;
-            --sky-to:   #dc2626;
-            --sky-deep: #7c2d12;
-            --water-surface: rgba(194, 65, 12, 0.65);
-            --wave-back: rgba(251, 191, 36, 0.35);
-            --wave-mid:  rgba(249, 115, 22, 0.55);
-            --wave-front: rgba(124, 45, 18, 0.85);
-            --celestial-color: #fde68a;
-            --celestial-glow: rgba(253, 230, 138, 0.7);
-            --accent-warm: #f97316;
+            --sky-from: #3d5a80;
+            --sky-mid:  #c4782e;
+            --sky-to:   #e8a030;
+            --sky-deep: #1a1208;
+            --wave-back: rgba(232, 160, 48, 0.3);
+            --wave-mid:  rgba(196, 120, 46, 0.5);
+            --wave-front: rgba(26, 18, 8, 0.88);
+            --celestial-color: #ffe08a;
+            --celestial-glow: rgba(255, 224, 138, 0.55);
+            --accent-warm: #b45309;
             --text-bright: rgba(255,255,250,0.95);
         }
         html[data-theme="night"] {
-            --sky-from: #0c4a6e;
-            --sky-mid:  #082f49;
-            --sky-to:   #020d18;
-            --sky-deep: #010812;
-            --water-surface: rgba(7, 89, 133, 0.75);
-            --wave-back: rgba(12, 74, 110, 0.5);
-            --wave-mid:  rgba(8, 47, 73, 0.7);
-            --wave-front: rgba(1, 8, 18, 0.88);
-            --celestial-color: #fef3c7;
-            --celestial-glow: rgba(254, 243, 199, 0.35);
-            --accent-warm: #eab308;
+            --sky-from: #0a1e38;
+            --sky-mid:  #061428;
+            --sky-to:   #020810;
+            --sky-deep: #010508;
+            --wave-back: rgba(10, 30, 56, 0.5);
+            --wave-mid:  rgba(6, 20, 40, 0.7);
+            --wave-front: rgba(1, 5, 8, 0.9);
+            --celestial-color: #f0e6c8;
+            --celestial-glow: rgba(240, 230, 200, 0.3);
+            --accent-warm: #b45309;
             --text-bright: rgba(220,240,255,0.95);
         }
 
         /* x-cloak for Alpine */
         [x-cloak] { display: none !important; }
 
-        /* ─── Opening animation ─── */
+        /* ─── Opening animation（テーマ連動・砂浜 → 波せり上がり） ─── */
+        #opening {
+            background: linear-gradient(
+                180deg,
+                var(--sky-from) 0%,
+                var(--sky-to) 55%,
+                var(--sky-mid) 85%,
+                var(--sky-deep) 100%
+            );
+        }
         @keyframes openingExit {
             0%   { transform: translateY(0); opacity: 1; }
             100% { transform: translateY(-100%); opacity: 0; }
@@ -83,11 +95,91 @@
         #opening.closing {
             animation: openingExit 0.7s cubic-bezier(0.76, 0, 0.24, 1) forwards;
         }
-        @keyframes waveFloat {
-            0%   { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
+        #opening.closing .opening-wave-rise,
+        #opening.closing .opening-wave-sway,
+        #opening.closing .opening-foam {
+            animation: none !important;
         }
-        .wave-animated { animation: waveFloat 4s linear infinite; width: 200%; }
+        /* dawn: 明るい空上でもロゴ可読性を確保 */
+        html[data-theme="dawn"] #opening-text {
+            text-shadow: 0 2px 20px rgba(26, 18, 8, 0.55), 0 1px 4px rgba(0, 0, 0, 0.4);
+        }
+        html[data-theme="dawn"] #skip-btn {
+            background: rgba(26, 18, 8, 0.45);
+            border-color: rgba(255, 255, 255, 0.4);
+            color: rgba(255, 255, 250, 0.95);
+        }
+        /* 親: 縦せり上がり / 子: 横うねり（transform 分離で GPU 合成） */
+        @keyframes waveRise {
+            0%   { transform: translateY(100%); }
+            100% { transform: translateY(-15vh); }
+        }
+        @keyframes waveSway {
+            0%, 100% { transform: translateX(-4%); }
+            50%      { transform: translateX(4%); }
+        }
+        @keyframes foamRecede {
+            0%   { transform: translateX(0); opacity: 0; }
+            30%  { opacity: 0.7; }
+            70%  { transform: translateX(-8%); opacity: 0.5; }
+            100% { transform: translateX(-16%); opacity: 0; }
+        }
+        .opening-wave-rise {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 115vh;
+            transform: translateY(100%);
+            will-change: transform;
+        }
+        #opening.is-playing .opening-wave-rise--back {
+            animation: waveRise 2.4s cubic-bezier(0.42, 0, 0.18, 1) 0.3s forwards;
+        }
+        #opening.is-playing .opening-wave-rise--front {
+            animation: waveRise 2.4s cubic-bezier(0.42, 0, 0.18, 1) 0.45s forwards;
+        }
+        .opening-wave-sway {
+            width: 200%;
+            height: 100%;
+            will-change: transform;
+        }
+        #opening.is-playing .opening-wave-sway {
+            animation: waveSway 3s ease-in-out infinite;
+        }
+        #opening.is-playing .opening-wave-sway--front {
+            animation-delay: -0.8s;
+            animation-duration: 3.4s;
+        }
+        .opening-wave-svg {
+            display: block;
+            width: 100%;
+            height: clamp(180px, 28vh, 320px);
+        }
+        .opening-wave-fill {
+            flex: 1;
+            width: 100%;
+            min-height: calc(115vh - clamp(180px, 28vh, 320px));
+        }
+        .opening-foam {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 28%;
+            height: 24px;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 2;
+        }
+        #opening.is-playing .opening-foam {
+            animation: foamRecede 0.4s ease-in-out forwards;
+        }
+        #opening-text {
+            opacity: 0;
+            color: var(--text-bright);
+            transition: opacity 0.5s ease-out;
+        }
+        #opening-text.is-visible { opacity: 1; }
 
         /* Bubble particles */
         .bubble {
@@ -110,11 +202,59 @@
         .reveal-delay-2 { transition-delay: 0.30s; }
         .reveal-delay-3 { transition-delay: 0.45s; }
 
-        /* ─── Header scroll ─── */
+        /* ─── Header scroll（テーマ深色に合わせる） ─── */
         #site-header { background: transparent; transition: background 0.3s ease, box-shadow 0.3s ease; }
-        #site-header.scrolled { background: rgba(12,74,110,0.93); backdrop-filter: blur(10px); box-shadow: 0 2px 24px rgba(0,0,0,0.35); }
-        html[data-theme="dawn"] #site-header.scrolled { background: rgba(124,45,18,0.93); }
-        html[data-theme="night"] #site-header.scrolled { background: rgba(1,8,18,0.95); }
+        #site-header.scrolled { background: rgba(13,18,24,0.93); backdrop-filter: blur(10px); box-shadow: 0 2px 24px rgba(0,0,0,0.35); }
+        html[data-theme="dawn"] #site-header.scrolled { background: rgba(26,18,8,0.93); }
+        html[data-theme="night"] #site-header.scrolled { background: rgba(1,5,8,0.95); }
+
+        {{-- 3枚の img を常に DOM に置き、data-theme 変更時は opacity のみ切替（src 差替えなし） --}}
+        /* ─── Hero theme photos ─── */
+        .hero-photo {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 0.45s ease;
+            pointer-events: none;
+        }
+        .hero-photo-dawn { object-position: center 58%; }
+        .hero-photo-day  { object-position: center 42%; }
+        .hero-photo-night { object-position: center 45%; }
+        @media (max-width: 768px) {
+            .hero-photo-day { object-position: center 62%; }
+            .hero-photo-dawn { object-position: center 64%; }
+        }
+        html[data-theme="dawn"]  .hero-photo-dawn  { opacity: 1; }
+        html[data-theme="day"]   .hero-photo-day   { opacity: 1; }
+        html[data-theme="night"] .hero-photo-night { opacity: 1; }
+
+        /* Theme-specific overlays（中央コピー帯のコントラスト確保） */
+        .hero-overlay-base,
+        .hero-overlay-tint { position: absolute; inset: 0; pointer-events: none; }
+        .hero-overlay-base {
+            background: linear-gradient(180deg, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.42) 52%, var(--sky-deep) 95%);
+        }
+        html[data-theme="dawn"] .hero-overlay-base {
+            background: linear-gradient(180deg, rgba(0,0,0,0.28) 0%, rgba(30,14,4,0.62) 48%, var(--sky-deep) 92%);
+        }
+        html[data-theme="day"] .hero-overlay-base {
+            background: linear-gradient(180deg, rgba(0,0,0,0.18) 0%, rgba(8,12,18,0.48) 52%, var(--sky-deep) 95%);
+        }
+        html[data-theme="night"] .hero-overlay-base {
+            background: linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.4) 50%, var(--sky-deep) 95%);
+        }
+        .hero-overlay-tint {
+            background: linear-gradient(180deg, var(--sky-from) 0%, transparent 30%);
+            opacity: 0.45;
+        }
+        html[data-theme="dawn"] .hero-overlay-tint { opacity: 0.35; }
+        html[data-theme="night"] .hero-overlay-tint { opacity: 0.55; }
+
+        /* 開発用テーマ切替ボタン: 全テーマで操作可能（装飾時の dawn 非表示は廃止） */
+        html[data-theme="dawn"] #hero-celestial { opacity: 0.9; }
+        html[data-theme="day"] #hero-celestial { opacity: 0.75; }
+        html[data-theme="night"] #hero-celestial { opacity: 1; }
 
         /* ─── CTA ripple ─── */
         .cta-ripple { transition: transform 0.2s ease, opacity 0.2s ease; }
@@ -129,10 +269,29 @@
             to   { transform: scale(4); opacity: 0; }
         }
 
-        /* ─── Fish swim animation ─── */
-        @keyframes fishSwim {
-            0%, 100% { transform: translateY(0); }
-            50%       { transform: translateY(-10px); }
+        /* ─── Fish: JS parallax 用（初期は静止） ─── */
+        .hero-fish { will-change: transform; }
+
+        /* ─── Dev celestial theme toggle ─── */
+        #hero-celestial {
+            border: none;
+            padding: 0;
+            background: transparent;
+            cursor: pointer;
+            transition: opacity 0.45s ease, transform 0.2s ease;
+        }
+        #hero-celestial:hover { transform: scale(1.08); }
+        #hero-celestial:focus-visible {
+            outline: 2px solid rgba(255,255,255,0.7);
+            outline-offset: 6px;
+            border-radius: 50%;
+        }
+        #hero-celestial .celestial-orb {
+            width: 52px; height: 52px;
+            background: var(--celestial-color);
+            border-radius: 50%;
+            box-shadow: 0 0 0 14px var(--celestial-glow), 0 0 70px var(--celestial-glow);
+            pointer-events: none;
         }
 
         /* ─── Texture depth background ─── */
@@ -161,16 +320,17 @@
         @media (prefers-reduced-motion: reduce) {
             .bubble { animation: none; }
             #opening { display: none !important; }
+            #main-content { opacity: 1 !important; }
             .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
-            .wave-animated { animation: none; }
-            /* W-1/W-2: fish swim & scroll bounce */
-            [style*="fishSwim"], [style*="animation: fishSwim"] { animation: none !important; }
+            .opening-wave-rise,
+            .opening-wave-sway,
+            .opening-foam { animation: none !important; }
+            .hero-fish { transform: none !important; }
             .animate-bounce { animation: none !important; }
-            /* W-4: nav link underline hover */
             .nav-link::after { transition: none; }
-            /* photo hover scale */
             .photo-card img { transition: none; }
             .photo-card .photo-overlay { transition: none; }
+            .hero-photo, #hero-celestial { transition: none; }
         }
 
         /* ─── Nav link underline ─── */
@@ -190,61 +350,71 @@
 </head>
 <body class="bg-gray-900 text-white overflow-x-hidden">
 
-    {{-- ─────────────── Opening Screen ─────────────── --}}
+    {{-- ─────────────── Opening Screen（テーマ連動・砂浜 → 波せり上がり） ─────────────── --}}
     <div id="opening"
          class="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden select-none"
-         role="presentation" aria-hidden="true"
-         style="background: linear-gradient(180deg, var(--sky-deep) 0%, var(--wave-front) 100%)">
+         role="dialog"
+         aria-modal="true"
+         aria-label="オープニング"
+         aria-hidden="true">
 
-        <button id="skip-btn"
-                class="absolute top-5 right-5 text-sm text-white/60 hover:text-white/90 transition-colors tracking-wider px-4 py-1 rounded-full border border-white/20 hover:border-white/50 focus:outline-none focus:ring-2 focus:ring-white/40"
-                aria-label="スキップ">
+        <button type="button" id="skip-btn"
+                class="absolute top-5 right-5 z-30 text-sm text-white/70 hover:text-white transition-colors tracking-wider px-4 py-1 rounded-full border border-white/25 hover:border-white/50 focus:outline-none focus:ring-2 focus:ring-white/40"
+                aria-label="オープニングをスキップ">
             SKIP ×
         </button>
 
-        <div id="opening-text" class="relative z-10 text-center mb-20 px-4 transition-opacity duration-500">
-            <p class="text-xs tracking-[0.5em] text-white/50 mb-3 uppercase font-sans">Niigata University</p>
-            <h2 class="font-bold text-white leading-none" style="font-family: 'Comfortaa', 'Noto Sans JP', sans-serif; font-size: clamp(2.5rem, 8vw, 5rem)">
-                新潟大学<br>釣り同好会
-            </h2>
-            <div class="mt-5 flex items-center justify-center gap-3">
-                <div class="h-px w-12 bg-white/25"></div>
-                <p class="text-white/70 text-xs tracking-[0.3em] uppercase">Dive Into Fishing</p>
-                <div class="h-px w-12 bg-white/25"></div>
-            </div>
-        </div>
-
-        <div class="relative z-10 mb-6 opacity-50" aria-hidden="true" style="animation: fishSwim 3.5s ease-in-out infinite">
-            <svg width="72" height="36" viewBox="0 0 72 36" fill="white">
-                <ellipse cx="28" cy="18" rx="28" ry="13"/>
-                <path d="M54,18 Q64,7 72,0 Q72,36 63,29 Q68,18 54,18 Z" opacity="0.7"/>
-                <circle cx="47" cy="14" r="4" fill="rgba(0,30,60,0.7)"/>
-                <circle cx="47" cy="14" r="1.8" fill="white"/>
+        {{-- foam: 打ち寄せ→引き（せり上がり前） --}}
+        <div class="opening-foam" aria-hidden="true">
+            <svg viewBox="0 0 1440 24" preserveAspectRatio="none" style="width:100%;height:100%;display:block">
+                <path d="M0,12 C180,22 360,2 540,12 C720,22 900,4 1080,12 C1260,20 1380,8 1440,12"
+                      fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="2"/>
             </svg>
         </div>
 
-        {{-- 3層波 --}}
-        <div class="absolute bottom-0 left-0 w-full overflow-hidden pointer-events-none" style="height:220px">
-            <div class="absolute bottom-0 left-0 w-full" style="height:160px; z-index:1">
-                <svg class="wave-animated" viewBox="0 0 2880 160" preserveAspectRatio="none" style="height:160px">
-                    <path d="M0,60 C240,100 480,20 720,60 C960,100 1200,20 1440,60 C1680,100 1920,20 2160,60 C2400,100 2640,20 2880,60 L2880,160 L0,160 Z" fill="var(--wave-back)"/>
+        {{-- 波レイヤー1（奥）: --wave-back、やや先行 --}}
+        <div class="opening-wave-rise opening-wave-rise--back" style="z-index:3" aria-hidden="true">
+            <div class="opening-wave-sway flex flex-col h-full">
+                <svg class="opening-wave-svg" viewBox="0 0 2880 320" preserveAspectRatio="none">
+                    {{-- Get Waves 系パスを2倍タイル（ユーザー提供パスベース） --}}
+                    <path fill="var(--wave-back)" fill-opacity="1"
+                          d="M0,32L48,26.7C96,21,192,11,288,16C384,21,480,43,576,96C672,149,768,235,864,250.7C960,267,1056,213,1152,192C1248,171,1344,181,1392,186.7L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"/>
+                    <path fill="var(--wave-back)" fill-opacity="1" transform="translate(1440,0)"
+                          d="M0,32L48,26.7C96,21,192,11,288,16C384,21,480,43,576,96C672,149,768,235,864,250.7C960,267,1056,213,1152,192C1248,171,1344,181,1392,186.7L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"/>
                 </svg>
+                <div class="opening-wave-fill" style="background: var(--wave-back)"></div>
             </div>
-            <div class="absolute bottom-0 left-0 w-full" style="height:180px; z-index:2">
-                <svg class="wave-animated" viewBox="0 0 2880 180" preserveAspectRatio="none" style="height:180px; animation-delay:-1.5s; animation-duration:5.5s">
-                    <path d="M0,100 C360,50 720,140 1080,100 C1440,60 1800,140 2160,100 C2520,60 2700,130 2880,100 L2880,180 L0,180 Z" fill="var(--wave-mid)"/>
+        </div>
+
+        {{-- 波レイヤー2（手前）: --wave-front、Y オフセットで立体感 --}}
+        <div class="opening-wave-rise opening-wave-rise--front" style="z-index:4" aria-hidden="true">
+            <div class="opening-wave-sway opening-wave-sway--front flex flex-col h-full">
+                <svg class="opening-wave-svg" viewBox="0 0 2880 320" preserveAspectRatio="none">
+                    <path fill="var(--wave-front)" fill-opacity="1"
+                          d="M0,40L48,34.7C96,29,192,19,288,24C384,29,480,51,576,104C672,157,768,243,864,258.7C960,275,1056,221,1152,200C1248,179,1344,189,1392,194.7L1440,200L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"/>
+                    <path fill="var(--wave-front)" fill-opacity="1" transform="translate(1440,0)"
+                          d="M0,40L48,34.7C96,29,192,19,288,24C384,29,480,51,576,104C672,157,768,243,864,258.7C960,275,1056,221,1152,200C1248,179,1344,189,1392,194.7L1440,200L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"/>
                 </svg>
+                <div class="opening-wave-fill" style="background: var(--wave-front)"></div>
             </div>
-            <div class="absolute bottom-0 left-0 w-full" style="height:200px; z-index:3">
-                <svg class="wave-animated" viewBox="0 0 2880 200" preserveAspectRatio="none" style="height:200px; animation-delay:-0.8s; animation-duration:3.2s">
-                    <path d="M0,120 C180,75 360,155 540,120 C720,85 900,155 1080,120 C1260,85 1440,155 1620,120 C1800,85 1980,155 2160,120 C2340,85 2520,155 2700,120 L2880,120 L2880,200 L0,200 Z" fill="var(--wave-front)"/>
-                </svg>
+        </div>
+
+        {{-- テキストロゴ（手前波が中央通過時にフェードイン） --}}
+        <div id="opening-text" class="relative z-20 text-center px-4">
+            <p class="text-xs tracking-[0.5em] mb-3 uppercase font-sans" style="opacity:0.75">Niigata University</p>
+            <h2 class="font-bold leading-none" style="font-family: 'Comfortaa', 'Noto Sans JP', sans-serif; font-size: clamp(2.5rem, 8vw, 5rem)">
+                新潟大学<br>釣り同好会
+            </h2>
+            <div class="mt-5 flex items-center justify-center gap-3">
+                <div class="h-px w-12 bg-current opacity-30"></div>
+                <p class="text-xs tracking-[0.3em] uppercase" style="opacity:0.8">Dive Into Fishing</p>
+                <div class="h-px w-12 bg-current opacity-30"></div>
             </div>
         </div>
     </div>
     {{-- /Opening --}}
 
-
+    {{-- オープニング中は welcome.js が inert + opacity:0。終了後に操作可能になる --}}
     <div id="main-content">
 
         {{-- ─────────────── Fixed Header ─────────────── --}}
@@ -360,11 +530,26 @@
             <section class="relative min-h-screen flex flex-col overflow-hidden"
                      style="background: linear-gradient(180deg, var(--sky-from) 0%, var(--sky-mid) 45%, var(--sky-deep) 100%)">
 
-                {{-- Background photo with parallax --}}
+                {{-- テーマ別ヒーロー写真（パララックス） --}}
                 <div id="hero-bg" class="absolute inset-0" style="will-change: transform">
-                    <img src="{{ asset('images/welcome.jpg') }}" alt="" class="w-full h-full object-cover" loading="eager" aria-hidden="true">
-                    <div class="absolute inset-0" style="background: linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.35) 55%, var(--sky-deep) 95%)"></div>
-                    <div class="absolute inset-0" style="background: linear-gradient(180deg, var(--sky-from) 0%, transparent 30%)"></div>
+                    <img src="{{ asset('images/hero-dawn.jpg') }}" alt=""
+                         class="hero-photo hero-photo-dawn"
+                         loading="eager" decoding="async" aria-hidden="true">
+                    <img src="{{ asset('images/hero-day.jpg') }}" alt=""
+                         class="hero-photo hero-photo-day"
+                         loading="eager" decoding="async" aria-hidden="true">
+                    <img src="{{ asset('images/hero-night.jpg') }}" alt=""
+                         class="hero-photo hero-photo-night"
+                         loading="eager" decoding="async" aria-hidden="true">
+                    <div class="hero-overlay-base"></div>
+                    <div class="hero-overlay-tint"></div>
+                    <script>
+                    (function(){
+                        var t = document.documentElement.dataset.theme || 'day';
+                        var el = document.querySelector('.hero-photo-' + t);
+                        if (el) { el.setAttribute('fetchpriority', 'high'); }
+                    })();
+                    </script>
                 </div>
 
                 {{-- Bubble particles --}}
@@ -379,14 +564,25 @@
                     <div class="bubble" style="left:77%;bottom:62%;width:5px;height:5px;animation-duration:20s;animation-delay:-12s;opacity:0.04"></div>
                 </div>
 
-                {{-- Celestial body (sun / moon) --}}
-                <div class="absolute z-[3] pointer-events-none" style="top:13%; right:10%" aria-hidden="true">
-                    <div style="width:52px;height:52px;background:var(--celestial-color);border-radius:50%;box-shadow:0 0 0 14px var(--celestial-glow),0 0 70px var(--celestial-glow)"></div>
-                </div>
+                {{-- Celestial: 開発用テーマ切替（本番非表示） --}}
+                @if (config('app.env') !== 'production')
+                <button type="button" id="hero-celestial"
+                        class="absolute z-[3]"
+                        style="top:13%; right:10%"
+                        title="時間帯プレビュー（開発用）"
+                        aria-label="時間帯プレビュー（開発用）。クリックで次のテーマへ">
+                    <span class="celestial-orb" aria-hidden="true"></span>
+                </button>
+                @endif
 
-                {{-- Fish silhouettes (z=5: between photo and text → depth cue) --}}
+                {{-- Fish silhouettes（スクロール連動 parallax） --}}
                 <div class="absolute inset-0 z-[5] pointer-events-none overflow-hidden" aria-hidden="true">
-                    <div style="position:absolute;bottom:36%;right:5%;animation:fishSwim 4s ease-in-out infinite">
+                    <div class="hero-fish"
+                         data-speed-x="0.03"
+                         data-speed-y="-0.08"
+                         data-bob-amp="8"
+                         data-bob-period="4000"
+                         style="position:absolute;bottom:36%;right:5%">
                         <svg width="160" height="80" viewBox="0 0 160 80" fill="white" opacity="0.13">
                             <ellipse cx="62" cy="40" rx="58" ry="27"/>
                             <path d="M118,40 Q138,20 160,5 Q160,75 140,60 Q148,40 118,40 Z" opacity="0.8"/>
@@ -397,7 +593,12 @@
                             <line x1="18" y1="52" x2="32" y2="56" stroke="rgba(255,255,255,0.35)" stroke-width="1.5"/>
                         </svg>
                     </div>
-                    <div style="position:absolute;top:26%;left:7%;animation:fishSwim 5.5s ease-in-out infinite;animation-delay:-2s">
+                    <div class="hero-fish"
+                         data-speed-x="-0.02"
+                         data-speed-y="-0.15"
+                         data-bob-amp="6"
+                         data-bob-period="5500"
+                         style="position:absolute;top:26%;left:7%">
                         <svg width="55" height="28" viewBox="0 0 55 28" fill="white" opacity="0.06">
                             <ellipse cx="22" cy="14" rx="20" ry="9"/>
                             <path d="M40,14 Q48,7 55,2 Q55,26 48,20 Q52,14 40,14 Z"/>
@@ -405,30 +606,19 @@
                     </div>
                 </div>
 
-                {{-- Figure-ground headline (z=10, above fish) --}}
+                {{-- Headline (z=10, above fish) --}}
                 <div class="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-4 pt-24 pb-16">
 
                     <div class="relative inline-block mb-6">
-                        <p class="text-xs tracking-[0.45em] text-white/55 mb-4 uppercase font-sans">Niigata University Fishing Circle</p>
+                        <p class="text-xs tracking-[0.45em] text-white/75 mb-4 uppercase font-sans">Niigata University Fishing Circle</p>
 
                         <h1 class="font-bold leading-none"
                             style="font-family: 'Comfortaa', 'Noto Sans JP', sans-serif; font-size: clamp(3rem, 10vw, 7.5rem); letter-spacing: -0.03em; color: var(--text-bright); text-shadow: 0 2px 24px rgba(0,0,0,0.45)">
                             新潟大学<br>釣り同好会
                         </h1>
-
-                        {{-- Water surface mask: bottom 42% of text appears submerged --}}
-                        <div class="absolute left-[-8%] right-[-8%] bottom-0 overflow-hidden pointer-events-none"
-                             style="height: 42%; z-index: 2" aria-hidden="true">
-                            <svg viewBox="0 0 800 130" preserveAspectRatio="none" style="width:100%;height:100%">
-                                <path d="M0,18 C120,55 240,0 360,22 C480,44 600,4 720,26 C770,36 790,14 800,18 L800,130 L0,130 Z"
-                                      fill="var(--water-surface)"/>
-                                <path d="M0,18 C120,55 240,0 360,22 C480,44 600,4 720,26 C770,36 790,14 800,18"
-                                      fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
-                            </svg>
-                        </div>
                     </div>
 
-                    <p class="text-white/65 text-base md:text-lg tracking-wider font-sans mb-10 max-w-sm leading-relaxed">
+                    <p class="text-white/80 text-base md:text-lg tracking-wider font-sans mb-10 max-w-sm leading-relaxed">
                         新大唯一の釣りサークル — 仲間と自然と、深く潜ろう。
                     </p>
 
@@ -441,7 +631,7 @@
                             入部案内 →
                         </a>
                         <a href="{{ route('about') }}"
-                           class="px-8 py-3 rounded-full font-medium text-white/80 hover:text-white text-sm tracking-wider border border-white/30 hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-white/40">
+                           class="px-8 py-3 rounded-full font-medium text-white/90 hover:text-white text-sm tracking-wider border border-white/45 hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-white/40">
                             サークル紹介
                         </a>
                     </div>
@@ -670,128 +860,47 @@
     </div>{{-- /main-content --}}
 
 
-    {{-- ─────────────── H. Theme Toggle (fixed bottom-right) ─────────────── --}}
-    <div class="fixed bottom-6 right-6 z-50 flex flex-col gap-2" role="group" aria-label="時間帯テーマ切替">
-        <button onclick="setTheme('dawn')"
+    {{-- ─────────────── H. Theme Toggle（開発用・本番非表示） ─────────────── --}}
+    @if (config('app.env') !== 'production')
+    <div class="fixed bottom-6 right-6 z-50 flex flex-col gap-2" role="group" aria-label="時間帯テーマ切替（開発用）">
+        <button type="button" onclick="setTheme('dawn')"
                 class="w-11 h-11 rounded-full bg-black/40 backdrop-blur-sm border border-white/20 text-base hover:border-white/50 hover:bg-black/60 transition-colors focus:outline-none focus:ring-2 focus:ring-white/40"
                 data-theme-btn="dawn" aria-pressed="false"
                 title="朝テーマ" aria-label="朝のテーマに切替">
             🌅
         </button>
-        <button onclick="setTheme('day')"
+        <button type="button" onclick="setTheme('day')"
                 class="w-11 h-11 rounded-full bg-black/40 backdrop-blur-sm border border-white/20 text-base hover:border-white/50 hover:bg-black/60 transition-colors focus:outline-none focus:ring-2 focus:ring-white/40"
                 data-theme-btn="day" aria-pressed="false"
                 title="昼テーマ" aria-label="昼のテーマに切替">
             ☀️
         </button>
-        <button onclick="setTheme('night')"
+        <button type="button" onclick="setTheme('night')"
                 class="w-11 h-11 rounded-full bg-black/40 backdrop-blur-sm border border-white/20 text-base hover:border-white/50 hover:bg-black/60 transition-colors focus:outline-none focus:ring-2 focus:ring-white/40"
                 data-theme-btn="night" aria-pressed="false"
                 title="夜テーマ" aria-label="夜のテーマに切替">
             🌙
         </button>
     </div>
+    @endif
 
-
-    {{-- ─────────────── JavaScript ─────────────── --}}
+    {{-- Vite/welcome.js が読めない場合の保険。通常は welcome.js が __welcomeInited を立てる --}}
     <script>
-        // テーマ手動切替（aria-pressed 連動）
-        function setTheme(t) {
-            document.documentElement.dataset.theme = t;
-            document.querySelectorAll('[data-theme-btn]').forEach(function(btn) {
-                btn.setAttribute('aria-pressed', btn.dataset.themeBtn === t ? 'true' : 'false');
-                btn.style.opacity = btn.dataset.themeBtn === t ? '1' : '0.55';
-            });
-        }
-
-        // ─── Opening animation ───
-        (function() {
-            var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            var seen = sessionStorage.getItem('fca_opening_seen');
+    (function () {
+        function forceShow() {
+            if (window.__welcomeInited) return;
             var opening = document.getElementById('opening');
+            if (opening) opening.style.display = 'none';
             var main = document.getElementById('main-content');
-            var closing = false;
-
-            function showMain() { if(main) main.style.opacity = '1'; }
-
-            function closeOpening() {
-                if (closing) return;
-                closing = true;
-                sessionStorage.setItem('fca_opening_seen', '1');
-                var txt = document.getElementById('opening-text');
-                if(txt) txt.style.opacity = '0';
-                setTimeout(function() {
-                    opening.classList.add('closing');
-                    showMain();
-                    setTimeout(function() { if(opening) opening.style.display = 'none'; }, 700);
-                }, 200);
+            if (main) {
+                main.style.opacity = '1';
+                main.removeAttribute('inert');
+                main.removeAttribute('aria-hidden');
             }
-
-            if (reduced || seen) {
-                if(opening) opening.style.display = 'none';
-                showMain(); return;
-            }
-
-            var timer = setTimeout(closeOpening, 1500);
-            var skipBtn = document.getElementById('skip-btn');
-            if(skipBtn) skipBtn.addEventListener('click', function() {
-                clearTimeout(timer); closeOpening();
-            });
-        })();
-
-        // ─── IntersectionObserver scroll reveal ───
-        (function() {
-            if (!('IntersectionObserver' in window)) {
-                document.querySelectorAll('.reveal').forEach(function(el) { el.classList.add('is-visible'); });
-                return;
-            }
-            var io = new IntersectionObserver(function(entries) {
-                entries.forEach(function(entry) {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('is-visible');
-                        io.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.10 });
-            document.querySelectorAll('.reveal').forEach(function(el) { io.observe(el); });
-        })();
-
-        // ─── Header scroll ───
-        (function() {
-            var header = document.getElementById('site-header');
-            if (!header) return;
-            window.addEventListener('scroll', function() {
-                header.classList.toggle('scrolled', window.scrollY > 60);
-            }, { passive: true });
-        })();
-
-        // ─── Parallax hero bg (transform only, reduced-motion safe) ───
-        (function() {
-            var bg = document.getElementById('hero-bg');
-            if (!bg || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-            window.addEventListener('scroll', function() {
-                if (window.scrollY < window.innerHeight) {
-                    bg.style.transform = 'translateY(' + (window.scrollY * 0.22) + 'px)';
-                }
-            }, { passive: true });
-        })();
-
-        // ─── 初期テーマのボタン状態を同期 ───
-        (function() {
-            var current = document.documentElement.dataset.theme || 'day';
-            setTheme(current);
-        })();
-
-        // ─── CTA ripple effect ───
-        function addRipple(e) {
-            var btn = e.currentTarget;
-            var rect = btn.getBoundingClientRect();
-            var ripple = document.createElement('span');
-            ripple.className = 'ripple-ring';
-            ripple.style.cssText = 'left:' + (e.clientX - rect.left) + 'px;top:' + (e.clientY - rect.top) + 'px';
-            btn.appendChild(ripple);
-            setTimeout(function() { if(ripple.parentNode) ripple.parentNode.removeChild(ripple); }, 900);
         }
+        window.addEventListener('load', forceShow);
+        setTimeout(forceShow, 4000);
+    })();
     </script>
 
 </body>
