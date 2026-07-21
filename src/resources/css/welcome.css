@@ -1,0 +1,235 @@
+/* 朝/昼/夜で --sky-* / --wave-* が変わる。色は hero-*.jpg のトーンに同期。
+   night は暗い環境向けダークモード（眩しさ抑制＋本文・CTA のコントラスト） */
+/* ─── Time-based CSS variables（写真に合わせたパレット） ─── */
+:root, html[data-theme="day"] {
+    --sky-from: #4a5d72;
+    --sky-mid:  #2c3a4a;
+    --sky-to:   #1a2430;
+    --sky-deep: #0d1218;
+    --wave-back: rgba(74, 93, 114, 0.4);
+    --wave-mid:  rgba(44, 58, 74, 0.6);
+    --wave-front: rgba(13, 18, 24, 0.88);
+    --accent-warm: #c2410c;
+    --accent-fg: #ffffff;
+    --text-bright: rgba(255, 255, 255, 0.95);
+    --text-muted: rgba(255, 255, 255, 0.72);
+    --text-subtle: rgba(255, 255, 255, 0.55);
+    --border-soft: rgba(255, 255, 255, 0.28);
+}
+html[data-theme="dawn"] {
+    --sky-from: #3d5a80;
+    --sky-mid:  #c4782e;
+    --sky-to:   #e8a030;
+    --sky-deep: #1a1208;
+    --wave-back: rgba(232, 160, 48, 0.3);
+    --wave-mid:  rgba(196, 120, 46, 0.5);
+    --wave-front: rgba(26, 18, 8, 0.88);
+    --accent-warm: #b45309;
+    --accent-fg: #ffffff;
+    --text-bright: rgba(255, 255, 250, 0.95);
+    --text-muted: rgba(255, 255, 250, 0.72);
+    --text-subtle: rgba(255, 255, 250, 0.55);
+    --border-soft: rgba(255, 255, 250, 0.28);
+}
+html[data-theme="night"] {
+    /* 背景: 純黒回避・わずかな青み。from を上げて階層 */
+    --sky-from: #12263f;
+    --sky-mid:  #0a1828;
+    --sky-to:   #050b14;
+    --sky-deep: #06090e;
+    --wave-back: rgba(18, 48, 78, 0.45);
+    --wave-mid: rgba(10, 28, 48, 0.65);
+    --wave-front: rgba(6, 9, 14, 0.92);
+    /* CTA: 暗所向け琥珀 + 濃色文字で AA */
+    --accent-warm: #c9852a;
+    --accent-fg: #1a1208;
+    /* 本文: 青白ハロー抑制 → 暖かいオフホワイト */
+    --text-bright: rgba(236, 234, 228, 0.92);
+    --text-muted: rgba(236, 234, 228, 0.72);
+    --text-subtle: rgba(236, 234, 228, 0.55);
+    --border-soft: rgba(236, 234, 228, 0.28);
+}
+
+/* x-cloak for Alpine */
+[x-cloak] { display: none !important; }
+
+/* Bubble particles */
+.bubble {
+    position: absolute; border-radius: 50%;
+    background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+    animation: bubbleRise linear infinite;
+}
+@keyframes bubbleRise {
+    0%   { transform: translateY(0) scale(1); opacity: 0.5; }
+    100% { transform: translateY(-120vh) scale(0.4); opacity: 0; }
+}
+
+/* ─── Reveal animation ─── */
+.reveal {
+    opacity: 0; transform: translateY(1.75rem);
+    transition: opacity 0.65s ease-out, transform 0.65s ease-out;
+}
+.reveal.is-visible { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: 0.15s; }
+.reveal-delay-2 { transition-delay: 0.30s; }
+.reveal-delay-3 { transition-delay: 0.45s; }
+
+/* ─── Header scroll（テーマ深色に合わせる） ─── */
+#site-header { background: transparent; transition: background 0.3s ease, box-shadow 0.3s ease; }
+#site-header.scrolled { background: rgba(13,18,24,0.93); backdrop-filter: blur(10px); box-shadow: 0 2px 24px rgba(0,0,0,0.35); }
+html[data-theme="dawn"] #site-header.scrolled { background: rgba(26,18,8,0.93); }
+html[data-theme="night"] #site-header.scrolled { background: rgba(6, 12, 20, 0.94); }
+
+/* CTA（テーマ連動の前景色） */
+.welcome-cta {
+    background: var(--accent-warm);
+    color: var(--accent-fg);
+}
+.welcome-cta:hover { filter: brightness(1.06); }
+
+/* モバイルメニュー背景（純黒回避・テーマ連動） */
+.welcome-mobile-nav {
+    background: color-mix(in srgb, var(--sky-deep) 85%, transparent);
+    backdrop-filter: blur(12px);
+}
+
+/* 3枚の img を常に DOM に置き、data-theme 変更時は opacity のみ切替（src 差替えなし） */
+/* ─── Hero theme photos ─── */
+.hero-photo {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.45s ease;
+    pointer-events: none;
+}
+.hero-photo-dawn { object-position: center 58%; }
+.hero-photo-day  { object-position: center 42%; }
+.hero-photo-night { object-position: center 45%; }
+@media (max-width: 768px) {
+    .hero-photo-day { object-position: center 62%; }
+    .hero-photo-dawn { object-position: center 64%; }
+}
+html[data-theme="dawn"]  .hero-photo-dawn  { opacity: 1; }
+html[data-theme="day"]   .hero-photo-day   { opacity: 1; }
+html[data-theme="night"] .hero-photo-night { opacity: 1; }
+
+/* Theme-specific overlays（中央コピー帯のコントラスト確保） */
+.hero-overlay-base,
+.hero-overlay-tint { position: absolute; inset: 0; pointer-events: none; }
+.hero-overlay-base {
+    background: linear-gradient(180deg, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.42) 52%, var(--sky-deep) 95%);
+}
+html[data-theme="dawn"] .hero-overlay-base {
+    background: linear-gradient(180deg, rgba(0,0,0,0.28) 0%, rgba(30,14,4,0.62) 48%, var(--sky-deep) 92%);
+}
+html[data-theme="day"] .hero-overlay-base {
+    background: linear-gradient(180deg, rgba(0,0,0,0.18) 0%, rgba(8,12,18,0.48) 52%, var(--sky-deep) 95%);
+}
+html[data-theme="night"] .hero-overlay-base {
+    /* 上部は写真を残し、中央〜下部でコピー帯のコントラストを確保 */
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.18) 0%, rgba(4, 8, 14, 0.55) 48%, var(--sky-deep) 92%);
+}
+.hero-overlay-tint {
+    background: linear-gradient(180deg, var(--sky-from) 0%, transparent 30%);
+    opacity: 0.45;
+}
+html[data-theme="dawn"] .hero-overlay-tint { opacity: 0.35; }
+html[data-theme="night"] .hero-overlay-tint { opacity: 0.4; }
+
+/* テーマ連動テキスト（Tailwind /35・/55・/60 の代わり） */
+.welcome-text-muted { color: var(--text-muted); }
+.welcome-text-subtle { color: var(--text-subtle); }
+.welcome-border-soft { border-color: var(--border-soft); }
+
+
+
+/* ─── Texture depth background ─── */
+.texture-depth-bg {
+    background:
+        radial-gradient(ellipse at 15% 85%, rgba(255,255,255,0.03) 0%, transparent 50%),
+        radial-gradient(ellipse at 85% 15%, rgba(255,255,255,0.015) 0%, transparent 40%),
+        linear-gradient(to bottom, var(--sky-deep) 0%, #111827 100%);
+}
+.texture-dot {
+    position: absolute; border-radius: 50%; background: rgba(255,255,255,0.07);
+}
+
+/* ─── About info cards（番号は右上・本文と非重なり） ─── */
+.about-card-number {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 0;
+    font-size: clamp(2.25rem, 6vw, 4.5rem);
+    font-weight: 900;
+    line-height: 1;
+    color: rgb(56 189 248);
+    opacity: 0.08;
+    user-select: none;
+    pointer-events: none;
+}
+.about-card-body {
+    position: relative;
+    z-index: 1;
+    padding-right: 2.5rem;
+}
+
+/* ─── Welcome photo frames（固定比率 + 個別トリミング位置） ─── */
+.welcome-photo-frame {
+    position: relative;
+    overflow: hidden;
+}
+.welcome-photo-frame img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+.welcome-photo-frame--4x3 { aspect-ratio: 4 / 3; }
+.welcome-photo-frame--3x4 { aspect-ratio: 3 / 4; }
+.welcome-photo-frame:hover img { transform: scale(1.04); }
+
+.welcome-photo-pos-active1 { object-position: center 55%; }
+.welcome-photo-pos-active2 { object-position: center 45%; }
+.welcome-photo-pos-active3 { object-position: center center; }
+.welcome-photo-pos-active4 { object-position: center 35%; }
+.welcome-photo-pos-about1 { object-position: center 45%; }
+.welcome-photo-pos-about2 { object-position: center 40%; }
+
+/* ─── Photo hover ─── */
+.photo-card { overflow: hidden; position: relative; }
+.photo-card img { transition: transform 0.5s ease; }
+.photo-card:hover img { transform: scale(1.04); }
+.photo-card .photo-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 55%);
+    opacity: 0; transition: opacity 0.4s ease;
+}
+.photo-card:hover .photo-overlay { opacity: 1; }
+
+/* ─── reduced-motion ─── */
+@media (prefers-reduced-motion: reduce) {
+    .bubble { animation: none; }
+    .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+    .hero-fish { transform: none !important; }
+    .animate-bounce { animation: none !important; }
+    .nav-link::after { transition: none; }
+    .photo-card img { transition: none; }
+    .photo-card .photo-overlay { transition: none; }
+    .welcome-photo-frame img { transition: none; }
+    .hero-photo { transition: none; }
+}
+
+/* ─── Nav link underline ─── */
+.nav-link {
+    position: relative; padding-bottom: 2px;
+}
+.nav-link::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+    height: 1px; background: white; transform: scaleX(0);
+    transition: transform 0.2s ease; transform-origin: right;
+}
+.nav-link:hover::after { transform: scaleX(1); transform-origin: left; }
