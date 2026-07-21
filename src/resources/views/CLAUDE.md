@@ -13,6 +13,7 @@ UI を構成する Blade テンプレート。サーバ側認可と組み合わ�
 | `profile/` | プロフィール編集 |
 | `emails/` | メール通知テンプレート |
 | トップ直下 | `dashboard`・`welcome` 等の汎用画面 |
+| `welcome/` | トップページ専用 partial。詳細は [`welcome/CLAUDE.md`](welcome/CLAUDE.md)（opening は一時撤去・作り直し予定） |
 
 ## 重要な実装ルール
 
