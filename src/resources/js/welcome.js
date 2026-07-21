@@ -50,119 +50,6 @@ function cycleTheme() {
     setTheme(next);
 }
 
-function safeSessionGet(key) {
-    try {
-        return sessionStorage.getItem(key);
-    } catch {
-        return null;
-    }
-}
-
-function safeSessionSet(key, value) {
-    try {
-        sessionStorage.setItem(key, value);
-    } catch {
-        /* private mode 等では無視 */
-    }
-}
-
-// ─── Opening: 砂浜 → 波せり上がり → ロゴ → 退出 ───
-function initOpening() {
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const seen = safeSessionGet('fca_opening_seen');
-    const opening = document.getElementById('opening');
-    const main = document.getElementById('main-content');
-    let closing = false;
-    let timers = [];
-
-    function showMain() {
-        if (main) {
-            main.style.opacity = '1';
-            main.removeAttribute('inert');
-            main.removeAttribute('aria-hidden');
-        }
-    }
-
-    function hideMainFromA11y() {
-        if (main) {
-            main.setAttribute('inert', '');
-            main.setAttribute('aria-hidden', 'true');
-        }
-    }
-
-    function clearTimers() {
-        timers.forEach((id) => clearTimeout(id));
-        timers = [];
-    }
-
-    function closeOpening() {
-        if (closing) return;
-        closing = true;
-        clearTimers();
-        safeSessionSet('fca_opening_seen', '1');
-        const txt = document.getElementById('opening-text');
-        if (txt) txt.style.opacity = '0';
-        if (opening) {
-            opening.classList.remove('is-playing');
-            opening.setAttribute('aria-hidden', 'true');
-        }
-        timers.push(
-            setTimeout(() => {
-                if (opening) opening.classList.add('closing');
-                showMain();
-                timers.push(
-                    setTimeout(() => {
-                        if (opening) opening.style.display = 'none';
-                    }, 700),
-                );
-            }, 200),
-        );
-    }
-
-    if (reduced || seen) {
-        if (opening) opening.style.display = 'none';
-        showMain();
-        return;
-    }
-
-    if (!opening) {
-        showMain();
-        return;
-    }
-
-    hideMainFromA11y();
-    opening.setAttribute('aria-hidden', 'false');
-
-    requestAnimationFrame(() => {
-        opening.classList.add('is-playing');
-    });
-
-    // ロゴ: front 波が中央付近（~1.0s）
-    timers.push(
-        setTimeout(() => {
-            const txt = document.getElementById('opening-text');
-            if (txt) txt.classList.add('is-visible');
-        }, 1000),
-    );
-
-    // rise 完了付近で退出（体感待ちを抑えつつホールド）
-    timers.push(setTimeout(closeOpening, 2200));
-
-    const skipBtn = document.getElementById('skip-btn');
-    if (skipBtn) {
-        // clearTimers を先に呼ばない（退出中スキップでタイマーが消えるのを防ぐ）
-        skipBtn.addEventListener('click', () => closeOpening());
-    }
-
-    function onKeydown(e) {
-        if (e.key === 'Escape') {
-            closeOpening();
-            window.removeEventListener('keydown', onKeydown);
-        }
-    }
-    window.addEventListener('keydown', onKeydown);
-}
-
 // ─── IntersectionObserver scroll reveal ───
 function initReveal() {
     if (!('IntersectionObserver' in window)) {
@@ -283,19 +170,18 @@ function initCelestialToggle() {
 
 export function bootWelcome() {
     if (window.__welcomeInited) return;
-    // opening / hero が無いページでは何もしない
-    if (!document.getElementById('opening') && !document.getElementById('main-content')) {
-        return;
-    }
+    const main = document.getElementById('main-content');
+    if (!main) return;
+
+    main.style.opacity = '1';
+
     const current = document.documentElement.dataset.theme || 'day';
     setTheme(current);
-    initOpening();
     initReveal();
     initHeaderScroll();
     initHeroParallax();
     initFishParallax();
     initCelestialToggle();
-    /** init 完了後に立てる（遅延読込 × load フォールバック競合を防ぐ） */
     window.__welcomeInited = true;
 }
 
