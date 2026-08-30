@@ -3,10 +3,12 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\Grade;
+use App\Enums\PermissionLevel;
 use App\Notifications\ResetPasswordNotification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -46,6 +48,7 @@ class User extends Authenticatable
     {
         return [
             'password' => 'hashed',
+            'grade' => Grade::class,
         ];
     }
 
@@ -63,14 +66,13 @@ class User extends Authenticatable
     public function groups(): BelongsToMany
     {
         return $this->belongsToMany(Group::class, 'user_groups')
+            ->using(UserGroup::class)
             ->withPivot(['permission_level', 'is_approved'])
             ->withTimestamps();
     }
 
     /**
      * 承認済みのグループのみ取得
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function approvedGroups(): BelongsToMany
     {
@@ -88,13 +90,21 @@ class User extends Authenticatable
     /**
      * 指定したグループでの権限レベルを取得
      */
-    public function getPermissionLevel(Group $group): ?int
+    public function getPermissionLevel(Group $group): ?PermissionLevel
     {
         $userGroup = $this->userGroups()
             ->where('group_id', $group->id)
             ->first();
 
-        return $userGroup ? $userGroup->permission_level : null;
+        return $userGroup?->permission_level;
+    }
+
+    /**
+     * 学年の表示ラベルを返すアクセサ
+     */
+    public function getGradeLabelAttribute(): string
+    {
+        return $this->grade?->label() ?? 'その他';
     }
 
     /**

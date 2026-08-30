@@ -4,7 +4,6 @@ namespace App\Notifications;
 
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -23,7 +22,7 @@ class ResetPasswordNotification extends ResetPassword
             ->subject('パスワード再設定のご案内')
             ->view('emails.reset-password', [
                 'actionUrl' => $url,
-                'user' => $notifiable
+                'user' => $notifiable,
             ]);
     }
 

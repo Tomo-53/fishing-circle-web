@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Casts\GroupNameCast;
+use App\Enums\PermissionLevel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,7 +17,7 @@ class Group extends Model
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'name',
@@ -25,16 +27,18 @@ class Group extends Model
     /**
      * The attributes that should be cast.
      *
+     * name は GroupName 値オブジェクトにキャストし、生成・代入時に
+     * 不変条件（1〜50文字）を保証する。
+     *
      * @var array<string, string>
      */
     protected $casts = [
         'master_user_id' => 'integer',
+        'name' => GroupNameCast::class,
     ];
 
     /**
      * グループのオーナー
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function masterUser(): BelongsTo
     {
@@ -43,20 +47,17 @@ class Group extends Model
 
     /**
      * グループに参加しているユーザー（全て）
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'user_groups')
+            ->using(UserGroup::class)
             ->withPivot(['permission_level', 'is_approved'])
             ->withTimestamps();
     }
 
     /**
      * 承認済みのユーザーのみ
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function approvedUsers(): BelongsToMany
     {
@@ -65,8 +66,6 @@ class Group extends Model
 
     /**
      * 承認待ちのユーザー
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function pendingUsers(): BelongsToMany
     {
@@ -75,23 +74,37 @@ class Group extends Model
 
     /**
      * 特定の権限レベルのユーザーを取得
-     *
-     * @param int $level
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function getUsersByPermissionLevel(int $level): BelongsToMany
+    public function getUsersByPermissionLevel(PermissionLevel $level): BelongsToMany
     {
-        return $this->approvedUsers()->wherePivot('permission_level', $level);
+        return $this->approvedUsers()->wherePivot('permission_level', $level->value);
     }
 
     /**
      * グループのUserGroupレコード
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function userGroups(): HasMany
     {
         return $this->hasMany(UserGroup::class);
+    }
+
+    /**
+     * 指定ユーザーの UserGroup レコードを取得（user_id と group_id 両方でスコープ）
+     */
+    public function memberRecordOf(User $user): ?UserGroup
+    {
+        /** @var UserGroup|null */
+        return $this->userGroups()
+            ->where('user_id', $user->id)
+            ->first();
+    }
+
+    /**
+     * 指定ユーザーがこのグループのオーナーかチェック
+     */
+    public function isOwnedBy(User $user): bool
+    {
+        return $this->master_user_id === $user->id;
     }
 
     /**

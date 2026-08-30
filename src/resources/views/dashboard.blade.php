@@ -23,22 +23,7 @@
                         <div>
                             <p class="text-sm text-gray-600">学年</p>
                             <p class="font-medium">
-                                @if(Auth::user()->grade)
-                                    @switch(Auth::user()->grade)
-                                        @case('B1') 学部1年 @break
-                                        @case('B2') 学部2年 @break
-                                        @case('B3') 学部3年 @break
-                                        @case('B4') 学部4年 @break
-                                        @case('M1') 修士1年 @break
-                                        @case('M2') 修士2年 @break
-                                        @case('D1') 博士1年 @break
-                                        @case('D2') 博士2年 @break
-                                        @case('D3') 博士3年 @break
-                                        @default その他
-                                    @endswitch
-                                @else
-                                    未設定
-                                @endif
+                                {{ Auth::user()->grade?->label() ?? '未設定' }}
                             </p>
                         </div>
                         <div>
@@ -81,17 +66,12 @@
                                         <div class="text-right">
                                             <span @class([
                                                 'inline-flex items-center px-2 py-1 text-xs rounded-full',
-                                                'bg-yellow-100 text-yellow-800' => $group->pivot->permission_level == 1,
-                                                'bg-blue-100 text-blue-800' => $group->pivot->permission_level == 2,
-                                                'bg-red-100 text-red-800' => $group->pivot->permission_level == 3,
-                                                'bg-green-100 text-green-800' => $group->pivot->permission_level == 4,
+                                                'bg-yellow-100 text-yellow-800' => $group->pivot->permission_level === \App\Enums\PermissionLevel::Pending,
+                                                'bg-blue-100 text-blue-800' => $group->pivot->permission_level === \App\Enums\PermissionLevel::Member,
+                                                'bg-red-100 text-red-800' => $group->pivot->permission_level === \App\Enums\PermissionLevel::Admin,
+                                                'bg-green-100 text-green-800' => $group->pivot->permission_level === \App\Enums\PermissionLevel::Owner,
                                             ])>
-                                                @switch($group->pivot->permission_level)
-                                                    @case(4) オーナー @break
-                                                    @case(3) 管理者 @break
-                                                    @case(2) メンバー @break
-                                                    @default 承認待ち
-                                                @endswitch
+                                                {{ $group->pivot->permission_level->shortLabel() }}
                                             </span>
                                             @if(!$group->pivot->is_approved)
                                                 <p class="text-xs text-orange-600 mt-1">承認待ち</p>

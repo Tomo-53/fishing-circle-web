@@ -66,20 +66,7 @@
                                                     <h4 class="font-medium text-gray-900">{{ $member->name }}</h4>
                                                     <p class="text-sm text-gray-600">{{ $member->email }}</p>
                                                     @if($member->grade)
-                                                        <p class="text-xs text-gray-500">
-                                                            @switch($member->grade)
-                                                                @case('B1') 学部1年 @break
-                                                                @case('B2') 学部2年 @break
-                                                                @case('B3') 学部3年 @break
-                                                                @case('B4') 学部4年 @break
-                                                                @case('M1') 修士1年 @break
-                                                                @case('M2') 修士2年 @break
-                                                                @case('D1') 博士1年 @break
-                                                                @case('D2') 博士2年 @break
-                                                                @case('D3') 博士3年 @break
-                                                                @default その他
-                                                            @endswitch
-                                                        </p>
+                                                        <p class="text-xs text-gray-500">{{ $member->grade->label() }}</p>
                                                     @endif
                                                 </div>
                                             </div>
@@ -132,20 +119,7 @@
                                                     <h4 class="font-medium text-gray-900">{{ $member->name }}</h4>
                                                     <p class="text-sm text-gray-600">{{ $member->email }}</p>
                                                     @if($member->grade)
-                                                        <p class="text-xs text-gray-500">
-                                                            @switch($member->grade)
-                                                                @case('B1') 学部1年 @break
-                                                                @case('B2') 学部2年 @break
-                                                                @case('B3') 学部3年 @break
-                                                                @case('B4') 学部4年 @break
-                                                                @case('M1') 修士1年 @break
-                                                                @case('M2') 修士2年 @break
-                                                                @case('D1') 博士1年 @break
-                                                                @case('D2') 博士2年 @break
-                                                                @case('D3') 博士3年 @break
-                                                                @default その他
-                                                            @endswitch
-                                                        </p>
+                                                        <p class="text-xs text-gray-500">{{ $member->grade->label() }}</p>
                                                     @endif
                                                 </div>
                                             </div>
@@ -154,29 +128,24 @@
                                             <!-- 権限レベル表示 -->
                                             <span @class([
                                                 'inline-flex items-center px-2 py-1 text-xs rounded-full',
-                                                'bg-yellow-100 text-yellow-800' => $member->pivot->permission_level == 1,
-                                                'bg-blue-100 text-blue-800' => $member->pivot->permission_level == 2,
-                                                'bg-red-100 text-red-800' => $member->pivot->permission_level == 3,
-                                                'bg-purple-100 text-purple-800' => $member->pivot->permission_level == 4,
+                                                'bg-yellow-100 text-yellow-800' => $member->pivot->permission_level === \App\Enums\PermissionLevel::Pending,
+                                                'bg-blue-100 text-blue-800' => $member->pivot->permission_level === \App\Enums\PermissionLevel::Member,
+                                                'bg-red-100 text-red-800' => $member->pivot->permission_level === \App\Enums\PermissionLevel::Admin,
+                                                'bg-purple-100 text-purple-800' => $member->pivot->permission_level === \App\Enums\PermissionLevel::Owner,
                                             ])>
-                                                @switch($member->pivot->permission_level)
-                                                    @case(4) オーナー @break
-                                                    @case(3) 管理者 @break
-                                                    @case(2) メンバー @break
-                                                    @default 承認待ち
-                                                @endswitch
+                                                {{ $member->pivot->permission_level->shortLabel() }}
                                             </span>
 
                                             <span class="text-xs text-gray-500">
                                                 参加日: {{ $member->pivot->created_at->format('Y/m/d') }}
                                             </span>
 
-                                            <!-- オーナー以外は削除可能 -->
-                                            @if($member->pivot->permission_level != 4)
+                                            <!-- オーナー以外は操作可能 -->
+                                            @if(! $member->pivot->isOwner())
                                                 <!-- オーナーのみ昇格・降格ボタン表示 -->
-                                                @if($currentUserPermission == 4)
-                                                    <!-- レベル2メンバーは管理者に昇格可能 -->
-                                                    @if($member->pivot->permission_level == 2)
+                                                @if($currentUserGroup->isOwner())
+                                                    <!-- 一般メンバーは管理者に昇格可能 -->
+                                                    @if($member->pivot->permission_level === \App\Enums\PermissionLevel::Member)
                                                         <form method="POST" action="{{ route('groups.promote-member', [$group, $member]) }}" class="inline mr-2">
                                                             @csrf
                                                             <button type="submit"
@@ -187,8 +156,8 @@
                                                         </form>
                                                     @endif
 
-                                                    <!-- レベル3管理者はメンバーに降格可能 -->
-                                                    @if($member->pivot->permission_level == 3)
+                                                    <!-- 管理者はメンバーに降格可能 -->
+                                                    @if($member->pivot->isAdmin())
                                                         <form method="POST" action="{{ route('groups.demote-member', [$group, $member]) }}" class="inline mr-2">
                                                             @csrf
                                                             <button type="submit"
@@ -200,20 +169,7 @@
                                                     @endif
                                                 @endif
 
-                                                <!-- 除名権限チェック -->
-                                                @php
-                                                    $canRemove = false;
-                                                    // オーナー（レベル4）は全員除名可能
-                                                    if ($currentUserPermission == 4) {
-                                                        $canRemove = true;
-                                                    }
-                                                    // 管理者（レベル3）はレベル1,2のみ除名可能
-                                                    elseif ($currentUserPermission == 3 && $member->pivot->permission_level <= 2) {
-                                                        $canRemove = true;
-                                                    }
-                                                @endphp
-
-                                                @if($canRemove)
+                                                @if($currentUserGroup->canRemove($member->pivot))
                                                     <form method="POST" action="{{ route('groups.remove-member', [$group, $member]) }}" class="inline">
                                                         @csrf
                                                         @method('DELETE')

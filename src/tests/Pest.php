@@ -41,7 +41,16 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+/**
+ * 指定ユーザーをグループに参加させる汎用ヘルパー。
+ * テストごとに UserGroup を直接作成することで「特定レベルのメンバーが居るグループ」を素早く準備できる。
+ */
+function joinGroup(\App\Models\User $user, \App\Models\Group $group, int $level, bool $approved = true): void
 {
-    // ..
+    \App\Models\UserGroup::factory()->create([
+        'user_id' => $user->id,
+        'group_id' => $group->id,
+        'permission_level' => $level,
+        'is_approved' => $approved,
+    ]);
 }

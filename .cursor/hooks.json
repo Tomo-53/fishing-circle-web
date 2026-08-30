@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": ".cursor/hooks/session-context.sh",
+        "timeout": 10
+      }
+    ],
+    "beforeShellExecution": [
+      {
+        "command": ".cursor/hooks/block-dangerous.sh"
+      }
+    ],
+    "preToolUse": [
+      {
+        "command": ".cursor/hooks/protect-env.sh",
+        "matcher": "Write|Edit|StrReplace"
+      }
+    ],
+    "afterFileEdit": [
+      {
+        "command": ".cursor/hooks/pint-format.sh"
+      }
+    ],
+    "stop": [
+      {
+        "command": ".cursor/hooks/epic-reminder.sh"
+      }
+    ]
+  }
+}

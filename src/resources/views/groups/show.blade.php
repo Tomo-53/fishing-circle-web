@@ -1,8 +1,8 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
-            @if($currentUserGroup->permission_level >= 4)
-                <!-- 編集可能なグループ名（レベル4のみ） -->
+            @if($currentUserGroup->isOwner())
+                <!-- 編集可能なグループ名（オーナーのみ） -->
                 <div class="group relative">
                     <div id="groupNameContainer">
                         <h2 id="groupName"
@@ -35,13 +35,13 @@
                 </h2>
             @endif
             <div class="flex space-x-2">
-                @if($currentUserGroup->permission_level >= 3)
+                @if($currentUserGroup->hasAdminPermission())
                     <a href="{{ route('groups.members', $group) }}"
                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                         メンバー管理
                     </a>
                 @endif
-                @if($currentUserGroup->permission_level >= 4)
+                @if($currentUserGroup->isOwner())
                     <button onclick="openDeleteModal()"
                             class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
                         グループ削除
@@ -104,17 +104,12 @@
                     <div class="flex items-center space-x-4">
                         <span @class([
                             'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium',
-                            'bg-yellow-100 text-yellow-800' => $currentUserGroup->permission_level == 1,
-                            'bg-blue-100 text-blue-800' => $currentUserGroup->permission_level == 2,
-                            'bg-red-100 text-red-800' => $currentUserGroup->permission_level == 3,
-                            'bg-purple-100 text-purple-800' => $currentUserGroup->permission_level == 4,
+                            'bg-yellow-100 text-yellow-800' => $currentUserGroup->permission_level === \App\Enums\PermissionLevel::Pending,
+                            'bg-blue-100 text-blue-800' => $currentUserGroup->permission_level === \App\Enums\PermissionLevel::Member,
+                            'bg-red-100 text-red-800' => $currentUserGroup->permission_level === \App\Enums\PermissionLevel::Admin,
+                            'bg-purple-100 text-purple-800' => $currentUserGroup->permission_level === \App\Enums\PermissionLevel::Owner,
                         ])>
-                            @switch($currentUserGroup->permission_level)
-                                @case(4) グループオーナー @break
-                                @case(3) 管理者・幹部 @break
-                                @case(2) 一般メンバー @break
-                                @default 認証待機
-                            @endswitch
+                            {{ $currentUserGroup->permission_level->label() }}
                         </span>
                         @if(!$currentUserGroup->is_approved)
                             <span class="text-orange-600 text-sm">（承認待ち）</span>
@@ -128,7 +123,7 @@
                 <div class="p-6 text-gray-900">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-semibold">メンバー一覧</h3>
-                        @if($pendingCount > 0 && $currentUserGroup->permission_level >= 3)
+                        @if($pendingCount > 0 && $currentUserGroup->hasAdminPermission())
                             <div class="text-sm text-orange-600">
                                 {{ $pendingCount }}件の承認待ち申請があります
                             </div>
@@ -144,36 +139,18 @@
                                             <h4 class="font-medium">{{ $member->name }}</h4>
                                             <p class="text-sm text-gray-600">{{ $member->email }}</p>
                                             @if($member->grade)
-                                                <p class="text-xs text-gray-500">
-                                                    @switch($member->grade)
-                                                        @case('B1') 学部1年 @break
-                                                        @case('B2') 学部2年 @break
-                                                        @case('B3') 学部3年 @break
-                                                        @case('B4') 学部4年 @break
-                                                        @case('M1') 修士1年 @break
-                                                        @case('M2') 修士2年 @break
-                                                        @case('D1') 博士1年 @break
-                                                        @case('D2') 博士2年 @break
-                                                        @case('D3') 博士3年 @break
-                                                        @default その他
-                                                    @endswitch
-                                                </p>
+                                                <p class="text-xs text-gray-500">{{ $member->grade->label() }}</p>
                                             @endif
                                         </div>
                                         <div class="text-right">
                                             <span @class([
                                                 'inline-flex items-center px-2 py-1 text-xs rounded-full',
-                                                'bg-yellow-100 text-yellow-800' => $member->pivot->permission_level == 1,
-                                                'bg-blue-100 text-blue-800' => $member->pivot->permission_level == 2,
-                                                'bg-red-100 text-red-800' => $member->pivot->permission_level == 3,
-                                                'bg-purple-100 text-purple-800' => $member->pivot->permission_level == 4,
+                                                'bg-yellow-100 text-yellow-800' => $member->pivot->permission_level === \App\Enums\PermissionLevel::Pending,
+                                                'bg-blue-100 text-blue-800' => $member->pivot->permission_level === \App\Enums\PermissionLevel::Member,
+                                                'bg-red-100 text-red-800' => $member->pivot->permission_level === \App\Enums\PermissionLevel::Admin,
+                                                'bg-purple-100 text-purple-800' => $member->pivot->permission_level === \App\Enums\PermissionLevel::Owner,
                                             ])>
-                                                @switch($member->pivot->permission_level)
-                                                    @case(4) オーナー @break
-                                                    @case(3) 管理者 @break
-                                                    @case(2) メンバー @break
-                                                    @default 承認待ち
-                                                @endswitch
+                                                {{ $member->pivot->permission_level->shortLabel() }}
                                             </span>
                                             <p class="text-xs text-gray-500 mt-1">
                                                 参加日: {{ $member->pivot->created_at->format('Y/m/d') }}
@@ -194,7 +171,7 @@
     </div>
 
     <!-- 削除確認モーダル -->
-    @if($currentUserGroup->permission_level >= 4)
+    @if($currentUserGroup->isOwner())
         <div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
             <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
                 <div class="mt-3 text-center">
