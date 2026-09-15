@@ -21,7 +21,7 @@ export function setTheme(t) {
         celestial.setAttribute('data-theme-active', t);
         celestial.setAttribute(
             'aria-label',
-            `時間帯プレビュー（開発用）: 現在 ${t}。クリックで次のテーマへ`,
+            `時間帯プレビュー（開発用）: 現在 ${t}。クリックで次のテーマへ`
         );
     }
 }
@@ -65,7 +65,7 @@ function initReveal() {
                 }
             });
         },
-        { threshold: 0.1 },
+        { threshold: 0.1 }
     );
     document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
 }
@@ -79,7 +79,7 @@ function initHeaderScroll() {
         () => {
             header.classList.toggle('scrolled', window.scrollY > 60);
         },
-        { passive: true },
+        { passive: true }
     );
 }
 
@@ -94,7 +94,7 @@ function initHeroParallax() {
                 bg.style.transform = `translateY(${window.scrollY * 0.22}px)`;
             }
         },
-        { passive: true },
+        { passive: true }
     );
 }
 
@@ -145,7 +145,7 @@ function initFishParallax() {
             scrollY = window.scrollY;
             ensureRaf();
         },
-        { passive: true },
+        { passive: true }
     );
 
     document.addEventListener('visibilitychange', () => {
