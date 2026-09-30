@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Group\DemoteMember;
+use App\Actions\Group\PromoteMember;
+use App\Exceptions\GroupMembershipException;
 use App\Http\Requests\StoreGroupRequest;
 use App\Http\Requests\UpdateGroupRequest;
 use App\Models\Group;
 use App\Models\User;
 use App\Models\UserGroup;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -179,32 +183,16 @@ class GroupController extends Controller
      * メンバーを管理者に昇格
      * レベル4のみ（オーナーのみ）が必要
      */
-    public function promoteToAdmin(Request $request, Group $group, User $user)
+    public function promoteToAdmin(Request $request, Group $group, User $user, PromoteMember $action): RedirectResponse
     {
-        /** @var \App\Models\User $authUser */
-        $authUser = Auth::user();
+        /** @var \App\Models\User $actor */
+        $actor = $request->user();
 
-        if (! $group->isOwnedBy($authUser)) {
-            return back()->with('error', 'オーナーのみが管理者を任命できます');
+        try {
+            $action($group, $user, $actor);
+        } catch (GroupMembershipException $e) {
+            return back()->with('error', $e->getMessage());
         }
-
-        $userGroup = $group->memberRecordOf($user);
-
-        if (! $userGroup || ! $userGroup->isApproved()) {
-            return back()->with('error', '昇格対象のメンバーが見つかりません');
-        }
-
-        if ($userGroup->isOwner()) {
-            return back()->with('error', 'オーナーの権限は変更できません');
-        }
-
-        if ($userGroup->isAdmin()) {
-            return back()->with('error', $user->name.'さんは既に管理者です');
-        }
-
-        $userGroup->update([
-            'permission_level' => UserGroup::PERMISSION_LEVEL_ADMIN,
-        ]);
 
         return back()->with('success', $user->name.'さんを管理者に昇格させました');
     }
@@ -213,32 +201,16 @@ class GroupController extends Controller
      * 管理者をメンバーに降格
      * レベル4のみ（オーナーのみ）が必要
      */
-    public function demoteToMember(Request $request, Group $group, User $user)
+    public function demoteToMember(Request $request, Group $group, User $user, DemoteMember $action): RedirectResponse
     {
-        /** @var \App\Models\User $authUser */
-        $authUser = Auth::user();
+        /** @var \App\Models\User $actor */
+        $actor = $request->user();
 
-        if (! $group->isOwnedBy($authUser)) {
-            return back()->with('error', 'オーナーのみが権限を変更できます');
+        try {
+            $action($group, $user, $actor);
+        } catch (GroupMembershipException $e) {
+            return back()->with('error', $e->getMessage());
         }
-
-        $userGroup = $group->memberRecordOf($user);
-
-        if (! $userGroup || ! $userGroup->isApproved()) {
-            return back()->with('error', '降格対象のメンバーが見つかりません');
-        }
-
-        if ($userGroup->isOwner()) {
-            return back()->with('error', 'オーナーの権限は変更できません');
-        }
-
-        if (! $userGroup->isAdmin()) {
-            return back()->with('error', $user->name.'さんは既に一般メンバーです');
-        }
-
-        $userGroup->update([
-            'permission_level' => UserGroup::PERMISSION_LEVEL_MEMBER,
-        ]);
 
         return back()->with('success', $user->name.'さんを一般メンバーに降格させました');
     }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Casts\GroupNameCast;
 use App\Enums\PermissionLevel;
+use App\Exceptions\GroupMembershipException;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -105,6 +106,57 @@ class Group extends Model
     public function isOwnedBy(User $user): bool
     {
         return $this->master_user_id === $user->id;
+    }
+
+    /**
+     * メンバーを管理者に昇格させる。
+     *
+     * 業務ルール違反は GroupMembershipException を投げる。
+     * コントローラは例外を catch して getMessage() をユーザーに返せばよい。
+     */
+    public function promote(User $target, User $actor): void
+    {
+        if (! $this->isOwnedBy($actor)) {
+            throw new GroupMembershipException('オーナーのみが管理者を任命できます');
+        }
+
+        $record = $this->memberRecordOf($target);
+        if (! $record || ! $record->isApproved()) {
+            throw new GroupMembershipException('昇格対象のメンバーが見つかりません');
+        }
+        if ($record->isOwner()) {
+            throw new GroupMembershipException('オーナーの権限は変更できません');
+        }
+        if ($record->isAdmin()) {
+            throw new GroupMembershipException("{$target->name}さんは既に管理者です");
+        }
+
+        $record->update(['permission_level' => PermissionLevel::Admin]);
+    }
+
+    /**
+     * 管理者を一般メンバーに降格させる。
+     *
+     * 業務ルール違反は GroupMembershipException を投げる。
+     */
+    public function demote(User $target, User $actor): void
+    {
+        if (! $this->isOwnedBy($actor)) {
+            throw new GroupMembershipException('オーナーのみが権限を変更できます');
+        }
+
+        $record = $this->memberRecordOf($target);
+        if (! $record || ! $record->isApproved()) {
+            throw new GroupMembershipException('降格対象のメンバーが見つかりません');
+        }
+        if ($record->isOwner()) {
+            throw new GroupMembershipException('オーナーの権限は変更できません');
+        }
+        if (! $record->isAdmin()) {
+            throw new GroupMembershipException("{$target->name}さんは既に一般メンバーです");
+        }
+
+        $record->update(['permission_level' => PermissionLevel::Member]);
     }
 
     /**
