@@ -26,8 +26,8 @@ class AppServiceProvider extends ServiceProvider
             $this->app['request']->server->set('HTTPS', true);
         }
 
-        // Railwayでの確実なHTTPS設定
-        if (! app()->environment('local')) {
+        // Railwayでの確実なHTTPS設定（local・dusk.local・testing は除外）
+        if (! app()->environment(['local', 'dusk.local', 'testing'])) {
             URL::forceScheme('https');
         }
     }

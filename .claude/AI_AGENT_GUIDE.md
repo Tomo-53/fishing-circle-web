@@ -38,8 +38,6 @@
 - 明示指定: `@agent-pest-tester` でテスター起動 / 「security-auditor で認可を監査して」
 - 指揮官をメインに: `claude --agent commander`（worker を統括）
 
-**委譲ルーティング規約**: `.claude/rules/agent-routing.md`（常時適用）にトリガー→担当の対応表を定義。実装後は必ず `pest-tester` → `code-reviewer` + `security-auditor` の順で検証する。
-
 ## 3. Skills
 
 `.claude/skills/`。`/名前` で明示実行、または関連時に Claude が自動ロード。

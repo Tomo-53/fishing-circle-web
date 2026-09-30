@@ -1,0 +1,124 @@
+name: E2E (Dusk)
+
+# PR に `run-e2e` ラベルが付いている時だけ実行する。
+# ラベル付与（labeled）に加え、ラベル付き PR への push（synchronize）でも再実行される。
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, labeled]
+
+jobs:
+  e2e:
+    name: Dusk E2E (PHP 8.2)
+    runs-on: ubuntu-latest
+
+    # `run-e2e` ラベルが無い PR ではジョブごとスキップする
+    if: contains(github.event.pull_request.labels.*.name, 'run-e2e')
+
+    defaults:
+      run:
+        working-directory: src
+
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: PHP 8.2 セットアップ
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: pdo_sqlite, mbstring, zip, gd
+          coverage: none
+
+      - name: Composer キャッシュ取得
+        uses: actions/cache@v4
+        with:
+          path: src/vendor
+          key: composer-${{ hashFiles('src/composer.lock') }}
+          restore-keys: composer-
+
+      - name: Composer インストール
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: .env 準備（ファイル SQLite）
+        run: |
+          {
+            echo "APP_NAME=FishingCircle"
+            echo "APP_ENV=local"
+            echo "APP_KEY="
+            echo "APP_DEBUG=true"
+            echo "APP_URL=http://127.0.0.1:8000"
+            echo "APP_LOCALE=ja"
+            echo "APP_FALLBACK_LOCALE=en"
+            echo "APP_FAKER_LOCALE=ja_JP"
+            echo "APP_MAINTENANCE_DRIVER=file"
+            echo "BCRYPT_ROUNDS=4"
+            echo "LOG_CHANNEL=stack"
+            echo "LOG_LEVEL=debug"
+            echo "DB_CONNECTION=sqlite"
+            echo "DB_DATABASE=$GITHUB_WORKSPACE/src/database/dusk.sqlite"
+            echo "SESSION_DRIVER=database"
+            echo "SESSION_LIFETIME=120"
+            echo "QUEUE_CONNECTION=sync"
+            echo "CACHE_STORE=database"
+            echo "MAIL_MAILER=array"
+            echo "VITE_APP_NAME=FishingCircle"
+          } > .env
+          touch "$GITHUB_WORKSPACE/src/database/dusk.sqlite"
+          php artisan key:generate --force
+          php artisan migrate --force
+
+      - name: Node.js セットアップ
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: src/package-lock.json
+
+      - name: npm インストール
+        run: npm ci
+
+      - name: フロントエンドビルド（実アセット）
+        run: npm run build
+
+      - name: ChromeDriver セットアップ・起動
+        run: |
+          php artisan dusk:chrome-driver --detect
+          # DuskTestCase::prepare() は CI=true の時スキップするため、ここで明示的に起動する
+          chmod +x vendor/laravel/dusk/bin/chromedriver-linux
+          vendor/laravel/dusk/bin/chromedriver-linux --port=9515 &
+          # 起動待ち（最大 10 秒）
+          for i in $(seq 1 10); do
+            if curl -sSf http://localhost:9515/status >/dev/null 2>&1; then
+              echo "ChromeDriver is up"
+              break
+            fi
+            echo "waiting for ChromeDriver... ($i)"
+            sleep 1
+          done
+
+      - name: アプリサーバー起動（バックグラウンド）
+        run: |
+          php artisan serve --host=127.0.0.1 --port=8000 --no-reload &
+          # サーバーが応答するまで待機
+          for i in $(seq 1 30); do
+            if curl -sSf http://127.0.0.1:8000 >/dev/null 2>&1; then
+              echo "server is up"
+              break
+            fi
+            echo "waiting for server... ($i)"
+            sleep 1
+          done
+
+      - name: Dusk（e2e テスト実行）
+        run: php artisan dusk
+
+      - name: 失敗時にスクリーンショット/コンソールログを保存
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dusk-artifacts
+          path: |
+            src/tests/Browser/screenshots
+            src/tests/Browser/console
+          retention-days: 7
+          if-no-files-found: ignore

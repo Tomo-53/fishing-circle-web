@@ -287,7 +287,92 @@ git add . && git commit -m "feat: ..."
 
 > CI に MySQL サービスは不要です。`phpunit.xml` が `DB_CONNECTION=sqlite` / `DB_DATABASE=:memory:` に上書きするため、本番と同じ `.env.example` をそのまま使えます。
 
-### 7.4 CD（Railway 自動デプロイ）
+### 7.4 E2E テスト（Laravel Dusk・ラベル起動）
+
+実ブラウザ（Chrome）で画面操作を検証する e2e テストは Laravel Dusk で実装しています。
+通常の CI（`ci.yml`）とは分離し、`.github/workflows/e2e.yml` で **PR に `run-e2e` ラベルが付いている時だけ** 実行します。
+
+**起動条件:**
+
+| トリガー | 動作 |
+|---------|------|
+| PR に `run-e2e` ラベルを付与（`labeled`） | e2e ジョブが起動 |
+| ラベル付き PR への push（`synchronize`） | e2e ジョブが再実行 |
+| ラベルが無い PR | ジョブごとスキップ（`if: contains(... 'run-e2e')`） |
+
+**初回のみ: ラベルを作成する**
+
+リポジトリに `run-e2e` ラベルが存在しないと付与できません。一度だけ作成します。
+
+```bash
+# GitHub CLI で作成（推奨）
+gh label create run-e2e --description "この PR で Dusk の e2e テストを実行する" --color 1d76db
+```
+
+もしくは GitHub の Web UI（リポジトリ → Issues → Labels → New label）で `run-e2e` を作成します。
+
+**使い方:**
+
+1. PR を作成する
+2. PR の右サイドバー（または `gh pr edit <番号> --add-label run-e2e`）で `run-e2e` ラベルを付ける
+3. Actions の `E2E (Dusk)` ジョブが起動し、成功/失敗が表示される
+4. e2e が不要になったらラベルを外す（以後は走らない）
+
+**CI 内の実行内容（`src/` 配下）:**
+
+1. PHP 8.2 + 拡張、`composer install`
+2. ファイル SQLite 用の `.env` を生成（`DB_DATABASE` を `database/dusk.sqlite` に設定）し `php artisan migrate --force`
+3. `npm ci` + `npm run build`（Dusk は実ページを読むため実アセットをビルド）
+4. `php artisan dusk:chrome-driver --detect`（インストール済み Chrome に追従）
+5. `php artisan serve` をバックグラウンド起動
+6. `php artisan dusk` を実行（失敗時はスクリーンショット/コンソールログを artifact として保存）
+
+> in-memory SQLite はサーバープロセスとテストプロセスで共有できないため、e2e では **ファイル SQLite** を使います。
+
+**ローカルで実ブラウザを見ながら確認したい場合（公式標準・例外的に PHP/Chrome をホストに用意）:**
+
+> **注:** このプロジェクトは通常「全部 Docker」で動かしますが、E2E のローカル目視に限っては  
+> ホストの Chrome + PHP が必要な公式 Dusk スタンダードを例外として採用します。  
+> `http://127.0.0.1`（ループバック）を使うため Chrome の HTTPS 自動アップグレードは起きません。
+
+前提: ホストに Google Chrome と PHP 8.2+ をインストール済みであること。
+
+```bash
+# 一度だけ: .env.dusk.local を準備する
+cp src/.env.dusk.example src/.env.dusk.local
+# APP_KEY を生成して .env.dusk.local に設定する
+# （既存の src/.env の APP_KEY をコピーしても可）
+
+# 初回のみ: dusk.sqlite を作成して migrate する
+cd src
+touch database/dusk.sqlite
+php artisan migrate --env=dusk.local
+
+# ターミナル A: Dusk 用サーバー起動
+# ※ Docker nginx がホスト 8000 を使用中のため 8001 を使用（APP_URL と合わせること）
+cd src
+php artisan serve --env=dusk.local --host=127.0.0.1 --port=8001
+
+# ターミナル B: ChromeDriver を手動起動（.env.dusk.local の DUSK_DRIVER_URL=http://localhost:9515 と合わせる）
+cd src
+vendor/laravel/dusk/bin/chromedriver-linux --port=9515
+
+# ターミナル C: テスト実行
+cd src
+php artisan dusk --browse        # 実 Chrome ウィンドウが開く
+# php artisan dusk              # ヘッドレス（ウィンドウなし）
+```
+
+失敗時の成果物:
+
+| 種別 | 場所 |
+|------|------|
+| スクリーンショット（失敗時自動） | `src/tests/Browser/screenshots/` |
+| コンソールログ（失敗時自動） | `src/tests/Browser/console/` |
+
+> スクリーンショットは Git 無視（`.gitignore`）です。釣果画面など機密情報が映りうるためコミットされません。
+
+### 7.5 CD（Railway 自動デプロイ）
 
 `main` ブランチへのマージを Railway が検知し、自動でビルド・デプロイします。
 Railway 側の設定は以下の手順で行います（一度だけ）。
