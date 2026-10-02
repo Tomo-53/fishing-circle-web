@@ -9,6 +9,15 @@
     <link rel="shortcut icon" href="{{ asset('favicon.png') }}">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <!-- Google Analytics (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LP4F4GCRFF"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-LP4F4GCRFF');
+    </script>
 </head>
 <body class="bg-gradient-to-br from-amber-50 to-orange-50 min-h-screen">
     <div class="container mx-auto px-4 py-8">
