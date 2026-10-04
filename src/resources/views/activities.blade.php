@@ -8,7 +8,8 @@
 
     {{--
       構成（#44）: 写真と説明文を 1 ブロック（article）にまとめ、対応関係を明確にする。
-        active1 ↔ 活動内容 / active2 ↔ 年間行事 / active3 ↔ 普段の活動 / active4 ↔ 新大釣りサーの雰囲気・特徴
+        active1 ↔ 活動内容 / active2 ↔ 年間行事 / active4 ↔ 新大釣りサーの雰囲気・特徴
+        普段の活動 はブロック内を〈定例会〉〈月例釣行会〉の 2 サブブロックに分け、各説明のすぐ上に対応写真を置く（全幅・PC は左右 2 カラム）。
       - スマホ: 写真 → 見出し → 本文 の縦並び。PC（lg 以上）: 写真と文章を左右に並べ、ブロックごとに左右を入れ替える。
       - 文字の階層: h2 = text-2xl md:text-3xl / h3 = text-lg font-semibold / 本文 = text-base leading-relaxed（注記のみ text-sm）。
       - 本文は OB 執筆の原文。文言は一字一句変えないこと（構造・スタイル・<wbr> のみ変更可）。
@@ -84,28 +85,30 @@
                 </div>
             </article>
 
-            {{-- 3. 普段の活動（写真 active3・左） --}}
+            {{-- 3. 普段の活動（全幅。〈定例会〉〈月例釣行会〉それぞれに写真を添える） --}}
             <article aria-labelledby="activity-regular"
-                class="bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-6 lg:p-8 grid gap-6 lg:grid-cols-12 lg:gap-10 lg:items-start">
-                <div class="lg:col-span-5 lg:sticky lg:top-24">
-                    <div class="{{ $photoClass }}">
-                        <img src="{{ asset('images/active3.jpg') }}" alt="普段の活動"
-                            class="h-full w-full object-cover" loading="lazy" decoding="async">
-                    </div>
-                </div>
-                <div class="lg:col-span-7">
-                    <h2 id="activity-regular" class="{{ $h2Class }}">普段の活動</h2>
-                    <div class="mt-3 mb-6 h-px w-12 bg-sky-500/50" aria-hidden="true"></div>
-                    <div class="{{ $bodyClass }} space-y-8">
-                        <section>
-                            <h3 class="{{ $h3Class }}">〈定例会〉</h3>
-                            <p class="mt-3">直近の部員の釣果報告やミーティング、勉強会。月に2回、平日の5限後。場所は図書館グループ学習室。ここで意気投合して即日釣りに！？なんてことも！</p>
-                        </section>
-                        <section>
-                            <h3 class="{{ $h3Class }}">〈月例釣行会〉</h3>
-                            <p class="mt-3">月に1回、県内（主に新潟市内）の釣り場でみんなで仲良く釣り！＆めざせスキルアップ！五十嵐浜キス釣り、日和山堤防釣り、ハゼ釣り、船タイラバ…etc</p>
-                        </section>
-                    </div>
+                class="bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-6 lg:p-8">
+                <h2 id="activity-regular" class="{{ $h2Class }}">普段の活動</h2>
+                <div class="mt-3 mb-6 lg:mb-8 h-px w-12 bg-sky-500/50" aria-hidden="true"></div>
+                <div class="grid gap-10 lg:grid-cols-2 lg:gap-10">
+                    <section aria-labelledby="activity-regular-meeting">
+                        <div class="{{ $photoClass }}">
+                            <img src="{{ asset('images/activities/regular-meeting-1.jpg') }}" alt="学習室でモニターを囲んでミーティング"
+                                width="1280" height="960"
+                                class="h-full w-full object-cover" loading="lazy" decoding="async">
+                        </div>
+                        <h3 id="activity-regular-meeting" class="mt-5 {{ $h3Class }}">〈定例会〉</h3>
+                        <p class="mt-3 {{ $bodyClass }}">直近の部員の釣果報告やミーティング、勉強会。月に2回、平日の5限後。場所は図書館グループ学習室。ここで意気投合して即日釣りに！？なんてことも！</p>
+                    </section>
+                    <section aria-labelledby="activity-regular-trip">
+                        <div class="{{ $photoClass }}">
+                            <img src="{{ asset('images/activities/monthly-trip-1.jpg') }}" alt="夕方の堤防で竿を出す部員"
+                                width="961" height="1280"
+                                class="h-full w-full object-cover object-[center_88%]" loading="lazy" decoding="async">
+                        </div>
+                        <h3 id="activity-regular-trip" class="mt-5 {{ $h3Class }}">〈月例釣行会〉</h3>
+                        <p class="mt-3 {{ $bodyClass }}">月に1回、県内（主に新潟市内）の釣り場でみんなで仲良く釣り！＆めざせスキルアップ！五十嵐浜キス釣り、日和山堤防釣り、ハゼ釣り、船タイラバ…etc</p>
+                    </section>
                 </div>
             </article>
 
