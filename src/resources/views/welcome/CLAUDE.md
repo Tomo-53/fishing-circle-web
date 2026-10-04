@@ -15,7 +15,7 @@
 | `_about.blade.php` | サークル紹介セクション |
 | `_activities.blade.php` | 活動内容セクション |
 | `_join-cta.blade.php` | 入部案内 CTA セクション |
-| `_theme-toggle.blade.php` | 開発用テーマ切替（`app.env !== production` 時のみ表示） |
+| `_theme-toggle.blade.php` | 開発用テーマ切替（`config('app.theme_preview')`＝`APP_THEME_PREVIEW=true` 時のみ表示。既定は非表示） |
 
 ## オープニングについて
 

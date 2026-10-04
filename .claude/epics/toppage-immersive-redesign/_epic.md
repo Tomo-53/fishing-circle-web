@@ -18,7 +18,7 @@ Blade 版トップページ（`src/resources/views/welcome.blade.php`）を、�
 - **スコープはトップページのみ**。about / activities / gallery / join / 会員エリアへの展開は後続。
 - **時間帯テーマ**は `html[data-theme="dawn|day|night"]` + CSS カスタムプロパティ（`--sky-from` 等）。
   - 朝 5–10時 / 昼 10–17時 / 夜 17–5時。FOUC 防止のため `<style>` より前のインラインスクリプトで適用。
-  - 右下フローティングボタン（🌅☀️🌙）は **開発用プレビューのみ**（`app.env !== production`）。本番では非表示。`aria-pressed` 連動。ヒーロー上の天体オーブ（`#hero-celestial`）は廃止。
+  - 右下フローティングボタン（🌅☀️🌙）は **開発用プレビューのみ**（`config('app.theme_preview')`＝`APP_THEME_PREVIEW=true` の時だけ表示、既定 false）。環境名判定だと APP_ENV が production 以外の公開デモで露出したため変更（Issue #40）。`aria-pressed` 連動。ヒーロー上の天体オーブ（`#hero-celestial`）は廃止。
   - **night テーマは暗所閲覧向けダークモード**として扱う（純黒回避・暖かいオフホワイト本文・琥珀 CTA `#c9852a`・`--text-muted` / `--text-subtle`）。
 - **オープニング**は **一時撤去（作り直し予定）**。旧実装（SVG 2層 rise）と WebGL 試行はいずれも不採用。ヒーローから即表示。
   - 再実装時は `views/welcome/_opening.blade.php` + `welcome.css` + `welcome.js` を戻し、`welcome/CLAUDE.md` を更新する。

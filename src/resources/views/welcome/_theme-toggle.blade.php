@@ -1,5 +1,6 @@
-{{-- ─────────────── H. Theme Toggle（開発用・本番非表示） ─────────────── --}}
-@if (config('app.env') !== 'production')
+{{-- ─────────────── H. Theme Toggle（開発用・APP_THEME_PREVIEW=true の時のみ表示） ─────────────── --}}
+{{-- 環境名ではなく config('app.theme_preview') で判定する（公開デモでの露出防止 / Issue #40） --}}
+@if (config('app.theme_preview'))
 <div class="fixed bottom-6 right-6 z-50 flex flex-col gap-2" role="group" aria-label="時間帯テーマ切替（開発用）">
     <button type="button" onclick="setTheme('dawn')"
             class="w-11 h-11 rounded-full bg-black/40 backdrop-blur-sm border border-white/20 text-base hover:border-white/50 hover:bg-black/60 transition-colors focus:outline-none focus:ring-2 focus:ring-white/40"

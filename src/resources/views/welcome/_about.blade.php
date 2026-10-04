@@ -6,8 +6,9 @@
         <svg style="position:absolute;top:5%;left:-5%;width:55%;opacity:0.03" viewBox="0 0 400 200" fill="white">
             <ellipse cx="155" cy="100" rx="145" ry="65"/>
             <path d="M290,100 Q345,55 400,20 Q400,180 355,145 Q375,100 290,100 Z"/>
-            <circle cx="265" cy="82" r="12" fill="rgba(0,10,30,0.8)"/>
-            <circle cx="265" cy="82" r="5" fill="white"/>
+            {{-- 目は頭側（左）に配置 --}}
+            <circle cx="55" cy="85" r="12" fill="rgba(0,10,30,0.8)"/>
+            <circle cx="51" cy="81" r="5" fill="white"/>
         </svg>
     </div>
 
