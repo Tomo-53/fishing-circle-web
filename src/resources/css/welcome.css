@@ -104,15 +104,19 @@ html[data-theme='night'] {
         background 0.3s ease,
         box-shadow 0.3s ease;
 }
-#site-header.scrolled {
+/* 下層ページ（<x-layout.public> の body.welcome-subpage）はヒーローが無いので常に背景付き */
+#site-header.scrolled,
+.welcome-subpage #site-header {
     background: rgba(13, 18, 24, 0.93);
     backdrop-filter: blur(10px);
     box-shadow: 0 2px 24px rgba(0, 0, 0, 0.35);
 }
-html[data-theme='dawn'] #site-header.scrolled {
+html[data-theme='dawn'] #site-header.scrolled,
+html[data-theme='dawn'] .welcome-subpage #site-header {
     background: rgba(26, 18, 8, 0.93);
 }
-html[data-theme='night'] #site-header.scrolled {
+html[data-theme='night'] #site-header.scrolled,
+html[data-theme='night'] .welcome-subpage #site-header {
     background: rgba(6, 12, 20, 0.94);
 }
 
@@ -379,7 +383,20 @@ html[data-theme='night'] .hero-overlay-tint {
     transition: transform 0.2s ease;
     transform-origin: right;
 }
-.nav-link:hover::after {
+.nav-link:hover::after,
+.nav-link[aria-current='page']::after {
     transform: scaleX(1);
     transform-origin: left;
+}
+
+/* ─── 下層ページのヒーロー帯（<x-layout.page-hero>）: テーマ色を薄く差した濃紺 ─── */
+.welcome-page-hero {
+    background:
+        radial-gradient(ellipse at 20% 0%, rgba(56, 189, 248, 0.08) 0%, transparent 55%),
+        linear-gradient(
+            to bottom,
+            color-mix(in srgb, var(--sky-from) 35%, var(--sky-deep)) 0%,
+            var(--sky-deep) 55%,
+            #111827 100%
+        );
 }

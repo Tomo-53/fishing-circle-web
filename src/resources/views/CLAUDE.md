@@ -7,13 +7,25 @@ UI を構成する Blade テンプレート。サーバ側認可と組み合わ�
 | ディレクトリ / ファイル | 責務 |
 |---|---|
 | `layouts/` | 共通レイアウト（`x-app-layout` / `x-guest-layout`） |
-| `components/` | 再利用 Blade コンポーネント |
+| `components/` | 再利用 Blade コンポーネント。`components/layout/public`（`<x-layout.public>`）は公開下層ページの共通レイアウト、`components/layout/page-hero`（`<x-layout.page-hero>`）はその見出し帯 |
 | `groups/` | グループ一覧・詳細・メンバー管理画面 |
 | `auth/` | ログイン・登録・パスワードリセット（Breeze 標準） |
 | `profile/` | プロフィール編集 |
 | `emails/` | メール通知テンプレート |
-| トップ直下 | `dashboard`・`welcome` 等の汎用画面 |
-| `welcome/` | トップページ専用 partial。詳細は [`welcome/CLAUDE.md`](welcome/CLAUDE.md)（opening は一時撤去・作り直し予定） |
+| トップ直下 | `dashboard`・`welcome` 等の汎用画面。公開下層ページ `about` / `activities` / `gallery` / `join` は `<x-layout.public>` に載せる（トップと同じヘッダー・時間帯テーマ・濃紺トーン） |
+| `welcome/` | トップページの partial（`_head` / `_header` / `_theme-toggle` は下層ページの `<x-layout.public>` でも共用）。詳細は [`welcome/CLAUDE.md`](welcome/CLAUDE.md)（opening は一時撤去・作り直し予定） |
+
+## 公開下層ページの書き方
+
+```blade
+<x-layout.public title="サークル紹介" description="（任意）meta description">
+    <x-layout.page-hero label="About Us" title="サークル紹介" lead="（任意）短いリード" />
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 md:pb-24">…本文…</div>
+</x-layout.public>
+```
+
+- カードは `bg-white/5 border border-white/10 rounded-2xl`、見出しは `text-white`、本文は `welcome-text-muted`、強調は `text-sky-300`。白背景前提の濃い文字色（`text-gray-700` 等）は使わない。
+- 新しい公開ページを足すときは `welcome/_header` の `$siteNavItems` にルート名を追加する（現在ページに `aria-current="page"` が付く）。
 
 ## 重要な実装ルール
 
