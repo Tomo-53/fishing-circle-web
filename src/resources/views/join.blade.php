@@ -39,7 +39,7 @@
 
             <!-- 左下：画像2 -->
             <div class="bg-white/5 border border-white/10 rounded-2xl p-3 flex items-center justify-center">
-                <img src="{{ asset('images/join2.jpg') }}" alt="入会案内画像2" class="w-full h-64 object-cover rounded-xl">
+                <img src="{{ asset('images/join2.jpg') }}" alt="新大祭での集合写真" class="w-full h-64 object-cover rounded-xl">
             </div>
 
             <!-- 右下：サークル入会費について -->
