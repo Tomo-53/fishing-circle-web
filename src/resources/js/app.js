@@ -1,8 +1,11 @@
 import './bootstrap';
 
 import Alpine from 'alpinejs';
+import galleryLightbox from './gallery-lightbox';
 
 window.Alpine = Alpine;
+
+Alpine.data('galleryLightbox', galleryLightbox);
 
 Alpine.start();
 
