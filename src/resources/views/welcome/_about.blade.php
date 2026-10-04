@@ -38,7 +38,7 @@
                     </div>
                     <h3 class="jp-phrase text-lg font-bold text-white mb-3">目指して<wbr>いるもの</h3>
                     {{-- <wbr> は auto-phrase 未対応ブラウザ向けの文節改行候補（.jp-phrase と併用） --}}
-                    <p class="jp-phrase welcome-text-muted text-sm leading-relaxed">釣り技術の<wbr>向上と、<wbr>仲間との<wbr>交流。<wbr>みんなで<wbr>楽しく<wbr>釣りが<wbr>できる<wbr>サークルです。</p>
+                    <p class="jp-phrase welcome-text-muted text-sm leading-relaxed">釣り技術の<wbr>向上・<wbr>学生間の<wbr>交流・<wbr>釣り文化や<wbr>自然環境の<wbr>理解と<wbr>普及。<wbr>みんなで<wbr>楽しく<wbr>釣りが<wbr>できることを<wbr>目指しています！</p>
                 </div>
             </div>
 
@@ -52,7 +52,7 @@
                         </svg>
                     </div>
                     <h3 class="jp-phrase text-lg font-bold text-white mb-3">雰囲気は？</h3>
-                    <p class="jp-phrase welcome-text-muted text-sm leading-relaxed">初心者も<wbr>ベテランも<wbr>ワイワイと。<wbr>釣った魚での<wbr>食事会や、<wbr><span class="whitespace-nowrap">佐渡・粟島への</span><wbr>遠征も。</p>
+                    <p class="jp-phrase welcome-text-muted text-sm leading-relaxed">初心者も<wbr>ベテランも<wbr>ワイワイと。<wbr>宅飲みや<wbr>食事会<wbr>（釣れた<wbr>魚料理！）、<wbr><span class="whitespace-nowrap">佐渡・粟島など</span>への<wbr>遠征も。<wbr>苦難と<wbr>喜びを<wbr>共にした<wbr>仲間は<wbr>最高の<wbr>絆に。</p>
                 </div>
             </div>
 
