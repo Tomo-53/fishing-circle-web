@@ -19,7 +19,7 @@
             <p class="text-xs tracking-[0.5em] text-sky-400/70 uppercase mb-3">About Us</p>
             <h2 class="text-3xl md:text-4xl font-bold text-white mb-4"
                 style="font-family: 'Comfortaa', 'Noto Sans JP', sans-serif">
-                新大釣りサークルについて
+                <span class="jp-phrase">新大釣りサークル<wbr><span class="whitespace-nowrap">について</span></span>
             </h2>
             <div class="mx-auto h-px w-16 bg-sky-500/40"></div>
         </div>
@@ -36,10 +36,9 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                         </svg>
                     </div>
-                    <h3 class="text-lg font-bold text-white mb-3">目指しているもの</h3>
-                    <p class="welcome-text-muted text-sm leading-relaxed">
-                        釣り技術の向上・学生間の交流・釣り文化や自然環境の理解と普及。みんなで楽しく釣りができることを目指しています！
-                    </p>
+                    <h3 class="jp-phrase text-lg font-bold text-white mb-3">目指して<wbr>いるもの</h3>
+                    {{-- <wbr> は auto-phrase 未対応ブラウザ向けの文節改行候補（.jp-phrase と併用） --}}
+                    <p class="jp-phrase welcome-text-muted text-sm leading-relaxed">釣り技術の<wbr>向上・<wbr>学生間の<wbr>交流・<wbr>釣り文化や<wbr>自然環境の<wbr>理解と<wbr>普及。<wbr>みんなで<wbr>楽しく<wbr>釣りが<wbr>できることを<wbr>目指しています！</p>
                 </div>
             </div>
 
@@ -52,10 +51,8 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/>
                         </svg>
                     </div>
-                    <h3 class="text-lg font-bold text-white mb-3">雰囲気は？</h3>
-                    <p class="welcome-text-muted text-sm leading-relaxed">
-                        初心者もベテランもワイワイと。宅飲みや食事会（釣れた魚料理！）、佐渡・粟島などへの遠征も。苦難と喜びを共にした仲間は最高の絆に。
-                    </p>
+                    <h3 class="jp-phrase text-lg font-bold text-white mb-3">雰囲気は？</h3>
+                    <p class="jp-phrase welcome-text-muted text-sm leading-relaxed">初心者も<wbr>ベテランも<wbr>ワイワイと。<wbr>宅飲みや<wbr>食事会<wbr>（釣れた<wbr>魚料理！）、<wbr><span class="whitespace-nowrap">佐渡・粟島など</span>への<wbr>遠征も。<wbr>苦難と<wbr>喜びを<wbr>共にした<wbr>仲間は<wbr>最高の<wbr>絆に。</p>
                 </div>
             </div>
 
@@ -68,15 +65,15 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
                         </svg>
                     </div>
-                    <h3 class="text-lg font-bold text-white mb-3">大会実績</h3>
-                    <ul class="welcome-text-muted text-sm leading-relaxed space-y-1.5">
+                    <h3 class="jp-phrase text-lg font-bold text-white mb-3">大会実績</h3>
+                    <ul class="jp-phrase welcome-text-muted text-sm leading-relaxed space-y-1.5">
                         <li class="flex items-start gap-2">
                             <span class="text-sky-400 mt-0.5 flex-shrink-0">—</span>
-                            第5回 佐渡ビックゲーム FishRankerカップ 出場（2024）
+                            <span>第5回 佐渡ビックゲーム FishRankerカップ 出場<wbr>（2024）</span>
                         </li>
                         <li class="flex items-start gap-2">
                             <span class="text-sky-400 mt-0.5 flex-shrink-0">—</span>
-                            第17回 GSBC 第6位・第8位・ベストフォト賞（2024）
+                            <span>第17回 GSBC 第6位・<wbr>第8位・<wbr>ベストフォト賞<wbr>（2024）</span>
                         </li>
                     </ul>
                 </div>
@@ -91,6 +88,17 @@
             <div class="welcome-photo-frame welcome-photo-frame--3x4 rounded-2xl">
                 <img src="{{ asset('images/about2.jpg') }}" alt="活動風景2" class="welcome-photo-pos-about2">
             </div>
+        </div>
+
+        {{-- 詳細ページへの導線（_activities の「ギャラリーをもっと見る」と同スタイル） --}}
+        <div class="text-center mt-10 reveal">
+            <a href="{{ route('about') }}"
+               class="inline-flex items-center gap-2 px-8 py-3 rounded-full text-sm font-medium text-white/80 hover:text-white border border-white/25 hover:border-white/50 hover:bg-white/8 transition-colors">
+                サークル紹介を詳しく見る
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                </svg>
+            </a>
         </div>
     </div>
 
