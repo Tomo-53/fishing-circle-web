@@ -86,13 +86,13 @@
 
         <div class="flex flex-wrap items-center justify-center gap-4">
             <a href="{{ route('join') }}"
-               class="welcome-cta cta-ripple relative overflow-hidden inline-flex items-center justify-center min-h-[48px] px-10 py-4 rounded-full border-2 border-transparent font-semibold text-base tracking-wider shadow-xl focus:outline-none focus:ring-2 focus:ring-white/50"
+               class="welcome-cta cta-ripple relative overflow-hidden inline-flex items-center justify-center w-full max-w-[16rem] sm:w-auto sm:max-w-none min-h-[48px] px-10 py-4 rounded-full border-2 border-transparent font-semibold text-base tracking-wider shadow-xl focus:outline-none focus:ring-2 focus:ring-white/50"
                onclick="addRipple(event)"
                aria-label="入部案内ページへ">
                 入部案内 →
             </a>
             <a href="{{ route('about') }}"
-               class="welcome-cta-secondary inline-flex items-center justify-center min-h-[48px] px-10 py-4 rounded-full font-medium text-base tracking-wider shadow-lg transition-colors focus:outline-none focus:ring-2 focus:ring-white/50">
+               class="welcome-cta-secondary inline-flex items-center justify-center w-full max-w-[16rem] sm:w-auto sm:max-w-none min-h-[48px] px-10 py-4 rounded-full font-medium text-base tracking-wider shadow-lg transition-colors focus:outline-none focus:ring-2 focus:ring-white/50">
                 サークル紹介
             </a>
         </div>
