@@ -17,13 +17,17 @@
         並べ替えるときは、スマホでは wide の直前の通常写真が偶数枚、PC では wide が 3 列目から始まらないことを保つこと。
       - ホバー表現はトップの「活動フォト」（photo-card / welcome-photo-frame / photo-overlay）と同じ。
       - クリック / Enter でライトボックス（resources/js/gallery-lightbox.js）。
-      - 説明文の本文は既存の文章。文言は一字一句変えないこと（構造・スタイルのみ変更可）。
+      - グリッドは軽量サムネイル（images/gallery/thumbs/<元ファイル名>）、ライトボックスは元画像を表示する。
+        写真を追加したらサムネイルも作ること（ImageMagick。wide の写真は 600x600^ を 1200x600^ にする）:
+          convert <元画像> -auto-orient -resize '600x600^' -strip -sampling-factor 4:2:0 -interlace JPEG -quality 75 public/images/gallery/thumbs/<元ファイル名>
+      - 「活動の思い出」の本文は既存の文章。文言は一字一句変えないこと（構造・スタイルのみ変更可）。
+      - 「写真投稿について」は投稿機能が未実装のため「準備中」の案内にしている。機能公開時に文言を戻すこと。
     --}}
     @php
         $h2Class = 'text-2xl md:text-3xl font-bold text-white leading-snug break-keep';
         $bodyClass = 'max-w-prose text-base leading-relaxed welcome-text-muted [word-break:auto-phrase]';
 
-        // file: public/images/ からの相対パス / alt / position: サムネイルの object-position / wide: 2 列幅
+        // file: public/images/ からの相対パス（元画像。サムネイルは gallery/thumbs/ に同名） / alt / position: サムネイルの object-position / wide: 2 列幅
         $photos = [
             ['file' => 'gallery/group-beach.jpg', 'alt' => '砂浜での集合写真', 'position' => 'object-[center_60%]', 'wide' => true],
             ['file' => 'gallery/catch-01.jpg', 'alt' => '木陰の川辺で釣果を持つ部員', 'position' => 'object-[center_60%]'],
@@ -40,7 +44,7 @@
             ['file' => 'gallery/sashimi.jpg', 'alt' => '釣った魚で作った刺身と料理', 'position' => 'object-center'],
             ['file' => 'gallery/beach-bonfire.jpg', 'alt' => '夜の浜辺の焚き火', 'position' => 'object-[center_30%]'],
             ['file' => 'gallery/catch-06.jpg', 'alt' => '港の岸壁で釣果を持つ部員', 'position' => 'object-[center_30%]'],
-            ['file' => 'join2.jpg', 'alt' => '入会案内画像2', 'position' => 'object-center'],
+            ['file' => 'join2.jpg', 'alt' => '新大祭での集合写真', 'position' => 'object-center'],
             ['file' => 'gallery/catch-07.jpg', 'alt' => '計測ボードの上の釣果', 'position' => 'object-center'],
             ['file' => 'gallery/dinner-party.jpg', 'alt' => '和室での食事会', 'position' => 'object-center'],
             ['file' => 'gallery/snow-trout.jpg', 'alt' => '雪の中での釣果', 'position' => 'object-[center_65%]'],
@@ -80,7 +84,7 @@
                             @click="show({{ $i }})"
                             aria-haspopup="dialog"
                             class="group photo-card welcome-photo-frame block w-full {{ ($photo['wide'] ?? false) ? 'aspect-[2/1] md:aspect-auto md:h-full' : 'aspect-square' }} rounded-xl bg-white/5 cursor-zoom-in focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900">
-                            <img src="{{ asset('images/'.$photo['file']) }}"
+                            <img src="{{ asset('images/gallery/thumbs/'.basename($photo['file'])) }}"
                                 alt="{{ $photo['alt'] }}"
                                 class="{{ $photo['position'] }}"
                                 loading="lazy"
@@ -162,8 +166,8 @@
             <h2 id="gallery-posting" class="{{ $h2Class }}">写真投稿について</h2>
             <div class="mt-3 mb-5 h-px w-12 bg-sky-500/50" aria-hidden="true"></div>
             <p class="{{ $bodyClass }}">
-                メンバーの皆さんは、活動中に撮影した写真をサークルのギャラリーに投稿できます。
-                ログイン後、マイページから簡単に投稿可能です。素敵な瞬間をみんなでシェアしましょう！
+                メンバーが活動中に撮影した写真をギャラリーに投稿できる機能を、現在準備中です。
+                公開まで今しばらくお待ちください！
             </p>
         </section>
     </div>

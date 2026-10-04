@@ -28,7 +28,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
 
             {{-- Card 1: 目指すもの --}}
-            <div class="reveal reveal-delay-1 relative bg-white/5 border border-white/10 rounded-2xl p-8 overflow-hidden hover:bg-white/8 transition-colors">
+            <div class="reveal reveal-delay-1 relative bg-white/5 border border-white/10 rounded-2xl p-8 overflow-hidden hover:bg-white/10 transition-colors">
                 <div class="about-card-number" aria-hidden="true">01</div>
                 <div class="about-card-body">
                     <div class="w-10 h-10 rounded-xl bg-sky-500/20 flex items-center justify-center mb-5">
@@ -43,7 +43,7 @@
             </div>
 
             {{-- Card 2: 雰囲気 --}}
-            <div class="reveal reveal-delay-2 relative bg-white/5 border border-white/10 rounded-2xl p-8 overflow-hidden hover:bg-white/8 transition-colors">
+            <div class="reveal reveal-delay-2 relative bg-white/5 border border-white/10 rounded-2xl p-8 overflow-hidden hover:bg-white/10 transition-colors">
                 <div class="about-card-number" aria-hidden="true">02</div>
                 <div class="about-card-body">
                     <div class="w-10 h-10 rounded-xl bg-sky-500/20 flex items-center justify-center mb-5">
@@ -57,7 +57,7 @@
             </div>
 
             {{-- Card 3: 大会実績 --}}
-            <div class="reveal reveal-delay-3 relative bg-white/5 border border-white/10 rounded-2xl p-8 overflow-hidden hover:bg-white/8 transition-colors">
+            <div class="reveal reveal-delay-3 relative bg-white/5 border border-white/10 rounded-2xl p-8 overflow-hidden hover:bg-white/10 transition-colors">
                 <div class="about-card-number" aria-hidden="true">03</div>
                 <div class="about-card-body">
                     <div class="w-10 h-10 rounded-xl bg-sky-500/20 flex items-center justify-center mb-5">
@@ -93,7 +93,7 @@
         {{-- 詳細ページへの導線（_activities の「ギャラリーをもっと見る」と同スタイル） --}}
         <div class="text-center mt-10 reveal">
             <a href="{{ route('about') }}"
-               class="inline-flex items-center gap-2 px-8 py-3 rounded-full text-sm font-medium text-white/80 hover:text-white border border-white/25 hover:border-white/50 hover:bg-white/8 transition-colors">
+               class="inline-flex items-center gap-2 px-8 py-3 rounded-full text-sm font-medium text-white/80 hover:text-white border border-white/25 hover:border-white/50 hover:bg-white/10 transition-colors">
                 サークル紹介を詳しく見る
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>

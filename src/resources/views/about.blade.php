@@ -78,7 +78,7 @@
         {{-- 入部案内への導線（トップ「ギャラリーをもっと見る」と同系統） --}}
         <div class="text-center mt-16 md:mt-20">
             <a href="{{ route('join') }}"
-               class="inline-flex items-center gap-2 px-8 py-3 rounded-full text-sm font-medium text-white/80 hover:text-white border border-white/25 hover:border-white/50 hover:bg-white/8 transition-colors">
+               class="inline-flex items-center gap-2 px-8 py-3 rounded-full text-sm font-medium text-white/80 hover:text-white border border-white/25 hover:border-white/50 hover:bg-white/10 transition-colors">
                 入部案内を見る
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
