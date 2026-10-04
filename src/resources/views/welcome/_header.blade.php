@@ -5,8 +5,7 @@
         <div class="flex items-center justify-between h-16">
 
             {{-- Logo --}}
-            <a href="{{ route('welcome') }}" class="flex items-center gap-3 flex-shrink-0">
-                <img src="{{ asset('images/logo.png') }}" alt="釣り同好会ロゴ" class="h-8 w-8 object-contain" onerror="this.style.display='none'">
+            <a href="{{ route('welcome') }}" class="flex items-center flex-shrink-0">
                 <span class="font-bold text-white text-sm tracking-wider" style="font-family: 'Comfortaa', sans-serif;">
                     新大釣り同好会
                 </span>
