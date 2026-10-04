@@ -1,6 +1,7 @@
 # src/resources/views/welcome — トップページ partial
 
-公開トップ（`welcome.blade.php`）専用の Blade partial。会員 ACL 非接触。
+公開トップ（`welcome.blade.php`）の Blade partial。会員 ACL 非接触。
+`_head` / `_header` / `_theme-toggle` は公開下層ページ用レイアウト [`../components/layout/public.blade.php`](../components/layout/public.blade.php)（`<x-layout.public>`）でも共用している。変更時は下層ページ（about / activities / gallery / join）の表示も確認すること。
 
 親ファイルは 1 つ上の [`../welcome.blade.php`](../welcome.blade.php)（スタンドアロン HTML）。
 スタイルは [`../../css/welcome.css`](../../css/welcome.css)、JS は [`../../js/welcome.js`](../../js/welcome.js)（`app.js` から import）。
@@ -10,12 +11,13 @@
 
 | ファイル | 責務 |
 |---|---|
-| `_header.blade.php` | 固定ヘッダー・ナビ（スクロールで背景変化） |
+| `_head.blade.php` | `<head>` 共通部分（favicon・時間帯テーマの FOUC 防止・フォント・GA・Vite＋welcome.css 読み込み）。トップと下層で共用 |
+| `_header.blade.php` | 固定ヘッダー・ナビ（トップはスクロールで背景変化、下層は `body.welcome-subpage` で常に背景付き）。ナビ項目は `$siteNavItems`、現在ページに `aria-current="page"`＋強調。トップと下層で共用 |
 | `_hero.blade.php` | ヒーロー（テーマ別写真・見出し・CTA・泡/魚シルエット） |
 | `_about.blade.php` | サークル紹介セクション |
 | `_activities.blade.php` | 活動内容セクション |
 | `_join-cta.blade.php` | 入部案内 CTA セクション |
-| `_theme-toggle.blade.php` | 開発用テーマ切替（`app.env !== production` 時のみ表示） |
+| `_theme-toggle.blade.php` | 開発用テーマ切替（トップと下層で共用。`config('app.theme_preview')`＝`APP_THEME_PREVIEW=true` 時のみ表示。既定は非表示） |
 
 ## オープニングについて
 
@@ -33,6 +35,7 @@
 
 ```
 welcome.blade.php
+  ├─ head: _head
   └─ #main-content
        ├─ _header
        ├─ main

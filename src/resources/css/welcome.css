@@ -16,6 +16,7 @@ html[data-theme='day'] {
     --text-muted: rgba(255, 255, 255, 0.72);
     --text-subtle: rgba(255, 255, 255, 0.55);
     --border-soft: rgba(255, 255, 255, 0.28);
+    --cta-secondary-border: rgba(255, 255, 255, 0.8);
 }
 html[data-theme='dawn'] {
     --sky-from: #3d5a80;
@@ -31,6 +32,7 @@ html[data-theme='dawn'] {
     --text-muted: rgba(255, 255, 250, 0.72);
     --text-subtle: rgba(255, 255, 250, 0.55);
     --border-soft: rgba(255, 255, 250, 0.28);
+    --cta-secondary-border: rgba(255, 255, 250, 0.8);
 }
 html[data-theme='night'] {
     /* 背景: 純黒回避・わずかな青み。from を上げて階層 */
@@ -49,6 +51,7 @@ html[data-theme='night'] {
     --text-muted: rgba(236, 234, 228, 0.72);
     --text-subtle: rgba(236, 234, 228, 0.55);
     --border-soft: rgba(236, 234, 228, 0.28);
+    --cta-secondary-border: rgba(236, 234, 228, 0.75);
 }
 
 /* x-cloak for Alpine */
@@ -104,15 +107,19 @@ html[data-theme='night'] {
         background 0.3s ease,
         box-shadow 0.3s ease;
 }
-#site-header.scrolled {
+/* 下層ページ（<x-layout.public> の body.welcome-subpage）はヒーローが無いので常に背景付き */
+#site-header.scrolled,
+.welcome-subpage #site-header {
     background: rgba(13, 18, 24, 0.93);
     backdrop-filter: blur(10px);
     box-shadow: 0 2px 24px rgba(0, 0, 0, 0.35);
 }
-html[data-theme='dawn'] #site-header.scrolled {
+html[data-theme='dawn'] #site-header.scrolled,
+html[data-theme='dawn'] .welcome-subpage #site-header {
     background: rgba(26, 18, 8, 0.93);
 }
-html[data-theme='night'] #site-header.scrolled {
+html[data-theme='night'] #site-header.scrolled,
+html[data-theme='night'] .welcome-subpage #site-header {
     background: rgba(6, 12, 20, 0.94);
 }
 
@@ -123,6 +130,19 @@ html[data-theme='night'] #site-header.scrolled {
 }
 .welcome-cta:hover {
     filter: brightness(1.06);
+}
+
+/* 副 CTA（写真上でも読めるよう暗色半透明＋ぼかし＋白枠。主 CTA より控えめ） */
+.welcome-cta-secondary {
+    background: color-mix(in srgb, var(--sky-deep) 55%, transparent);
+    color: var(--text-bright);
+    border: 2px solid var(--cta-secondary-border);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+}
+.welcome-cta-secondary:hover {
+    background: color-mix(in srgb, var(--sky-deep) 72%, transparent);
+    border-color: var(--text-bright);
 }
 
 /* モバイルメニュー背景（純黒回避・テーマ連動） */
@@ -265,6 +285,23 @@ html[data-theme='night'] .hero-overlay-tint {
     padding-right: 2.5rem;
 }
 
+/* ─── 日本語の文節改行（単語の途中・「！」直前での折り返しを防ぐ） ───
+   - 基本: keep-all で文字単位の折り返しを止め、Blade 側の <wbr> を改行候補にする
+     （auto-phrase 未対応ブラウザでも文節で折り返す）
+   - 対応ブラウザ（Chrome 119+）: auto-phrase で辞書ベースの文節改行
+   - overflow-wrap: anywhere で極端に狭い幅でもはみ出さない保険 */
+.jp-phrase {
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+    line-break: strict;
+    text-wrap: pretty;
+}
+@supports (word-break: auto-phrase) {
+    .jp-phrase {
+        word-break: auto-phrase;
+    }
+}
+
 /* ─── Welcome photo frames（固定比率 + 個別トリミング位置） ─── */
 .welcome-photo-frame {
     position: relative;
@@ -379,7 +416,20 @@ html[data-theme='night'] .hero-overlay-tint {
     transition: transform 0.2s ease;
     transform-origin: right;
 }
-.nav-link:hover::after {
+.nav-link:hover::after,
+.nav-link[aria-current='page']::after {
     transform: scaleX(1);
     transform-origin: left;
+}
+
+/* ─── 下層ページのヒーロー帯（<x-layout.page-hero>）: テーマ色を薄く差した濃紺 ─── */
+.welcome-page-hero {
+    background:
+        radial-gradient(ellipse at 20% 0%, rgba(56, 189, 248, 0.08) 0%, transparent 55%),
+        linear-gradient(
+            to bottom,
+            color-mix(in srgb, var(--sky-from) 35%, var(--sky-deep)) 0%,
+            var(--sky-deep) 55%,
+            #111827 100%
+        );
 }

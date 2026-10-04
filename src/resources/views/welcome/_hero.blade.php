@@ -47,11 +47,11 @@
             <svg width="160" height="80" viewBox="0 0 160 80" fill="white" opacity="0.13">
                 <ellipse cx="62" cy="40" rx="58" ry="27"/>
                 <path d="M118,40 Q138,20 160,5 Q160,75 140,60 Q148,40 118,40 Z" opacity="0.8"/>
-                <circle cx="106" cy="33" r="5" fill="rgba(0,25,55,0.8)"/>
-                <circle cx="106" cy="33" r="2" fill="rgba(255,255,255,0.9)"/>
-                <line x1="18" y1="28" x2="32" y2="24" stroke="rgba(255,255,255,0.35)" stroke-width="1.5"/>
-                <line x1="18" y1="40" x2="35" y2="40" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
-                <line x1="18" y1="52" x2="32" y2="56" stroke="rgba(255,255,255,0.35)" stroke-width="1.5"/>
+                {{-- 目は頭側（左）、エラは目の後方（尾側）に配置 --}}
+                <circle cx="25" cy="34" r="5" fill="rgba(0,25,55,0.8)"/>
+                <circle cx="23.5" cy="32.5" r="2" fill="rgba(255,255,255,0.9)"/>
+                <path d="M40,24 Q50,40 40,56" fill="none" stroke="rgba(0,25,55,0.35)" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M46,29 Q53,40 46,51" fill="none" stroke="rgba(0,25,55,0.2)" stroke-width="1" stroke-linecap="round"/>
             </svg>
         </div>
         <div class="hero-fish"
@@ -79,19 +79,20 @@
             </h1>
         </div>
 
-        <p class="welcome-text-muted text-base md:text-lg tracking-wider font-sans mb-10 max-w-sm leading-relaxed">
-            新大唯一の釣りサークル — 仲間と自然と、深く潜ろう。
+        {{-- PC(md+) は 1 行、スマホは「サークル」と「仲間と」の間で改行（区切りの — は md+ のみ） --}}
+        <p class="welcome-text-muted text-base md:text-lg tracking-wider font-sans mb-10 leading-relaxed md:whitespace-nowrap">
+            <span class="inline-block">新大唯一の釣りサークル</span><span class="hidden md:inline"> — </span><br class="md:hidden"><span class="inline-block">仲間と自然と、深く潜ろう。</span>
         </p>
 
         <div class="flex flex-wrap items-center justify-center gap-4">
             <a href="{{ route('join') }}"
-               class="welcome-cta cta-ripple relative overflow-hidden px-8 py-3 rounded-full font-semibold text-sm tracking-wider shadow-xl focus:outline-none focus:ring-2 focus:ring-white/50"
+               class="welcome-cta cta-ripple relative overflow-hidden inline-flex items-center justify-center w-full max-w-[16rem] sm:w-auto sm:max-w-none min-h-[48px] px-10 py-4 rounded-full border-2 border-transparent font-semibold text-base tracking-wider shadow-xl focus:outline-none focus:ring-2 focus:ring-white/50"
                onclick="addRipple(event)"
                aria-label="入部案内ページへ">
                 入部案内 →
             </a>
             <a href="{{ route('about') }}"
-               class="px-8 py-3 rounded-full font-medium welcome-text-muted hover:text-white text-sm tracking-wider border welcome-border-soft hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-white/40">
+               class="welcome-cta-secondary inline-flex items-center justify-center w-full max-w-[16rem] sm:w-auto sm:max-w-none min-h-[48px] px-10 py-4 rounded-full font-medium text-base tracking-wider shadow-lg transition-colors focus:outline-none focus:ring-2 focus:ring-white/50">
                 サークル紹介
             </a>
         </div>

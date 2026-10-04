@@ -1,12 +1,23 @@
 {{-- ─────────────── Fixed Header ─────────────── --}}
+{{--
+  トップ（welcome.blade.php）と下層ページ（<x-layout.public>）で共用する。
+  現在ページのナビには aria-current="page" と強調表示を付ける（トップでは該当なし）。
+--}}
+@php
+    $siteNavItems = [
+        ['route' => 'about', 'label' => 'サークル紹介'],
+        ['route' => 'activities', 'label' => '活動内容'],
+        ['route' => 'gallery', 'label' => 'ギャラリー'],
+        ['route' => 'join', 'label' => '入部案内'],
+    ];
+@endphp
 <header id="site-header" class="fixed top-0 left-0 right-0 z-40"
         x-data="{ mobileOpen: false }">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
 
             {{-- Logo --}}
-            <a href="{{ route('welcome') }}" class="flex items-center gap-3 flex-shrink-0">
-                <img src="{{ asset('images/logo.png') }}" alt="釣り同好会ロゴ" class="h-8 w-8 object-contain" onerror="this.style.display='none'">
+            <a href="{{ route('welcome') }}" class="flex items-center flex-shrink-0">
                 <span class="font-bold text-white text-sm tracking-wider" style="font-family: 'Comfortaa', sans-serif;">
                     新大釣り同好会
                 </span>
@@ -14,10 +25,16 @@
 
             {{-- Desktop Nav --}}
             <nav class="hidden md:flex items-center gap-8" aria-label="メインナビゲーション">
-                <a href="{{ route('about') }}" class="nav-link welcome-text-muted hover:text-white text-sm tracking-wider transition-colors rounded-sm focus:outline-none focus:ring-2 focus:ring-white/60">サークル紹介</a>
-                <a href="{{ route('activities') }}" class="nav-link welcome-text-muted hover:text-white text-sm tracking-wider transition-colors rounded-sm focus:outline-none focus:ring-2 focus:ring-white/60">活動内容</a>
-                <a href="{{ route('gallery') }}" class="nav-link welcome-text-muted hover:text-white text-sm tracking-wider transition-colors rounded-sm focus:outline-none focus:ring-2 focus:ring-white/60">ギャラリー</a>
-                <a href="{{ route('join') }}" class="nav-link welcome-text-muted hover:text-white text-sm tracking-wider transition-colors rounded-sm focus:outline-none focus:ring-2 focus:ring-white/60">入部案内</a>
+                @foreach ($siteNavItems as $navItem)
+                    @php($isCurrentNav = request()->routeIs($navItem['route']))
+                    <a href="{{ route($navItem['route']) }}"
+                       @if ($isCurrentNav) aria-current="page" @endif
+                       @class([
+                           'nav-link text-sm tracking-wider transition-colors rounded-sm focus:outline-none focus:ring-2 focus:ring-white/60',
+                           'text-white font-semibold' => $isCurrentNav,
+                           'welcome-text-muted hover:text-white' => ! $isCurrentNav,
+                       ])>{{ $navItem['label'] }}</a>
+                @endforeach
             </nav>
 
             {{-- Right: SNS + Auth + Hamburger --}}
@@ -85,10 +102,16 @@
              class="welcome-mobile-nav md:hidden pb-4 border-t border-white/10 mt-2 pt-4"
              role="navigation" aria-label="モバイルナビゲーション">
             <nav class="flex flex-col gap-1">
-                <a href="{{ route('about') }}" class="px-4 py-2.5 text-white/80 hover:text-white hover:bg-white/10 rounded-lg text-sm tracking-wide transition-colors focus:outline-none focus:ring-2 focus:ring-white/40">サークル紹介</a>
-                <a href="{{ route('activities') }}" class="px-4 py-2.5 text-white/80 hover:text-white hover:bg-white/10 rounded-lg text-sm tracking-wide transition-colors focus:outline-none focus:ring-2 focus:ring-white/40">活動内容</a>
-                <a href="{{ route('gallery') }}" class="px-4 py-2.5 text-white/80 hover:text-white hover:bg-white/10 rounded-lg text-sm tracking-wide transition-colors focus:outline-none focus:ring-2 focus:ring-white/40">ギャラリー</a>
-                <a href="{{ route('join') }}" class="px-4 py-2.5 text-white/80 hover:text-white hover:bg-white/10 rounded-lg text-sm tracking-wide transition-colors focus:outline-none focus:ring-2 focus:ring-white/40">入部案内</a>
+                @foreach ($siteNavItems as $navItem)
+                    @php($isCurrentNav = request()->routeIs($navItem['route']))
+                    <a href="{{ route($navItem['route']) }}"
+                       @if ($isCurrentNav) aria-current="page" @endif
+                       @class([
+                           'px-4 py-2.5 rounded-lg text-sm tracking-wide transition-colors focus:outline-none focus:ring-2 focus:ring-white/40',
+                           'text-white font-semibold bg-white/10 shadow-[inset_2px_0_0_theme(colors.sky.400)]' => $isCurrentNav,
+                           'text-white/80 hover:text-white hover:bg-white/10' => ! $isCurrentNav,
+                       ])>{{ $navItem['label'] }}</a>
+                @endforeach
                 @auth
                     <a href="{{ url('/dashboard') }}" class="welcome-cta mt-2 mx-4 py-2.5 text-center rounded-full text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-white/40">ダッシュボード</a>
                 @else

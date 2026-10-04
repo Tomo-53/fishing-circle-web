@@ -1,144 +1,174 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ギャラリー - {{ config('app.name') }}</title>
-    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
-    <link rel="apple-touch-icon" href="{{ asset('favicon.png') }}">
-    <link rel="shortcut icon" href="{{ asset('favicon.png') }}">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+<x-layout.public
+    title="ギャラリー"
+    description="新潟大学釣り同好会のギャラリー。釣行や合宿、釣果など、サークル活動の思い出を写真で紹介します。">
 
-    <!-- Google Analytics (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LP4F4GCRFF"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-LP4F4GCRFF');
-    </script>
-</head>
-<body class="bg-gradient-to-br from-purple-50 to-blue-50 min-h-screen">
-    <div class="container mx-auto px-4 py-8">
-        <div class="max-w-6xl mx-auto">
-            <h1 class="text-4xl font-bold text-purple-800 mb-6 text-center">ギャラリー</h1>
+    <x-layout.page-hero
+        label="Gallery"
+        title="ギャラリー" />
 
-            <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
-                <h2 class="text-2xl font-semibold text-purple-700 mb-4">📸 活動の思い出</h2>
-                <p class="text-gray-700 leading-relaxed mb-6">
-                    サークルメンバーが撮影した釣行の様子や、釣果の写真を掲載しています。
-                    みんなの素敵な瞬間をお楽しみください！
-                </p>
-            </div>
+    {{--
+      構成（#46）: 説明カード → 写真グリッド → 写真投稿の説明カード。
+      - 写真はサイト内の既存写真（images/）とオーナー提供の写真（images/gallery/）。alt は既存写真は他ページの alt を流用、
+        提供写真はオーナー確認済みの文言。魚種は未確認のため alt に書かない。
+      - 並び順: 集合写真・釣果・料理/イベント・風景が偏らないよう混在させる。
+      - グリッド: スマホ 2 列 / md 以上 3 列。正方形に揃え object-cover、人物・釣果が切れないよう object-position を個別指定。
+      - 'wide' の写真は 2 列幅（スマホは 2:1、PC は隣の正方形と同じ高さ ≒ 2:1）。
+        25 枚 + wide 5 枚 = 30 マス → スマホ 15 行・PC 10 行でちょうど埋まる（最終行に余りを出さない）。
+        並べ替えるときは、スマホでは wide の直前の通常写真が偶数枚、PC では wide が 3 列目から始まらないことを保つこと。
+      - ホバー表現はトップの「活動フォト」（photo-card / welcome-photo-frame / photo-overlay）と同じ。
+      - クリック / Enter でライトボックス（resources/js/gallery-lightbox.js）。
+      - グリッドは軽量サムネイル（images/gallery/thumbs/<元ファイル名>）、ライトボックスは元画像を表示する。
+        写真を追加したらサムネイルも作ること（ImageMagick。wide の写真は 600x600^ を 1200x600^ にする）:
+          convert <元画像> -auto-orient -resize '600x600^' -strip -sampling-factor 4:2:0 -interlace JPEG -quality 75 public/images/gallery/thumbs/<元ファイル名>
+      - 「活動の思い出」の本文は既存の文章。文言は一字一句変えないこと（構造・スタイルのみ変更可）。
+      - 「写真投稿について」は投稿機能が未実装のため「準備中」の案内にしている。機能公開時に文言を戻すこと。
+    --}}
+    @php
+        $h2Class = 'text-2xl md:text-3xl font-bold text-white leading-snug break-keep';
+        $bodyClass = 'max-w-prose text-base leading-relaxed welcome-text-muted [word-break:auto-phrase]';
 
-            <!-- ギャラリーグリッド -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                <!-- 写真プレースホルダー -->
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <div class="h-48 bg-gradient-to-br from-blue-200 to-blue-300 flex items-center justify-center">
-                        <div class="text-center text-blue-700">
-                            <svg class="w-12 h-12 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
-                            </svg>
-                            <p class="text-sm font-medium">海釣りの様子</p>
-                        </div>
-                    </div>
-                    <div class="p-4">
-                        <h3 class="font-semibold text-gray-800">2024年夏合宿</h3>
-                        <p class="text-sm text-gray-600">佐渡島での海釣り</p>
-                    </div>
+        // file: public/images/ からの相対パス（元画像。サムネイルは gallery/thumbs/ に同名） / alt / position: サムネイルの object-position / wide: 2 列幅
+        $photos = [
+            ['file' => 'gallery/group-beach.jpg', 'alt' => '砂浜での集合写真', 'position' => 'object-[center_60%]', 'wide' => true],
+            ['file' => 'gallery/catch-01.jpg', 'alt' => '木陰の川辺で釣果を持つ部員', 'position' => 'object-[center_60%]'],
+            ['file' => 'gallery/festival-booth.jpg', 'alt' => '学園祭の出店（「釣り同好会」の看板）', 'position' => 'object-center'],
+            ['file' => 'gallery/pier-sunset.jpg', 'alt' => '夕暮れの堤防のシルエット', 'position' => 'object-[25%_center]'],
+            ['file' => 'gallery/catch-05.jpg', 'alt' => '海を背に釣果を持つ部員', 'position' => 'object-[center_40%]'],
+            ['file' => 'active3.jpg', 'alt' => '普段の活動', 'position' => 'object-center'],
+            ['file' => 'gallery/catch-03.jpg', 'alt' => '海辺の堤防で釣果を持つ部員', 'position' => 'object-[center_25%]'],
+            ['file' => 'gallery/ferry-deck.jpg', 'alt' => 'フェリーのデッキから海を眺める部員', 'position' => 'object-center'],
+            ['file' => 'active4.jpg', 'alt' => 'サークルの雰囲気', 'position' => 'object-[center_30%]'],
+            ['file' => 'gallery/sand-writing.jpg', 'alt' => '砂浜に書いた「釣り同好会」の文字', 'position' => 'object-center', 'wide' => true],
+            ['file' => 'gallery/group-ferry.jpg', 'alt' => 'フェリー乗り場での集合写真', 'position' => 'object-[center_65%]', 'wide' => true],
+            ['file' => 'gallery/catch-02.jpg', 'alt' => '河原で釣果を持つ部員', 'position' => 'object-[center_30%]'],
+            ['file' => 'gallery/sashimi.jpg', 'alt' => '釣った魚で作った刺身と料理', 'position' => 'object-center'],
+            ['file' => 'gallery/beach-bonfire.jpg', 'alt' => '夜の浜辺の焚き火', 'position' => 'object-[center_30%]'],
+            ['file' => 'gallery/catch-06.jpg', 'alt' => '港の岸壁で釣果を持つ部員', 'position' => 'object-[center_30%]'],
+            ['file' => 'join2.jpg', 'alt' => '新大祭での集合写真', 'position' => 'object-center'],
+            ['file' => 'gallery/catch-07.jpg', 'alt' => '計測ボードの上の釣果', 'position' => 'object-center'],
+            ['file' => 'gallery/dinner-party.jpg', 'alt' => '和室での食事会', 'position' => 'object-center'],
+            ['file' => 'gallery/snow-trout.jpg', 'alt' => '雪の中での釣果', 'position' => 'object-[center_65%]'],
+            ['file' => 'gallery/sea-wading.jpg', 'alt' => '海に入ってはしゃぐ部員', 'position' => 'object-[center_60%]', 'wide' => true],
+            ['file' => 'gallery/group-sunset.jpg', 'alt' => '夕焼けの堤防での集合写真', 'position' => 'object-[center_60%]', 'wide' => true],
+            ['file' => 'gallery/catch-04.jpg', 'alt' => '川沿いの土手で釣果を持つ部員', 'position' => 'object-center'],
+            ['file' => 'active2.jpg', 'alt' => '年間行事の様子', 'position' => 'object-[center_80%]'],
+            ['file' => 'join3.jpg', 'alt' => '新歓の流れ画像', 'position' => 'object-[40%_center]'],
+            ['file' => 'active1.jpg', 'alt' => '活動の様子', 'position' => 'object-[center_25%]'],
+        ];
+
+        $lightboxPhotos = array_map(
+            fn (array $photo) => ['src' => asset('images/'.$photo['file']), 'alt' => $photo['alt']],
+            $photos,
+        );
+    @endphp
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 md:pb-24">
+
+        <section aria-labelledby="gallery-memories"
+            class="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8 mb-8 md:mb-10">
+            <h2 id="gallery-memories" class="{{ $h2Class }}">活動の思い出</h2>
+            <div class="mt-3 mb-5 h-px w-12 bg-sky-500/50" aria-hidden="true"></div>
+            <p class="{{ $bodyClass }}">
+                サークルメンバーが撮影した釣行の様子や、釣果の写真を掲載しています。
+                みんなの素敵な瞬間をお楽しみください！
+            </p>
+        </section>
+
+        {{-- 写真グリッド + ライトボックス --}}
+        <div x-data="galleryLightbox(@js($lightboxPhotos))" @keydown.window="onKeydown($event)" class="mb-8 md:mb-10">
+            <ul class="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4" role="list" aria-label="活動写真">
+                @foreach ($photos as $i => $photo)
+                    <li class="{{ ($photo['wide'] ?? false) ? 'col-span-2' : '' }}">
+                        <button type="button"
+                            x-ref="thumb{{ $i }}"
+                            @click="show({{ $i }})"
+                            aria-haspopup="dialog"
+                            class="group photo-card welcome-photo-frame block w-full {{ ($photo['wide'] ?? false) ? 'aspect-[2/1] md:aspect-auto md:h-full' : 'aspect-square' }} rounded-xl bg-white/5 cursor-zoom-in focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900">
+                            <img src="{{ asset('images/gallery/thumbs/'.basename($photo['file'])) }}"
+                                alt="{{ $photo['alt'] }}"
+                                class="{{ $photo['position'] }}"
+                                loading="lazy"
+                                decoding="async">
+                            <span class="photo-overlay group-focus-visible:opacity-100" aria-hidden="true"></span>
+                            <span class="absolute bottom-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-black/40 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none" aria-hidden="true">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4" />
+                                </svg>
+                            </span>
+                        </button>
+                    </li>
+                @endforeach
+            </ul>
+
+            {{-- ライトボックス --}}
+            <div x-cloak
+                x-show="open"
+                x-ref="dialog"
+                role="dialog"
+                aria-modal="true"
+                aria-label="写真の拡大表示"
+                @click="onBackdropClick($event)"
+                x-transition:enter="transition-opacity duration-200 ease-out motion-reduce:transition-none"
+                x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100"
+                x-transition:leave="transition-opacity duration-150 ease-in motion-reduce:transition-none"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0"
+                class="fixed inset-0 z-[100] flex flex-col bg-gray-950/95 backdrop-blur-sm">
+
+                <div class="flex items-center justify-between px-4 py-3 sm:px-6">
+                    <p class="text-sm tabular-nums text-white/70" aria-live="polite">
+                        <span x-text="index + 1"></span> / {{ count($photos) }}
+                    </p>
+                    <button type="button"
+                        x-ref="closeButton"
+                        data-lightbox-content
+                        @click="close()"
+                        class="flex h-11 w-11 items-center justify-center rounded-full text-white/80 hover:bg-white/10 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+                        aria-label="閉じる">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18" />
+                        </svg>
+                    </button>
                 </div>
 
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <div class="h-48 bg-gradient-to-br from-green-200 to-green-300 flex items-center justify-center">
-                        <div class="text-center text-green-700">
-                            <svg class="w-12 h-12 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
-                            </svg>
-                            <p class="text-sm font-medium">川釣りの風景</p>
-                        </div>
-                    </div>
-                    <div class="p-4">
-                        <h3 class="font-semibold text-gray-800">信濃川釣行</h3>
-                        <p class="text-sm text-gray-600">アユ釣りに挑戦</p>
-                    </div>
+                <div class="relative flex flex-1 min-h-0 items-center justify-center px-4 pb-6 sm:px-20">
+                    <img :src="current.src"
+                        :alt="current.alt"
+                        data-lightbox-content
+                        decoding="async"
+                        class="max-h-full max-w-full rounded-lg object-contain shadow-2xl">
+
+                    <button type="button"
+                        data-lightbox-content
+                        @click="prev()"
+                        class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full bg-black/40 text-white/90 hover:bg-white/15 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+                        aria-label="前の写真">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <button type="button"
+                        data-lightbox-content
+                        @click="next()"
+                        class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full bg-black/40 text-white/90 hover:bg-white/15 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+                        aria-label="次の写真">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
                 </div>
-
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <div class="h-48 bg-gradient-to-br from-orange-200 to-orange-300 flex items-center justify-center">
-                        <div class="text-center text-orange-700">
-                            <svg class="w-12 h-12 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
-                            </svg>
-                            <p class="text-sm font-medium">釣果自慢</p>
-                        </div>
-                    </div>
-                    <div class="p-4">
-                        <h3 class="font-semibold text-gray-800">大物ゲット！</h3>
-                        <p class="text-sm text-gray-600">70cm級のブリ</p>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <div class="h-48 bg-gradient-to-br from-red-200 to-red-300 flex items-center justify-center">
-                        <div class="text-center text-red-700">
-                            <svg class="w-12 h-12 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
-                            </svg>
-                            <p class="text-sm font-medium">BBQの様子</p>
-                        </div>
-                    </div>
-                    <div class="p-4">
-                        <h3 class="font-semibold text-gray-800">釣行後のBBQ</h3>
-                        <p class="text-sm text-gray-600">みんなで釣果を味わう</p>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <div class="h-48 bg-gradient-to-br from-teal-200 to-teal-300 flex items-center justify-center">
-                        <div class="text-center text-teal-700">
-                            <svg class="w-12 h-12 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
-                            </svg>
-                            <p class="text-sm font-medium">新入生歓迎会</p>
-                        </div>
-                    </div>
-                    <div class="p-4">
-                        <h3 class="font-semibold text-gray-800">2024年春の歓迎会</h3>
-                        <p class="text-sm text-gray-600">新メンバーと一緒に</p>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <div class="h-48 bg-gradient-to-br from-indigo-200 to-indigo-300 flex items-center justify-center">
-                        <div class="text-center text-indigo-700">
-                            <svg class="w-12 h-12 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
-                            </svg>
-                            <p class="text-sm font-medium">装備メンテナンス</p>
-                        </div>
-                    </div>
-                    <div class="p-4">
-                        <h3 class="font-semibold text-gray-800">サークル室での活動</h3>
-                        <p class="text-sm text-gray-600">道具の手入れ</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-                <h2 class="text-xl font-semibold text-purple-700 mb-4">📝 写真投稿について</h2>
-                <p class="text-gray-700">
-                    メンバーの皆さんは、活動中に撮影した写真をサークルのギャラリーに投稿できます。
-                    ログイン後、マイページから簡単に投稿可能です。素敵な瞬間をみんなでシェアしましょう！
-                </p>
-            </div>
-
-            <div class="mt-8 text-center">
-                <a href="{{ route('welcome') }}" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold transition duration-300">
-                    ホームに戻る
-                </a>
             </div>
         </div>
+
+        <section aria-labelledby="gallery-posting"
+            class="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8">
+            <h2 id="gallery-posting" class="{{ $h2Class }}">写真投稿について</h2>
+            <div class="mt-3 mb-5 h-px w-12 bg-sky-500/50" aria-hidden="true"></div>
+            <p class="{{ $bodyClass }}">
+                メンバーが活動中に撮影した写真をギャラリーに投稿できる機能を、現在準備中です。
+                公開まで今しばらくお待ちください！
+            </p>
+        </section>
     </div>
-</body>
-</html>
+</x-layout.public>

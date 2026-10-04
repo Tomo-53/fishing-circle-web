@@ -59,6 +59,19 @@ cp src/.env.example src/.env
 通常は変更不要です（機密値はルート.envの値を参照）。
 `src/.env`はGit管理外、`src/.env.example`のみGit管理対象です。
 
+#### 開発用オプション: APP_THEME_PREVIEW
+
+トップページ右下の時間帯テーマ切替ボタン（🌅☀️🌙）は開発用プレビューです。
+`APP_ENV` の値に関係なく、`src/.env` で明示的に有効化したときだけ表示されます（既定は `false`）。
+
+```properties
+# ローカルで朝/昼/夜のテーマを確認したいときだけ true にする
+APP_THEME_PREVIEW=true
+```
+
+- 変更後に反映されない場合は `docker-compose exec app php artisan config:clear` を実行してください。
+- 公開デモ・本番環境では `false`（または未設定）のままにしてください。
+
 ## 2.3 Dockerコンテナ起動
 
 ```bash
