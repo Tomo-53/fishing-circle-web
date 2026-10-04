@@ -16,6 +16,7 @@ html[data-theme='day'] {
     --text-muted: rgba(255, 255, 255, 0.72);
     --text-subtle: rgba(255, 255, 255, 0.55);
     --border-soft: rgba(255, 255, 255, 0.28);
+    --cta-secondary-border: rgba(255, 255, 255, 0.8);
 }
 html[data-theme='dawn'] {
     --sky-from: #3d5a80;
@@ -31,6 +32,7 @@ html[data-theme='dawn'] {
     --text-muted: rgba(255, 255, 250, 0.72);
     --text-subtle: rgba(255, 255, 250, 0.55);
     --border-soft: rgba(255, 255, 250, 0.28);
+    --cta-secondary-border: rgba(255, 255, 250, 0.8);
 }
 html[data-theme='night'] {
     /* 背景: 純黒回避・わずかな青み。from を上げて階層 */
@@ -49,6 +51,7 @@ html[data-theme='night'] {
     --text-muted: rgba(236, 234, 228, 0.72);
     --text-subtle: rgba(236, 234, 228, 0.55);
     --border-soft: rgba(236, 234, 228, 0.28);
+    --cta-secondary-border: rgba(236, 234, 228, 0.75);
 }
 
 /* x-cloak for Alpine */
@@ -123,6 +126,19 @@ html[data-theme='night'] #site-header.scrolled {
 }
 .welcome-cta:hover {
     filter: brightness(1.06);
+}
+
+/* 副 CTA（写真上でも読めるよう暗色半透明＋ぼかし＋白枠。主 CTA より控えめ） */
+.welcome-cta-secondary {
+    background: color-mix(in srgb, var(--sky-deep) 55%, transparent);
+    color: var(--text-bright);
+    border: 2px solid var(--cta-secondary-border);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+}
+.welcome-cta-secondary:hover {
+    background: color-mix(in srgb, var(--sky-deep) 72%, transparent);
+    border-color: var(--text-bright);
 }
 
 /* モバイルメニュー背景（純黒回避・テーマ連動） */

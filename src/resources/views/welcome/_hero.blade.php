@@ -79,19 +79,20 @@
             </h1>
         </div>
 
-        <p class="welcome-text-muted text-base md:text-lg tracking-wider font-sans mb-10 max-w-sm leading-relaxed">
-            新大唯一の釣りサークル — 仲間と自然と、深く潜ろう。
+        {{-- PC(md+) は 1 行、スマホは「サークル」と「仲間と」の間で改行（区切りの — は md+ のみ） --}}
+        <p class="welcome-text-muted text-base md:text-lg tracking-wider font-sans mb-10 leading-relaxed md:whitespace-nowrap">
+            <span class="inline-block">新大唯一の釣りサークル</span><span class="hidden md:inline"> — </span><br class="md:hidden"><span class="inline-block">仲間と自然と、深く潜ろう。</span>
         </p>
 
         <div class="flex flex-wrap items-center justify-center gap-4">
             <a href="{{ route('join') }}"
-               class="welcome-cta cta-ripple relative overflow-hidden px-8 py-3 rounded-full font-semibold text-sm tracking-wider shadow-xl focus:outline-none focus:ring-2 focus:ring-white/50"
+               class="welcome-cta cta-ripple relative overflow-hidden inline-flex items-center justify-center min-h-[48px] px-10 py-4 rounded-full border-2 border-transparent font-semibold text-base tracking-wider shadow-xl focus:outline-none focus:ring-2 focus:ring-white/50"
                onclick="addRipple(event)"
                aria-label="入部案内ページへ">
                 入部案内 →
             </a>
             <a href="{{ route('about') }}"
-               class="px-8 py-3 rounded-full font-medium welcome-text-muted hover:text-white text-sm tracking-wider border welcome-border-soft hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-white/40">
+               class="welcome-cta-secondary inline-flex items-center justify-center min-h-[48px] px-10 py-4 rounded-full font-medium text-base tracking-wider shadow-lg transition-colors focus:outline-none focus:ring-2 focus:ring-white/50">
                 サークル紹介
             </a>
         </div>
