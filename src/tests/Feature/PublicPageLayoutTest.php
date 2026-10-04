@@ -17,7 +17,7 @@ test('下層公開ページが共通ヘッダー付きで表示される', funct
         ->get(route($routeName))
         ->assertOk()
         ->assertSee('id="site-header"', false)
-        ->assertSee('welcome-subpage', false)
+        ->assertSee('<body class="welcome-subpage', false)
         ->assertSee('<title>'.$heading.' - '.config('app.name'), false)
         ->assertSee($heading);
 })->with('下層公開ページ');
@@ -42,5 +42,5 @@ test('トップページのナビには aria-current が付かない', function 
         ->assertOk()
         ->assertSee('id="site-header"', false)
         ->assertDontSee('aria-current="page"', false)
-        ->assertDontSee('welcome-subpage', false);
+        ->assertDontSee('<body class="welcome-subpage', false);
 });
