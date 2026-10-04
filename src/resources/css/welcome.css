@@ -281,6 +281,23 @@ html[data-theme='night'] .hero-overlay-tint {
     padding-right: 2.5rem;
 }
 
+/* ─── 日本語の文節改行（単語の途中・「！」直前での折り返しを防ぐ） ───
+   - 基本: keep-all で文字単位の折り返しを止め、Blade 側の <wbr> を改行候補にする
+     （auto-phrase 未対応ブラウザでも文節で折り返す）
+   - 対応ブラウザ（Chrome 119+）: auto-phrase で辞書ベースの文節改行
+   - overflow-wrap: anywhere で極端に狭い幅でもはみ出さない保険 */
+.jp-phrase {
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+    line-break: strict;
+    text-wrap: pretty;
+}
+@supports (word-break: auto-phrase) {
+    .jp-phrase {
+        word-break: auto-phrase;
+    }
+}
+
 /* ─── Welcome photo frames（固定比率 + 個別トリミング位置） ─── */
 .welcome-photo-frame {
     position: relative;
