@@ -24,10 +24,14 @@
 
 ## 主要技術スタック
 
-- **Backend** : Laravel 11, PHP 8.3+
-- **Frontend** : Vue.js, Tailwind CSS, Vite
-- **Database** : MySQL 8.0+
+- **Backend** : Laravel 12, PHP 8.2+
+- **Frontend** : Blade, Tailwind CSS 3, Alpine.js, Vite
+- **認証** : Laravel Breeze
+- **Database** : MySQL 8.0+（テストは SQLite in-memory）
+- **テスト・品質** : Pest 3, Laravel Pint, Larastan, ESLint, Prettier
 - **その他** : Docker, Docker Compose, Nginx
+
+> GitHub の言語グラフに表示される Python / Shell は、サイト本体ではなく AI 開発支援環境（`.claude/` のスキル・フック）のものです。
 
 ## ディレクトリ構成（ソースコード概要）
 
@@ -36,21 +40,22 @@ src/
 ├── app/                          # アプリケーションロジック
 │   ├── Http/
 │   │   ├── Controllers/          # コントローラー
-│   │   ├── Middleware/           # ミドルウェア
+│   │   ├── Middleware/           # ミドルウェア（グループ権限チェック等）
+│   │   └── Requests/             # FormRequest（入力バリデーション）
 │   └── Models/                   # データモデル（User, Group, UserGroup等）
 ├── database/
-│   └──  migrations/               # スキーマ定義
+│   └── migrations/               # スキーマ定義
 ├── lang/                         # 多言語対応（日本語・英語）
 ├── public/                       # 公開ディレクトリ（画像・ビルド出力）
 ├── resources/
 │   ├── css/                      # Tailwind CSS
 │   ├── js/                       # JavaScript
 │   └── views/                    # Bladeテンプレート
-├── routes/                       # ルート定義（Web, API等）
+├── routes/                       # ルート定義（Web, 認証）
+├── tests/                        # Pest テスト（Feature / Unit）
 └── 設定ファイル
     ├── composer.json             # PHP依存管理
-    ├── package.json              # Node.js依存管理
-
+    └── package.json              # Node.js依存管理
 ```
 
 ![ER図](src/public/images/ER.png)
@@ -65,7 +70,16 @@ src/
 - マイグレーション中心の安全なDBスキーマ運用
 - 将来的な機能追加を見据えたLaravelのMVCモデルに基づいた保守性の高い構成
 
-## 2. Docker（WSL2 / Ubuntu想定）
+## 2. Blade + Tailwind CSS + Alpine.js（サーバーサイドレンダリング）
+
+Vue.js などによる SPA ではなく、サーバー側で HTML を生成する Blade を採用しました。
+
+- 権限チェックをサーバー側（ミドルウェア）に集約でき、権限のないユーザーには HTML 自体が生成されない
+- SPA で必要になる API 設計・API ごとの認可・フロント側の状態管理が不要で、構成がシンプル
+- 必要な知識が HTML と PHP に収まり、後輩へ引き継ぎやすい
+- 開閉メニュー等の軽い動きは Alpine.js、スタイルは Tailwind CSS で補う
+
+## 3. Docker（WSL2 / Ubuntu想定）
 
 Windows環境でもLinux前提の安定した開発環境を再現し、個人開発からチーム開発へ移行しやすくするために採用しました。
 
@@ -73,7 +87,7 @@ Windows環境でもLinux前提の安定した開発環境を再現し、個人�
 - セットアップ再現性の向上
 - 新規メンバー参加時のオンボーディング簡略化
 
-## 3. 4段階ACL（権限管理）
+## 4. 4段階ACL（権限管理）
 
 グループ運用で必要な承認フローと責務分離を実現するため、4段階の権限を実装しています。
 
