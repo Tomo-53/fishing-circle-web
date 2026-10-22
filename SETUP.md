@@ -187,6 +187,26 @@ DB_PASSWORD=${{MySQL.MYSQL_PASSWORD}}
 railway run php artisan migrate --force
 ```
 
+## 4.5 PHP のセキュリティ更新（PHP2Shell 対応）
+
+2026年10月に公表された PHP 本体の脆弱性 PHP2Shell（CVE-2026-109618 / CVE-2026-109619、ログイン不要で遠隔コード実行が可能）への対応として、以下を設定しています。
+
+| 対策 | ファイル | 内容 |
+|------|---------|------|
+| 修正版 PHP の強制 | `src/composer.json` | `php` を `~8.2.35 \|\| ~8.3.36 \|\| ~8.4.27 \|\| ^8.5.12` に制限。修正前の PHP では `composer install` が失敗し、脆弱な PHP でのビルドを止める |
+| ローカルのイメージ固定 | `docker/php/Dockerfile` | `php:8.2.35-fpm` に固定 |
+| 攻撃経路の無効化 | `docker/php/security.ini` / `src/public/.user.ini` | `session.upload_progress.enabled = 0`（本アプリでは未使用） |
+
+**デプロイ後に必ず確認すること**
+
+```bash
+railway run php -v   # 8.2.35 以上（8.3 系なら 8.3.36 以上）であること
+```
+
+- Railway のビルドが `composer install` の PHP バージョン不一致で失敗した場合、Nixpacks が提供する PHP がまだ修正版になっていません。旧デプロイが動き続けるため、Dockerfile ビルドへの切替などで修正版 PHP を使ってください。
+- 修正前の PHP で公開していた期間がある場合は、`APP_KEY`・DB パスワード・Gmail アプリパスワードを再発行してください（メモリ内容が漏えいした可能性があるため）。
+- ローカルは `docker-compose build --pull app && docker-compose up -d` で作り直し、`docker-compose exec app php -v` で確認します。
+
 ## 5. トラブルシューティング
 
 ## 5.1 APP_KEY not set
